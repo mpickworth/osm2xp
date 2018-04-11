@@ -112,7 +112,7 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 					}
 					j++;
 				}
-				if (di != null) {
+//				if (di != null) {
 					com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
 					node.setId(id);
 					node.setLat(latf);
@@ -144,7 +144,7 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 					} catch (DataSinkException e) {
 						Osm2xpLogger.error("Error processing node.", e);
 					}
-				}
+//				}
 			}
 		}
 	}

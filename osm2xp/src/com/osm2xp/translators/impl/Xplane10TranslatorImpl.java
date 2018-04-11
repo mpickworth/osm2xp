@@ -16,6 +16,7 @@ import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.model.xplane.XplaneDsf3DObject;
 import com.osm2xp.model.xplane.XplaneDsfObject;
+import com.osm2xp.translators.ITranslationListener;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.MiscUtils;
@@ -52,6 +53,12 @@ public class Xplane10TranslatorImpl implements ITranslator {
 	 * current lat/long tile.
 	 */
 	private Point2D currentTile;
+	
+	/**
+	 * Line separator
+	 */
+	private static final String LINE_SEP = System.getProperty("line.separator");
+	
 	/**
 	 * stats object.
 	 */
@@ -76,6 +83,8 @@ public class Xplane10TranslatorImpl implements ITranslator {
 	 * Smart exclusions helper.
 	 */
 	private XplaneExclusionsHelper exclusionsHelper = new XplaneExclusionsHelper();
+	
+	private ITranslationListener translationListener;
 
 	/**
 	 * Constructor.
@@ -116,7 +125,7 @@ public class Xplane10TranslatorImpl implements ITranslator {
 			writer.complete(null);
 		}
 
-		if (!StatsHelper.isTileEmpty(stats)) {
+		if (currentTile != null && !StatsHelper.isTileEmpty(stats)) {
 			Osm2xpLogger.info("Tile " + (int) currentTile.x + "/"
 					+ (int) currentTile.y + " stats : "
 					+ stats.getBuildingsNumber() + " buildings, "
@@ -147,7 +156,7 @@ public class Xplane10TranslatorImpl implements ITranslator {
 			Osm2xpLogger.info("Tile " + (int) currentTile.x + "/"
 					+ (int) currentTile.y + " is empty, no dsf generated");
 		}
-
+		translationListener.complete();
 	}
 
 	@Override
@@ -193,7 +202,7 @@ public class Xplane10TranslatorImpl implements ITranslator {
 							+ dsfObjectsProvider.getRandomStreetLightObject()
 							+ " " + (lightLoc.y) + " " + (lightLoc.x) + " "
 							+ orientation);
-					sb.append(System.getProperty("line.separator"));
+					sb.append(LINE_SEP);
 					// stats
 					StatsHelper.addStreetLight(stats);
 				}
@@ -220,21 +229,21 @@ public class Xplane10TranslatorImpl implements ITranslator {
 
 				sb.append("BEGIN_POLYGON " + facade + " "
 						+ osmPolygon.getHeight() + " 2");
-				sb.append(System.getProperty("line.separator"));
+				sb.append(LINE_SEP);
 				sb.append("BEGIN_WINDING");
-				sb.append(System.getProperty("line.separator"));
+				sb.append(LINE_SEP);
 
 				// on supprime le dernier point pour ne pas boucler
 				osmPolygon.getPolygon().removePoint(
 						osmPolygon.getPolygon().getLastPoint());
 				for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
 					sb.append("POLYGON_POINT " + loc.y + " " + loc.x);
-					sb.append(System.getProperty("line.separator"));
+					sb.append(LINE_SEP);
 				}
 				sb.append("END_WINDING");
-				sb.append(System.getProperty("line.separator"));
+				sb.append(LINE_SEP);
 				sb.append("END_POLYGON");
-				sb.append(System.getProperty("line.separator"));
+				sb.append(LINE_SEP);
 
 				// stats TODO not working anymore since v2 facades new features.
 				if (dsfObjectsProvider.getPolygonsList().get(facade)
@@ -527,6 +536,10 @@ public class Xplane10TranslatorImpl implements ITranslator {
 				// compute height and facade dsf index
 				osmPolygon.setHeight(computeBuildingHeight(osmPolygon));
 				Integer facade = computeFacadeIndex(osmPolygon);
+				if (translationListener != null) {
+					translationListener.processBuilding(osmPolygon, facade);
+				}
+				
 				// write building in dsf file
 				writeBuildingToDsf(osmPolygon, facade);
 				// Smart exclusions
@@ -601,6 +614,9 @@ public class Xplane10TranslatorImpl implements ITranslator {
 			Integer[] forestIndexAndDensity = dsfObjectsProvider
 					.getRandomForestIndexAndDensity(osmPolygon.getTags());
 			if (forestIndexAndDensity != null) {
+				if (translationListener != null) {
+					translationListener.processForest(osmPolygon);
+				}
 				writeForestToDsf(osmPolygon, forestIndexAndDensity);
 				result = true;
 			}
@@ -619,17 +635,17 @@ public class Xplane10TranslatorImpl implements ITranslator {
 		StringBuffer sb = new StringBuffer();
 		sb.append("BEGIN_POLYGON " + forestIndexAndDensity[0] + " "
 				+ forestIndexAndDensity[1] + " 2");
-		sb.append(System.getProperty("line.separator"));
+		sb.append(LINE_SEP);
 		sb.append("BEGIN_WINDING");
-		sb.append(System.getProperty("line.separator"));
+		sb.append(LINE_SEP);
 		for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
 			sb.append("POLYGON_POINT " + loc.y + " " + loc.x);
-			sb.append(System.getProperty("line.separator"));
+			sb.append(LINE_SEP);
 		}
 		sb.append("END_WINDING");
-		sb.append(System.getProperty("line.separator"));
+		sb.append(LINE_SEP);
 		sb.append("END_POLYGON");
-		sb.append(System.getProperty("line.separator"));
+		sb.append(LINE_SEP);
 
 		// stats
 		StatsHelper.addForestType(
@@ -659,5 +675,9 @@ public class Xplane10TranslatorImpl implements ITranslator {
 		List<Tag> tags = way.getTag();
 		return (OsmUtils.isBuilding(tags) || OsmUtils.isForest(tags) || OsmUtils
 				.isObject(tags));
+	}
+
+	public void setTranslationListener(ITranslationListener translationListener) {
+		this.translationListener = translationListener;
 	}
 }

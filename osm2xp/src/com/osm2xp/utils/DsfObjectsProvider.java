@@ -152,6 +152,11 @@ public class DsfObjectsProvider {
 			}
 
 		}
+		
+		if (result == null) { //
+			int idx = Math.min(facadeSet.getFacades().size() - 1, (int) (Math.random() * facadeSet.getFacades().size()));
+			result = polygonsList.indexOf(facadeSet.getFacades().get(idx).getFile());
+		}
 
 		return result;
 	}

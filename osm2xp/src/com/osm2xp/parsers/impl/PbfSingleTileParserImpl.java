@@ -97,7 +97,7 @@ public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
 				}
 				j++;
 			}
-			if (di != null) {
+//			if (di != null) {
 				com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
 				node.setId(id);
 				node.setLat(latf);
@@ -119,7 +119,7 @@ public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
 				} catch (Osm2xpBusinessException e) {
 					Osm2xpLogger.error("Node translation error.", e);
 				}
-			}
+//			}
 		}
 	}
 

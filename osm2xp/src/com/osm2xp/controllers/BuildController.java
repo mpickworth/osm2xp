@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
@@ -20,6 +21,7 @@ import org.eclipse.ui.WorkbenchException;
 
 import com.osm2xp.constants.Perspectives;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.views.panels.generic.SceneryFilePanel;
 import com.osm2xp.jobs.GenerateTileJob;
 import com.osm2xp.jobs.MutexRule;
@@ -108,7 +110,7 @@ public class BuildController {
 		// switch to build perspective
 		switchToBuildPerspective();
 		// get user setted cordinates
-		Point2D coordinates = SceneryFilePanel.getCoordinates();
+		Point2D coordinates = GuiOptionsHelper.getSelectedCoordinates();
 		// launch generation
 		if (coordinates == null) {
 			if (GuiOptionsHelper.getOptions().isSinglePass()) {
@@ -147,18 +149,7 @@ public class BuildController {
 		final GenerateTileJob job = new GenerateTileJob(jobTitle, currentFile,
 				null, folderPath, null, "todoJob");
 		job.setRule(new MutexRule());
-		job.addJobChangeListener(new IJobChangeListener() {
-			@Override
-			public void sleeping(IJobChangeEvent event) {
-			}
-
-			@Override
-			public void scheduled(IJobChangeEvent event) {
-			}
-
-			@Override
-			public void running(IJobChangeEvent event) {
-			}
+		job.addJobChangeListener(new JobChangeAdapter() {
 
 			@Override
 			public void done(IJobChangeEvent event) {
@@ -187,15 +178,6 @@ public class BuildController {
 
 			}
 
-			@Override
-			public void awake(IJobChangeEvent event) {
-
-			}
-
-			@Override
-			public void aboutToRun(IJobChangeEvent event) {
-
-			}
 		});
 
 		job.setRule(rule);
@@ -218,18 +200,8 @@ public class BuildController {
 		final GenerateTileJob job = new GenerateTileJob(jobTitle, currentFile,
 				coordinates, folderPath, relationsList, "todoJob");
 		job.setRule(new MutexRule());
-		job.addJobChangeListener(new IJobChangeListener() {
-			@Override
-			public void sleeping(IJobChangeEvent event) {
-			}
+		job.addJobChangeListener(new JobChangeAdapter() {
 
-			@Override
-			public void scheduled(IJobChangeEvent event) {
-			}
-
-			@Override
-			public void running(IJobChangeEvent event) {
-			}
 
 			@Override
 			public void done(IJobChangeEvent event) {
@@ -278,22 +250,22 @@ public class BuildController {
 	 */
 	private void generateWholeFile(final File currentFile,
 			final String folderPath) {
-		final TilesLister tilesLister = TilesListerFactory
-				.getTilesLister(currentFile);
-		final RelationsLister relationsLister = RelationsListerFactory
-				.getRelationsLister(currentFile);
-		Osm2xpLogger.info("Listing relations in file " + currentFile.getName());
-		try {
-			relationsLister.process();
-			Osm2xpLogger.info(relationsLister.getRelationsList().size()
-					+ " relations found.");
-		} catch (Osm2xpBusinessException e) {
-			Osm2xpLogger.error(e.getMessage());
-		}
-		Osm2xpLogger.info("Listing tiles in file " + currentFile.getName());
 		Job job = new Job("Listing tiles ") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
+				final TilesLister tilesLister = TilesListerFactory
+						.getTilesLister(currentFile);
+				final RelationsLister relationsLister = RelationsListerFactory
+						.getRelationsLister(currentFile);
+				Osm2xpLogger.info("Listing relations in file " + currentFile.getName());
+				try {
+					relationsLister.process();
+					Osm2xpLogger.info(relationsLister.getRelationsList().size()
+							+ " relations found.");
+				} catch (Osm2xpBusinessException e) {
+					Osm2xpLogger.error(e.getMessage());
+				}
+				Osm2xpLogger.info("Listing tiles in file " + currentFile.getName());
 				try {
 					tilesLister.process();
 				} catch (Osm2xpBusinessException e) {
@@ -332,6 +304,15 @@ public class BuildController {
 					} catch (Osm2xpBusinessException e) {
 						Osm2xpLogger.error("Error generating tile", e);
 						canceling();
+					}
+				}
+				if (tilesList.isEmpty()) {
+					try {
+						GuiOptionsHelper.getOptions().setSinglePass(true);
+						generateWholeFileOnASinglePass(currentFile, folderPath, relationsLister.getRelationsList());
+					} catch (Osm2xpBusinessException e) {
+						Osm2xpLogger.error("Error generating tile", e);
+						return new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
 					}
 				}
 				return Status.OK_STATUS;

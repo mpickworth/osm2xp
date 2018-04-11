@@ -85,20 +85,23 @@ public class PbfTilesLister extends BinaryParser implements TilesLister {
 				j++; // Skip over the '0' delimiter.
 			}
 			// Handle dense info.
-			if (di != null) {
+//			if (di != null) {
 				Point2D loc = new Point2D(latf, lonf);
 				int lati = (int) Math.floor(loc.x);
 				int longi = (int) Math.floor(loc.y);
 				Point2D cleanedLoc = new Point2D(lati, longi);
 				tilesList.add(cleanedLoc);
 
-			}
+//			}
 		}
 
 	}
 
 	@Override
 	protected void parseNodes(List<Node> nodes) {
+		for (Node node : nodes) {
+			System.out.println("PbfTilesLister.parseNodes()");
+		}
 	}
 
 	@Override

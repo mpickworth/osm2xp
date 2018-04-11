@@ -2,6 +2,9 @@ package com.osm2xp.gui.views;
 
 import java.io.File;
 
+import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -19,6 +22,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.ResourceManager;
 
+import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.views.panels.generic.SceneryFilePanel;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 
@@ -29,12 +33,18 @@ import com.osm2xp.utils.helpers.GuiOptionsHelper;
  * 
  */
 public class LastFilesView extends ViewPart {
-	private static final FormToolkit formToolkit = new FormToolkit(
+	private final FormToolkit formToolkit = new FormToolkit(
 			Display.getDefault());
 	private Table lastFilesTable;
-	private static TableViewer lastFilesTableViewer;
+	private TableViewer lastFilesTableViewer;
+	private IPreferenceChangeListener prefChangeListener = (event) -> {
+		if (GuiOptionsHelper.USED_FILES.equals(event.getKey())) {
+			refreshList();
+		}
+	};
 
 	public LastFilesView() {
+		InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).addPreferenceChangeListener(prefChangeListener);
 	}
 
 	@Override
@@ -61,7 +71,6 @@ public class LastFilesView extends ViewPart {
 							.getSelection();
 					GuiOptionsHelper.getOptions().setCurrentFilePath(
 							(String) selection.getFirstElement());
-					SceneryFilePanel.refreshCurrentFilePath();
 					if (((String) selection.getFirstElement()).toUpperCase()
 							.contains(".SHP")) {
 						GuiOptionsHelper.askShapeFileNature(parent.getShell());
@@ -69,6 +78,7 @@ public class LastFilesView extends ViewPart {
 				}
 			}
 		});
+		getSite().setSelectionProvider(lastFilesTableViewer);
 		formToolkit.paintBordersFor(lastFilesTable);
 		if (GuiOptionsHelper.getOptions().getLastFiles() != null) {
 			lastFilesTableViewer.setContentProvider(new ArrayContentProvider());
@@ -100,7 +110,7 @@ public class LastFilesView extends ViewPart {
 		}
 	}
 
-	public static void refreshList() {
+	public void refreshList() {
 		lastFilesTableViewer.refresh();
 	}
 
@@ -108,5 +118,11 @@ public class LastFilesView extends ViewPart {
 	public void setFocus() {
 		// TODO Auto-model.options method stub
 
+	}
+	
+	@Override
+	public void dispose() {
+		InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).removePreferenceChangeListener(prefChangeListener);
+		super.dispose();
 	}
 }

@@ -68,7 +68,7 @@ public class MainSceneryFileView extends ViewPart implements IContextProvider {
 				TableWrapData.TOP, 1, 1));
 		sectionFile.setText("File and scene name");
 		SceneryFilePanel sceneryFilePanel = new SceneryFilePanel(sectionFile,
-				SWT.BORDER);
+				SWT.BORDER, getSite());
 		toolkit.adapt(sceneryFilePanel, true, true);
 		sectionFile.setClient(sceneryFilePanel);
 		new Label(sceneryFilePanel, SWT.NONE);

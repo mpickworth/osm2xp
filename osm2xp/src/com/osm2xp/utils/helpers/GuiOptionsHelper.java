@@ -2,17 +2,27 @@ package com.osm2xp.utils.helpers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.osgi.service.prefs.BackingStoreException;
 
 import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.constants.Perspectives;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.options.GuiOptions;
+import com.osm2xp.model.options.LastFiles;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.utils.logging.Osm2xpLogger;
+
+import math.geom2d.Point2D;
 
 /**
  * GuiOptionsHelper.
@@ -23,13 +33,16 @@ import com.osm2xp.utils.logging.Osm2xpLogger;
 public class GuiOptionsHelper {
 
 	private static GuiOptions options;
-	private static String sceneName;
+	public static final String SCENE_NAME = "sceneName";
+	public static final String USED_FILES = "usedFiles";
 	private static Tag shapefileTag;
 	private static File roofColorFile;
+	private static List<String> lastFiles = new ArrayList<>();
 
 	private static final String INTERFACE_OPTIONS_FILE_PATH = ResourcesPlugin
 			.getWorkspace().getRoot().getLocation()
 			+ File.separator + "GuiOptions.xml";
+	private static Point2D selectedCoordinates;
 
 	static {
 		if (new File(INTERFACE_OPTIONS_FILE_PATH).exists()) {
@@ -41,6 +54,10 @@ public class GuiOptionsHelper {
 			}
 		} else {
 			options = createNewGuiOptionsBean();
+		}
+		String filesStr = getStringProperty(USED_FILES);
+		if (filesStr.length() > 0) {
+			lastFiles.addAll(Arrays.asList(filesStr.split(File.separator)));
 		}
 	}
 
@@ -78,13 +95,26 @@ public class GuiOptionsHelper {
 		return options;
 	}
 
-	public static void setSceneName(String computeSceneName) {
-		sceneName = computeSceneName;
-
+	public static void setSceneName(String sceneName) {
+		putProperty(SCENE_NAME, sceneName);
+	}
+	
+	private static String getStringProperty(String property) {
+		return InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(property, "");
+	}
+	
+	private static void putProperty(String property, String value) {
+		IEclipsePreferences node = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+		node.put(property, value);
+		try {
+			node.flush();
+		} catch (BackingStoreException e) {
+			Activator.log(e);
+		}
 	}
 
 	public static String getSceneName() {
-		return sceneName;
+		return getStringProperty(SCENE_NAME);
 	}
 
 	public static void saveOptions() throws Osm2xpBusinessException {
@@ -93,10 +123,10 @@ public class GuiOptionsHelper {
 	}
 
 	public static void addUsedFile(String fileName) {
-		if (options.getLastFiles().indexOf(fileName) == -1) {
-			options.getLastFiles().add(fileName);
+		if (lastFiles.indexOf(fileName) == -1) {
+			lastFiles.add(fileName);
 		}
-
+		putProperty(USED_FILES, options.getLastFiles().stream().collect(Collectors.joining(File.pathSeparator)));
 	}
 
 	public static void askShapeFileNature(Shell shell) {
@@ -127,5 +157,17 @@ public class GuiOptionsHelper {
 
 	public static void setRoofColorFile(File roofColorFile) {
 		GuiOptionsHelper.roofColorFile = roofColorFile;
+	}
+
+	public static void setSelectedCoordinates(Point2D selectedCoordinates) {
+		GuiOptionsHelper.selectedCoordinates = selectedCoordinates;
+	}
+
+	public static Point2D getSelectedCoordinates() {
+		return selectedCoordinates;
+	}
+	
+	public static List<String> getLastFiles() {
+		return lastFiles;
 	}
 }

@@ -15,6 +15,7 @@ import com.osm2xp.translators.impl.ConsoleTranslatorImpl;
 import com.osm2xp.translators.impl.FlightGearTranslatorImpl;
 import com.osm2xp.translators.impl.FsxBgTranslatorImpl;
 import com.osm2xp.translators.impl.G2xplTranslatorImpl;
+import com.osm2xp.translators.impl.ImageDebugTranslationListener;
 import com.osm2xp.translators.impl.OsmTranslatorImpl;
 import com.osm2xp.translators.impl.WavefrontTranslatorImpl;
 import com.osm2xp.translators.impl.Xplane10TranslatorImpl;
@@ -199,8 +200,10 @@ public class TranslatorBuilder {
 		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(
 				facadeSet);
 		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
-		return new Xplane10TranslatorImpl(stats, writer, currentTile,
+		Xplane10TranslatorImpl translatorImpl = new Xplane10TranslatorImpl(stats, writer, currentTile,
 				folderPath, dsfObjectsProvider);
+		translatorImpl.setTranslationListener(new ImageDebugTranslationListener());
+		return translatorImpl;
 	}
 
 	/**
