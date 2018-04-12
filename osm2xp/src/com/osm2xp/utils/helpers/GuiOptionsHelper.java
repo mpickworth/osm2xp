@@ -37,7 +37,7 @@ public class GuiOptionsHelper {
 	public static final String USED_FILES = "usedFiles";
 	private static Tag shapefileTag;
 	private static File roofColorFile;
-	private static List<String> lastFiles = new ArrayList<>();
+	private static List<String> lastFiles;
 
 	private static final String INTERFACE_OPTIONS_FILE_PATH = ResourcesPlugin
 			.getWorkspace().getRoot().getLocation()
@@ -52,12 +52,9 @@ public class GuiOptionsHelper {
 			} catch (Osm2xpBusinessException e) {
 				Osm2xpLogger.error("Error initializing GUI options helper", e);
 			}
-		} else {
+		} 
+		if (options == null) {
 			options = createNewGuiOptionsBean();
-		}
-		String filesStr = getStringProperty(USED_FILES);
-		if (filesStr.length() > 0) {
-			lastFiles.addAll(Arrays.asList(filesStr.split(File.separator)));
 		}
 	}
 
@@ -86,8 +83,7 @@ public class GuiOptionsHelper {
 	 */
 	private static GuiOptions createNewGuiOptionsBean() {
 		GuiOptions result = new GuiOptions(false, false, false, true, null,
-				Perspectives.PERSPECTIVE_XPLANE10, false,
-				new ArrayList<String>());
+				Perspectives.PERSPECTIVE_XPLANE10, false);
 		return result;
 	}
 
@@ -123,10 +119,21 @@ public class GuiOptionsHelper {
 	}
 
 	public static void addUsedFile(String fileName) {
+		checkGetLastFiles();
 		if (lastFiles.indexOf(fileName) == -1) {
 			lastFiles.add(fileName);
 		}
-		putProperty(USED_FILES, options.getLastFiles().stream().collect(Collectors.joining(File.pathSeparator)));
+		putProperty(USED_FILES, lastFiles.stream().collect(Collectors.joining(File.pathSeparator)));
+	}
+
+	private static void checkGetLastFiles() {
+		if (lastFiles == null) {
+			lastFiles = new ArrayList<>();
+			String filesStr = getStringProperty(USED_FILES);
+			if (filesStr.length() > 0) {
+				lastFiles.addAll(Arrays.asList(filesStr.split(File.pathSeparator)));
+			}
+		}
 	}
 
 	public static void askShapeFileNature(Shell shell) {
@@ -167,7 +174,30 @@ public class GuiOptionsHelper {
 		return selectedCoordinates;
 	}
 	
+	/**
+	 * Gets the value of the lastFiles property.
+	 * 
+	 * <p>
+	 * This accessor method returns a reference to the live list, not a
+	 * snapshot. Therefore any modification you make to the returned list will
+	 * be present inside the JAXB object. This is why there is not a
+	 * <CODE>set</CODE> method for the lastFiles property.
+	 * 
+	 * <p>
+	 * For example, to add a new item, do as follows:
+	 * 
+	 * <pre>
+	 * getLastFiles().add(newItem);
+	 * </pre>
+	 * 
+	 * 
+	 * <p>
+	 * Objects of the following type(s) are allowed in the list {@link String }
+	 * 
+	 * 
+	 */
 	public static List<String> getLastFiles() {
+		checkGetLastFiles();
 		return lastFiles;
 	}
 }

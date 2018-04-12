@@ -23,7 +23,6 @@ public class MemoryProcessorImpl implements IDataSink {
 	public void storeNode(final Node node) throws DataSinkException {
 		double[] pt = new double[] { node.getLat(), node.getLon() };
 		this.nodeMap.put(node.getId(), pt);
-
 	}
 
 	@Override

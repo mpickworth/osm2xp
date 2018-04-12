@@ -3,26 +3,25 @@ package com.osm2xp.controllers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import math.geom2d.Point2D;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
-
 import com.osm2xp.constants.Perspectives;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
-import com.osm2xp.gui.views.panels.generic.SceneryFilePanel;
+import com.osm2xp.gui.views.MainSceneryFileView;
 import com.osm2xp.jobs.GenerateTileJob;
 import com.osm2xp.jobs.MutexRule;
 import com.osm2xp.model.osm.Relation;
@@ -51,8 +50,28 @@ public class BuildController {
 	 * @throws Osm2xpBusinessException
 	 */
 	public void launchBuild() throws Osm2xpBusinessException {
-		File currentFile = new File(GuiOptionsHelper.getOptions()
-				.getCurrentFilePath());
+		String currentFilePath = GuiOptionsHelper.getOptions()
+				.getCurrentFilePath();
+		String path = StringUtils.stripToEmpty(currentFilePath).trim();
+		if (path.isEmpty()) {
+			MessageDialog.openError(Display.getDefault().getActiveShell(),"No file specified", "No file with OSM data (*.pbf, *.osm...) specified. Please choose valid file");
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MainSceneryFileView.ID);
+			} catch (PartInitException e) {
+				Activator.log(e);
+			}
+			return;
+		}
+		File currentFile = new File(path);
+		if (!currentFile.isFile()) {
+			MessageDialog.openError(Display.getDefault().getActiveShell(),"Invalid file specified", "Can't open OSM data file " + path + ". Please check this file exists");
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(MainSceneryFileView.ID);
+			} catch (PartInitException e) {
+				Activator.log(e);
+			}
+			return;
+		}
 		// if choosen output mode will generate file, first check that user is
 		// ok to overwrite file is present.
 		if (GuiOptionsHelper.isOutputFormatAFileGenerator()) {
@@ -112,6 +131,7 @@ public class BuildController {
 		// get user setted cordinates
 		Point2D coordinates = GuiOptionsHelper.getSelectedCoordinates();
 		// launch generation
+		
 		if (coordinates == null) {
 			if (GuiOptionsHelper.getOptions().isSinglePass()) {
 				generateWholeFileOnASinglePass(currentFile, folderPath, null);
@@ -122,6 +142,7 @@ public class BuildController {
 			generateSingleTile(currentFile, coordinates, folderPath, null);
 		}
 
+//		new ParsingExperimentJob(currentFile).schedule(); //Experimental to check new osmosis API
 	}
 
 	private void switchToBuildPerspective() {

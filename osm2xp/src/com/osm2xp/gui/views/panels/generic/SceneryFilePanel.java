@@ -7,7 +7,9 @@ import java.util.Date;
 
 import math.geom2d.Point2D;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -42,7 +44,6 @@ public class SceneryFilePanel extends Osm2xpPanel {
 
 	private static final String[] FILTER_NAMES = { "OSM files (*.osm,*.pbf;*.shp)" };
 	private static final String[] FILTER_EXTS = { "*.osm;*.pbf;*.shp" };
-	private Label labelInputSceneFile;
 	private Text textInputSceneName;
 	private Button btnGenerateAllTiles;
 	private Spinner spinnerLatitude;
@@ -54,14 +55,35 @@ public class SceneryFilePanel extends Osm2xpPanel {
 	private GridData gridCoordinates;
 	private IWorkbenchPartSite partSite;
 	private ISelectionListener selectionListener = (part, selection) -> {
-		refreshCurrentFilePath();
+		if (selection instanceof StructuredSelection &&
+				!selection.isEmpty()) {
+			Object firstElement = ((StructuredSelection) selection).getFirstElement();
+			if (firstElement instanceof String) {
+				refreshCurrentFilePath((String) firstElement);
+			}
+			
+		}
 	};
+	private Text filenameText;
 
 	public SceneryFilePanel(final Composite parent, int style, IWorkbenchPartSite partSite) {
 		super(parent, SWT.BORDER);
 		this.partSite = partSite;
 		partSite.getWorkbenchWindow().getSelectionService().addSelectionListener(selectionListener);
 	}
+
+//	private boolean isValidPbf(File file) {
+//		if (!file.isFile()) {
+//			return false;
+//		}
+//		String name = file.getName();
+//		for (String ext: FILTER_EXTS) {
+//			if (name.endsWith(ext)) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
 	/**
 	 * Construct scene name
@@ -83,12 +105,15 @@ public class SceneryFilePanel extends Osm2xpPanel {
 
 	}
 
-	public void refreshCurrentFilePath() {
-		labelInputSceneFile.setText(GuiOptionsHelper.getOptions()
-				.getCurrentFilePath());
-		String sceneName = computeSceneName();
-		GuiOptionsHelper.setSceneName(sceneName);
-		textInputSceneName.setText(sceneName);
+	public void refreshCurrentFilePath(String path) {
+		if (!filenameText.isDisposed()) {
+			filenameText.setText(path);	
+		}
+//		filenameText.setText(GuiOptionsHelper.getOptions()
+//				.getCurrentFilePath());
+//		String sceneName = computeSceneName();
+//		GuiOptionsHelper.setSceneName(sceneName);
+//		textInputSceneName.setText(sceneName);
 	}
 
 	@Override
@@ -102,23 +127,38 @@ public class SceneryFilePanel extends Osm2xpPanel {
 	@Override
 	protected void initComponents() {
 
-		// file text edit
-		labelInputSceneFile = new Label(this, SWT.NONE);
-		GridDataFactory.fillDefaults().grab(true,false).span(3,1).applyTo(labelInputSceneFile);
+		Label labelInputSceneFile = new Label(this, SWT.NONE);
+		labelInputSceneFile.setText("Scene file:");
+		
+		filenameText = new Text(this, SWT.BORDER);
+		GridDataFactory.fillDefaults().grab(true,false).applyTo(filenameText);
+		String currentFilePath = GuiOptionsHelper.getOptions().getCurrentFilePath();
+		filenameText.setText(StringUtils.stripToEmpty(currentFilePath).trim());
+		
+		filenameText.addModifyListener(event -> {
+			String text = filenameText.getText().trim();
+			if (new File(text).isFile()) {
+				fileSelected(text);
+			} else {
+				GuiOptionsHelper.getOptions().setCurrentFilePath(null);
+			}
+		});
+		
+		btnBrowse = new Button(this, SWT.NONE);
+		btnBrowse.setText("Browse");
 		// scene name label
 		lblSceneName = new Label(this, SWT.NONE);
 		lblSceneName.setText("Scene name :");
 		lblSceneName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
 				true, 1, 1));
 		// grid for scene name
-		gridInputSceneName = new GridData(SWT.LEFT, SWT.CENTER, true, true, 1,
+		gridInputSceneName = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2,
 				1);
 		gridInputSceneName.widthHint = 300;
 		// scene text edit
 		textInputSceneName = new Text(this, SWT.BORDER);
 		textInputSceneName.setLayoutData(gridInputSceneName);
-		btnBrowse = new Button(this, SWT.NONE);
-		btnBrowse.setText("Browse");
+		
 		
 		SelectionListener tileSettingAdapter = new SelectionAdapter() {
 			
@@ -171,6 +211,17 @@ public class SceneryFilePanel extends Osm2xpPanel {
 
 	}
 
+	protected void fileSelected(String fileName) {
+		GuiOptionsHelper.getOptions().setCurrentFilePath(fileName);
+		String sceneName = computeSceneName();
+		GuiOptionsHelper.setSceneName(sceneName);
+		textInputSceneName.setText(sceneName);
+		GuiOptionsHelper.addUsedFile(fileName);
+		if (fileName.toUpperCase().contains(".SHP")) {
+			GuiOptionsHelper.askShapeFileNature(getShell());
+		}
+	}
+
 	@Override
 	protected void addComponentsListeners() {
 		btnBrowse.addSelectionListener(new SelectionAdapter() {
@@ -182,15 +233,7 @@ public class SceneryFilePanel extends Osm2xpPanel {
 				dlg.setFilterExtensions(FILTER_EXTS);
 				String fileName = dlg.open();
 				if (fileName != null) {
-					GuiOptionsHelper.getOptions().setCurrentFilePath(fileName);
-					labelInputSceneFile.setText(fileName);
-					String sceneName = computeSceneName();
-					GuiOptionsHelper.setSceneName(sceneName);
-					textInputSceneName.setText(sceneName);
-					GuiOptionsHelper.addUsedFile(fileName);
-					if (fileName.toUpperCase().contains(".SHP")) {
-						GuiOptionsHelper.askShapeFileNature(getShell());
-					}
+					filenameText.setText(fileName);
 				}
 			}
 		});

@@ -80,7 +80,7 @@ public class LastFilesView extends ViewPart {
 		});
 		getSite().setSelectionProvider(lastFilesTableViewer);
 		formToolkit.paintBordersFor(lastFilesTable);
-		if (GuiOptionsHelper.getOptions().getLastFiles() != null) {
+		if (GuiOptionsHelper.getLastFiles() != null) {
 			lastFilesTableViewer.setContentProvider(new ArrayContentProvider());
 			lastFilesTableViewer.setLabelProvider(new LabelProvider() {
 				public Image getImage(Object element) {
@@ -104,8 +104,7 @@ public class LastFilesView extends ViewPart {
 
 				}
 			});
-			lastFilesTableViewer.setInput(GuiOptionsHelper.getOptions()
-					.getLastFiles());
+			lastFilesTableViewer.setInput(GuiOptionsHelper.getLastFiles());
 
 		}
 	}

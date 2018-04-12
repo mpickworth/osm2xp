@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import math.geom2d.Point2D;
@@ -114,6 +115,16 @@ public class OsmPolygon {
 
 	public List<Tag> getTags() {
 		return tags;
+	}
+	
+	/**
+	 * Return tag value for given key, of present. Return <code>null</code> otherwise
+	 * @param tagKey tag key
+	 * @return value for given key, of present, <code>null</code> otherwise
+	 */
+	public String getTagValue(String tagKey) {
+		Optional<Tag> first = tags.stream().filter(tag -> tagKey.equals(tag.key)).findFirst();
+		return first.isPresent() ? first.get().getValue() : null;
 	}
 
 	public List<Node> getNodes() {

@@ -35,7 +35,8 @@ public class FsxOptionsHelper extends OptionsHelper {
 			} catch (Osm2xpBusinessException e) {
 				Osm2xpLogger.error("Error initializing FSX options helper", e);
 			}
-		} else {
+		} 
+		if (options == null) {
 			options = createNewFsxOptionsBean();
 		}
 	}

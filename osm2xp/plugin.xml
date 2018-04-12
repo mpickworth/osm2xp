@@ -328,7 +328,7 @@
                relative="com.osm2xp.viewSceneryTab">
          </view>
       </perspectiveExtension>
-      <perspectiveExtension
+      <!--<perspectiveExtension
             targetID="com.osm2xp.startupPerspective">
          <view
                id="com.osm2xp.viewOsm2xpNews"
@@ -340,7 +340,7 @@
                standalone="true"
                visible="true">
          </view>
-      </perspectiveExtension>
+      </perspectiveExtension> -->
       <perspectiveExtension
             targetID="com.osm2xp.xplane10ConfigurationPerspective">
          <view
@@ -747,6 +747,8 @@
             file="contexts.xml">
       </contexts>
    </extension>
- 
+  <extension point="org.eclipse.ui.startup">
+     <startup class="com.osm2xp.startup.OSM2XPStartup"/>
+   </extension>
 
 </plugin>

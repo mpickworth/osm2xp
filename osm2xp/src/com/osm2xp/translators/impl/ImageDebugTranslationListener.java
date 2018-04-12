@@ -1,9 +1,11 @@
 package com.osm2xp.translators.impl;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Shape;
+import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +46,12 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 
 	@Override
 	public void processBuilding(OsmPolygon polygon, Integer facade) {
+		processPoly(polygon, Color.RED);
+	}
+	
+	protected void processPoly(OsmPolygon polygon, Color color) {
 		checkSetBase(polygon);
-		g2d.setColor(Color.RED);
+		g2d.setColor(color);
 		Polygon drawPoly = calculateDrawPoly(polygon);
 		if (drawPoly != null) {
 			g2d.fillPolygon(drawPoly);
@@ -66,6 +72,25 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 			}
 		}
 		return drawPoly;
+	}
+	
+	protected Path2D calculateDrawPath(OsmPolygon polygon) {
+		Path2D.Double drawPath = null;
+		Point2D center = polygon.getCenter();
+		int drawCenterX = (int)(longScale * (center.y - baseX));
+		int drawCenterY = (int)(latScale * (center.x - baseY));
+		if (drawCenterX >= 0 && drawCenterX < IMGXIZE_X && drawCenterY >= 0 && drawCenterY < IMGXIZE_Y) {
+//			Shape awtShape = polygon.getPolygon().getAsAWTShape();
+			Point2D[] pointArray = polygon.getPolygon().getPointArray();
+			drawPath = new Path2D.Double();
+			if (pointArray.length > 0) {
+				drawPath.moveTo((int)(longScale * (pointArray[0].y - baseX)), IMGXIZE_Y - (int) (latScale * (pointArray[0].x - baseY)));
+				for (int i = 1; i < pointArray.length; i++) {
+					drawPath.lineTo( (int)(longScale * (pointArray[i].y - baseX)), IMGXIZE_Y - (int) (latScale * (pointArray[i].x - baseY)));
+				}
+			}
+		}
+		return drawPath;
 	}
 
 	protected void checkSetBase(OsmPolygon polygon) {
@@ -91,12 +116,7 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 
 	@Override
 	public void processForest(OsmPolygon polygon) {
-		checkSetBase(polygon);
-		g2d.setColor(Color.GREEN);
-		Polygon drawPoly = calculateDrawPoly(polygon);
-		if (drawPoly != null) {
-			g2d.fillPolygon(drawPoly);
-		}
+		processPoly(polygon, Color.GREEN);
 	}
 
 	@Override
@@ -118,6 +138,18 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 			i++;
 		}
 		return curFile;
+	}
+
+	@Override
+	public void processRoad(OsmPolygon polygon) {
+		checkSetBase(polygon);
+		g2d.setColor(Color.BLACK);
+		Shape drawPath = calculateDrawPath(polygon);
+		g2d.setStroke(new BasicStroke(4));
+		if (drawPath != null) {
+			g2d.draw(drawPath);
+		}
+		g2d.setStroke(new BasicStroke(1));
 	}
 
 }

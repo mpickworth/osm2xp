@@ -36,7 +36,8 @@ public class FlyLegacyOptionsHelper extends OptionsHelper {
 				Osm2xpLogger.error(
 						"Error initializing Fly Legacy options helper", e);
 			}
-		} else {
+		} 
+		if (options == null) {
 			options = createNewFlyLegacyOptionsBean();
 		}
 	}

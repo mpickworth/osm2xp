@@ -26,7 +26,6 @@ import com.osm2xp.gui.views.panels.wavefront.WaveFrontExportOptionsPanel;
  */
 public class WavefrontAdvancedOptionsView extends ViewPart implements
 		IContextProvider {
-	private FormToolkit toolkit;
 	private ScrolledForm form;
 
 	public WavefrontAdvancedOptionsView() {
@@ -36,7 +35,7 @@ public class WavefrontAdvancedOptionsView extends ViewPart implements
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		toolkit = new FormToolkit(parent.getDisplay());
+		FormToolkit toolkit = new FormToolkit(parent.getDisplay());
 		form = toolkit.createScrolledForm(parent);
 		form.setImage(ResourceManager.getPluginImage("com.osm2xp",
 				"images/toolbarsIcons/advanced_32.png"));

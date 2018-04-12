@@ -28,7 +28,9 @@ import com.osm2xp.gui.views.panels.generic.SceneryFilePanel;
  * 
  */
 public class MainSceneryFileView extends ViewPart implements IContextProvider {
-	private FormToolkit toolkit;
+	
+	public static final String ID = "com.osm2xp.viewSceneryTab";
+	
 	private ScrolledForm form;
 
 	public MainSceneryFileView() {
@@ -111,14 +113,6 @@ public class MainSceneryFileView extends ViewPart implements IContextProvider {
 	 */
 	public void setFocus() {
 		form.setFocus();
-	}
-
-	/**
-	 * Disposes the toolkit
-	 */
-	public void dispose() {
-		toolkit.dispose();
-		super.dispose();
 	}
 
 	@Override

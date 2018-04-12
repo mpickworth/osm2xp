@@ -8,16 +8,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openstreetmap.osmosis.osmbinary.BinaryParser;
+import org.openstreetmap.osmosis.osmbinary.Osmformat;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.*;
+import org.openstreetmap.osmosis.osmbinary.file.BlockInputStream;
+
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Member;
 import com.osm2xp.model.osm.Relation;
-
-import crosby.binary.BinaryParser;
-import crosby.binary.Osmformat.DenseNodes;
-import crosby.binary.Osmformat.HeaderBlock;
-import crosby.binary.Osmformat.Node;
-import crosby.binary.Osmformat.Way;
-import crosby.binary.file.BlockInputStream;
 
 /**
  * PbfRelationsLister.
@@ -43,9 +41,9 @@ public class PbfRelationsLister extends BinaryParser implements RelationsLister 
 	}
 
 	@Override
-	protected void parseRelations(List<crosby.binary.Osmformat.Relation> rels) {
+	protected void parseRelations(List<Osmformat.Relation> rels) {
 		if (rels != null && rels.size() > 0) {
-			for (crosby.binary.Osmformat.Relation rel : rels) {
+			for (Osmformat.Relation rel : rels) {
 				Relation relation = new Relation();
 				relation.setId(rel.getId());
 				for (int i = 0; i < rel.getMemidsList().size(); i++) {

@@ -44,7 +44,8 @@ public class XplaneOptionsHelper extends OptionsHelper {
 				Osm2xpLogger.error("Error initializing Xplane options helper",
 						e);
 			}
-		} else {
+		} 
+		if (options == null) {
 			options = createNewXplaneOptionsBean();
 		}
 	}

@@ -10,19 +10,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openstreetmap.osmosis.osmbinary.BinaryParser;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.*;
+import org.openstreetmap.osmosis.osmbinary.file.BlockInputStream;
+
 import math.geom2d.Point2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Tag;
 
-import crosby.binary.BinaryParser;
-import crosby.binary.Osmformat.DenseInfo;
-import crosby.binary.Osmformat.DenseNodes;
-import crosby.binary.Osmformat.HeaderBlock;
-import crosby.binary.Osmformat.Node;
-import crosby.binary.Osmformat.Relation;
-import crosby.binary.Osmformat.Way;
-import crosby.binary.file.BlockInputStream;
 
 /**
  * PbfTilesLister.

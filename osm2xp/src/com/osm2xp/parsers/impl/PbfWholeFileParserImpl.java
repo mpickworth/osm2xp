@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.openstreetmap.osmosis.osmbinary.BinaryParser;
+import org.openstreetmap.osmosis.osmbinary.Osmformat;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.*;
+import org.openstreetmap.osmosis.osmbinary.file.BlockInputStream;
+
 import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
@@ -21,16 +26,6 @@ import com.osm2xp.parsers.IParser;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
-
-import crosby.binary.BinaryParser;
-import crosby.binary.Osmformat;
-import crosby.binary.Osmformat.DenseInfo;
-import crosby.binary.Osmformat.DenseNodes;
-import crosby.binary.Osmformat.HeaderBlock;
-import crosby.binary.Osmformat.Node;
-import crosby.binary.Osmformat.Relation;
-import crosby.binary.Osmformat.Way;
-import crosby.binary.file.BlockInputStream;
 
 /**
  * Protobuff parser Single pass implementation. (Stream whole file once to store
@@ -210,12 +205,12 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 
 	private void checkWaysForUsefullNodes(List<Way> ways) {
 		for (Osmformat.Way i : ways) {
-			List<Tag> listeTags = new ArrayList<Tag>();
+			List<Tag> listedTags = new ArrayList<Tag>();
 			for (int j = 0; j < i.getKeysCount(); j++) {
 				Tag tag = new Tag();
 				tag.setKey(getStringById(i.getKeys(j)));
 				tag.setValue(getStringById(i.getVals(j)));
-				listeTags.add(tag);
+				listedTags.add(tag);
 			}
 
 			long lastId = 0;
@@ -228,7 +223,7 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 			}
 
 			com.osm2xp.model.osm.Way way = new com.osm2xp.model.osm.Way();
-			way.getTag().addAll(listeTags);
+			way.getTag().addAll(listedTags);
 			way.setId(i.getId());
 			way.getNd().addAll(listeLocalisationsRef);
 

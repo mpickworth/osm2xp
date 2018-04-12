@@ -5,9 +5,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
 import math.geom2d.Point2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.Relation;
@@ -85,6 +88,11 @@ public class Xplane10TranslatorImpl implements ITranslator {
 	private XplaneExclusionsHelper exclusionsHelper = new XplaneExclusionsHelper();
 	
 	private ITranslationListener translationListener;
+	
+	/**
+	 * Building level height, 3 m by default 
+	 */
+	private double levelHeight = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).getDouble("levelHeight", 3);
 
 	/**
 	 * Constructor.
@@ -280,7 +288,17 @@ public class Xplane10TranslatorImpl implements ITranslator {
 		if (osmHeight != null) {
 			result = osmHeight;
 		} else {
-
+			String value = polygon.getTagValue("building:levels");
+			if (value != null) {
+				try {
+					int levels = Integer.parseInt(value);
+					return (int) Math.round(levels * levelHeight);
+				} catch (NumberFormatException e) {
+					//Ignore. Should we log it?
+				}
+				
+			}
+			
 			if (polygon.getArea() * 10000000 < 0.2) {
 				result = XplaneOptionsHelper.getOptions().getResidentialMin();
 			} else {
@@ -478,10 +496,19 @@ public class Xplane10TranslatorImpl implements ITranslator {
 					// nothing generated? try to generate a facade building.
 					if (!processBuilding(poly)) {
 						// nothing generated? try to generate a forest.
-						processForest(poly);
+						if (!processForest(poly)) {
+							processRoad(poly);
+						}
 					}
 				}
 			}
+		}
+	}
+
+	private void processRoad(OsmPolygon poly) {
+		if (poly.getTagValue("highway") != null &&
+				"asphalt".equals(poly.getTagValue("surface"))) {
+			translationListener.processRoad(poly);
 		}
 	}
 

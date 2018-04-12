@@ -26,7 +26,6 @@ import com.osm2xp.gui.views.panels.xplane.ForestsRulesPanel;
 
 public class XplaneForestsView extends ViewPart implements IContextProvider {
 
-	private FormToolkit toolkit;
 	private ScrolledForm form;
 
 	public XplaneForestsView() {
@@ -83,7 +82,6 @@ public class XplaneForestsView extends ViewPart implements IContextProvider {
 	 * Disposes the toolkit
 	 */
 	public void dispose() {
-		toolkit.dispose();
 		super.dispose();
 	}
 

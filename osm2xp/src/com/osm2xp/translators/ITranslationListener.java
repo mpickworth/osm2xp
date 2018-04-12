@@ -8,4 +8,5 @@ public interface ITranslationListener {
 	public void processStreetLights(OsmPolygon polygon);
 	public void processForest(OsmPolygon polygon);
 	public void complete();
+	public void processRoad(OsmPolygon poly);
 }

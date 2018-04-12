@@ -25,7 +25,6 @@ import com.osm2xp.gui.views.panels.xplane.XplaneObjectsRulesPanel;
  * 
  */
 public class Xplane3DObjectsView extends ViewPart implements IContextProvider {
-	private FormToolkit toolkit;
 	private ScrolledForm form;
 
 	public Xplane3DObjectsView() {
@@ -78,14 +77,6 @@ public class Xplane3DObjectsView extends ViewPart implements IContextProvider {
 	 */
 	public void setFocus() {
 		form.setFocus();
-	}
-
-	/**
-	 * Disposes the toolkit
-	 */
-	public void dispose() {
-		toolkit.dispose();
-		super.dispose();
 	}
 
 	@Override

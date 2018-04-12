@@ -31,8 +31,6 @@ public class GuiOptions {
 	@XmlElement(required = true)
 	protected String outputFormat;
 	protected boolean singlePass;
-	@XmlElement(required = true)
-	protected List<String> lastFiles;
 
 	/**
 	 * Default no-arg constructor
@@ -49,7 +47,7 @@ public class GuiOptions {
 	public GuiOptions(final boolean databaseMode, final boolean appendHour,
 			final boolean appendTile, final boolean simplifyShapes,
 			final String currentFilePath, final String outputFormat,
-			final boolean singlePass, final List<String> lastFiles) {
+			final boolean singlePass) {
 		this.databaseMode = databaseMode;
 		this.appendHour = appendHour;
 		this.appendTile = appendTile;
@@ -57,7 +55,6 @@ public class GuiOptions {
 		this.currentFilePath = currentFilePath;
 		this.outputFormat = outputFormat;
 		this.singlePass = singlePass;
-		this.lastFiles = lastFiles;
 	}
 
 	/**
@@ -180,35 +177,6 @@ public class GuiOptions {
 	 */
 	public void setSinglePass(boolean value) {
 		this.singlePass = value;
-	}
-
-	/**
-	 * Gets the value of the lastFiles property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the lastFiles property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getLastFiles().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link String }
-	 * 
-	 * 
-	 */
-	public List<String> getLastFiles() {
-		if (lastFiles == null) {
-			lastFiles = new ArrayList<String>();
-		}
-		return this.lastFiles;
 	}
 
 }

@@ -25,7 +25,6 @@ import com.osm2xp.gui.views.panels.xplane.XplaneLightsRulesPanel;
  * 
  */
 public class XplaneLightsView extends ViewPart implements IContextProvider {
-	private FormToolkit toolkit;
 	private ScrolledForm form;
 
 	public XplaneLightsView() {
@@ -78,14 +77,6 @@ public class XplaneLightsView extends ViewPart implements IContextProvider {
 	 */
 	public void setFocus() {
 		form.setFocus();
-	}
-
-	/**
-	 * Disposes the toolkit
-	 */
-	public void dispose() {
-		toolkit.dispose();
-		super.dispose();
 	}
 
 	@Override

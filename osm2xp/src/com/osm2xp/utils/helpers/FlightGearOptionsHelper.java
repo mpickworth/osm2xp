@@ -38,7 +38,8 @@ public class FlightGearOptionsHelper extends OptionsHelper {
 				Osm2xpLogger.error(
 						"Error initializing FlightGear options helper", e);
 			}
-		} else {
+		} 
+		if (options == null) {
 			options = createNewFlightGearOptionsBean();
 		}
 	}
