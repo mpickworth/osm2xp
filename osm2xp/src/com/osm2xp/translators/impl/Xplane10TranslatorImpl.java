@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import math.geom2d.Point2D;
@@ -94,6 +96,9 @@ public class Xplane10TranslatorImpl implements ITranslator {
 	 */
 	private double levelHeight = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).getDouble("levelHeight", 3);
 
+	private String[] allowedHighwayTypes = GuiOptionsHelper.getAllowedHighwayTypes();
+	private String[] allowedHighwaySurfaceTypes = GuiOptionsHelper.getAllowedHighwaySurfaceTypes();
+	
 	/**
 	 * Constructor.
 	 * 
@@ -505,11 +510,15 @@ public class Xplane10TranslatorImpl implements ITranslator {
 		}
 	}
 
-	private void processRoad(OsmPolygon poly) {
-		if (poly.getTagValue("highway") != null &&
-				"asphalt".equals(poly.getTagValue("surface"))) {
-			translationListener.processRoad(poly);
+	private boolean processRoad(OsmPolygon poly) {
+		if (ArrayUtils.contains(allowedHighwayTypes, poly.getTagValue("highway"))) {
+			String surface = poly.getTagValue("surface"); //Generate if surface type is either missing or among allowe values
+			if (StringUtils.stripToEmpty(surface).trim().isEmpty() || ArrayUtils.contains(allowedHighwaySurfaceTypes, surface)) {
+				translationListener.processRoad(poly);
+				return true;
+			}
 		}
+		return false;
 	}
 
 	private void processLightObject(OsmPolygon poly) {

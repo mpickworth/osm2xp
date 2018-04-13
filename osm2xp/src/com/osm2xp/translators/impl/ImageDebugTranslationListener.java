@@ -30,9 +30,9 @@ import math.geom2d.Point2D;
  */
 public class ImageDebugTranslationListener implements ITranslationListener {
 	
-	private static final int IMGXIZE_X = 2048;
-	private static final int IMGXIZE_Y = 2048;
-	BufferedImage image = new BufferedImage(IMGXIZE_X,IMGXIZE_Y, BufferedImage.TYPE_INT_ARGB);
+	private static final int IMGSIZE_X = 2048;
+	private static final int IMGSIZE_Y = 2048;
+	BufferedImage image = new BufferedImage(IMGSIZE_X,IMGSIZE_Y, BufferedImage.TYPE_INT_ARGB);
 	Graphics2D g2d = (Graphics2D) image.getGraphics();
 	double baseX = Double.MIN_VALUE;
 	double baseY = Double.MIN_VALUE;
@@ -41,7 +41,7 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 	
 	public ImageDebugTranslationListener() {
 		g2d.setColor(Color.WHITE);
-		g2d.fillRect(0,0,IMGXIZE_X, IMGXIZE_Y);
+		g2d.fillRect(0,0,IMGSIZE_X, IMGSIZE_Y);
 	}
 
 	@Override
@@ -63,34 +63,30 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 		Point2D center = polygon.getCenter();
 		int drawCenterX = (int)(longScale * (center.y - baseX));
 		int drawCenterY = (int)(latScale * (center.x - baseY));
-		if (drawCenterX >= 0 && drawCenterX < IMGXIZE_X && drawCenterY >= 0 && drawCenterY < IMGXIZE_Y) {
+		if (drawCenterX >= 0 && drawCenterX < IMGSIZE_X && drawCenterY >= 0 && drawCenterY < IMGSIZE_Y) {
 			Shape awtShape = polygon.getPolygon().getAsAWTShape();
 			Point2D[] pointArray = polygon.getPolygon().getPointArray();
 			drawPoly = new Polygon();
 			for (int i = 0; i < pointArray.length; i++) {
-				drawPoly.addPoint( (int)(longScale * (pointArray[i].y - baseX)), IMGXIZE_Y - (int) (latScale * (pointArray[i].x - baseY)));
+				drawPoly.addPoint( (int)(longScale * (pointArray[i].y - baseX)), IMGSIZE_Y - (int) (latScale * (pointArray[i].x - baseY)));
 			}
 		}
 		return drawPoly;
 	}
 	
 	protected Path2D calculateDrawPath(OsmPolygon polygon) {
-		Path2D.Double drawPath = null;
-		Point2D center = polygon.getCenter();
-		int drawCenterX = (int)(longScale * (center.y - baseX));
-		int drawCenterY = (int)(latScale * (center.x - baseY));
-		if (drawCenterX >= 0 && drawCenterX < IMGXIZE_X && drawCenterY >= 0 && drawCenterY < IMGXIZE_Y) {
-//			Shape awtShape = polygon.getPolygon().getAsAWTShape();
-			Point2D[] pointArray = polygon.getPolygon().getPointArray();
-			drawPath = new Path2D.Double();
-			if (pointArray.length > 0) {
-				drawPath.moveTo((int)(longScale * (pointArray[0].y - baseX)), IMGXIZE_Y - (int) (latScale * (pointArray[0].x - baseY)));
-				for (int i = 1; i < pointArray.length; i++) {
-					drawPath.lineTo( (int)(longScale * (pointArray[i].y - baseX)), IMGXIZE_Y - (int) (latScale * (pointArray[i].x - baseY)));
-				}
+		Point2D[] pointArray = polygon.getPolygon().getPointArray();
+		Path2D.Double drawPath = new Path2D.Double();
+		if (pointArray.length > 0) {
+			drawPath.moveTo((int)(longScale * (pointArray[0].y - baseX)), IMGSIZE_Y - (int) (latScale * (pointArray[0].x - baseY)));
+			for (int i = 1; i < pointArray.length; i++) {
+				drawPath.lineTo( (int)(longScale * (pointArray[i].y - baseX)), IMGSIZE_Y - (int) (latScale * (pointArray[i].x - baseY)));
 			}
 		}
-		return drawPath;
+		if (drawPath.intersects(0,0,IMGSIZE_X,IMGSIZE_Y)) {
+			return drawPath;
+		}
+		return null;
 	}
 
 	protected void checkSetBase(OsmPolygon polygon) {

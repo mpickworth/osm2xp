@@ -13,12 +13,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.osgi.service.prefs.BackingStoreException;
 
-import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.constants.Perspectives;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
 import com.osm2xp.model.options.GuiOptions;
-import com.osm2xp.model.options.LastFiles;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
@@ -35,6 +33,10 @@ public class GuiOptionsHelper {
 	private static GuiOptions options;
 	public static final String SCENE_NAME = "sceneName";
 	public static final String USED_FILES = "usedFiles";
+	
+	public static final String ALLOWED_HIGHWAY_TYPES = "allowedHighwayTypes";
+	public static final String ALLOWED_HIGHWAY_SURFACE_TYPES = "allowedHighwaySurfaceTypes";
+	
 	private static Tag shapefileTag;
 	private static File roofColorFile;
 	private static List<String> lastFiles;
@@ -96,7 +98,11 @@ public class GuiOptionsHelper {
 	}
 	
 	private static String getStringProperty(String property) {
-		return InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(property, "");
+		return getStringProperty(property, "");
+	}
+	
+	private static String getStringProperty(String property, String defaultVal) {
+		return InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(property, defaultVal);
 	}
 	
 	private static void putProperty(String property, String value) {
@@ -200,4 +206,24 @@ public class GuiOptionsHelper {
 		checkGetLastFiles();
 		return lastFiles;
 	}
+	
+	public static String[] getAllowedHighwayTypes() {
+		String str = getStringProperty(ALLOWED_HIGHWAY_TYPES, "motorway;trunk;primary;secondary;tertiary;unclassified;residential");
+		return str.split(";");
+	}
+	
+	public static void setAllowedHighwayTypes(String[] types) {
+		putProperty(ALLOWED_HIGHWAY_TYPES, Arrays.asList(types).stream().collect(Collectors.joining(";")));
+	}
+	
+	public static String[] getAllowedHighwaySurfaceTypes() {
+		String str = getStringProperty(ALLOWED_HIGHWAY_SURFACE_TYPES, "paved;asphalt;concrete");
+		return str.split(";");
+	}
+	
+	public static void setAllowedHighwaySurfaceTypes(String[] types) {
+		putProperty(ALLOWED_HIGHWAY_SURFACE_TYPES, Arrays.asList(types).stream().collect(Collectors.joining(";")));
+	}
+	
+	
 }
