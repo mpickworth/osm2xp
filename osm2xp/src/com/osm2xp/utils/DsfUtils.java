@@ -130,17 +130,18 @@ public class DsfUtils {
 					File facade = filesList[cpt];
 					String line = null;
 					String facadeContent = new String();
-					RandomAccessFile reader = new RandomAccessFile(facade, "rw");
-					while ((line = reader.readLine()) != null) {
-						facadeContent += line + "\r\n";
+					try (RandomAccessFile reader = new RandomAccessFile(facade, "rw")) {
+						while ((line = reader.readLine()) != null) {
+							facadeContent += line + "\r\n";
+						}
+						facadeContent = facadeContent.replaceAll(
+								"HARD_ROOF concrete", "");
+						facadeContent = facadeContent.replaceAll(
+								"HARD_WALL concrete", "");
+						try (FileWriter writer = new FileWriter(facade.getAbsolutePath())) {
+							writer.write(facadeContent);
+						}
 					}
-					facadeContent = facadeContent.replaceAll(
-							"HARD_ROOF concrete", "");
-					facadeContent = facadeContent.replaceAll(
-							"HARD_WALL concrete", "");
-					FileWriter writer = new FileWriter(facade.getAbsolutePath());
-					writer.write(facadeContent);
-					writer.close();
 
 				}
 			}

@@ -17,8 +17,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = { "databaseMode", "appendHour", "appendTile",
-		"simplifyShapes", "currentFilePath", "outputFormat", "singlePass",
-		"lastFiles" })
+		"simplifyShapes", "currentFilePath", "outputFormat", "singlePass" })
 @XmlRootElement(name = "GuiOptions")
 public class GuiOptions {
 

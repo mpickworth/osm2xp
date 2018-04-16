@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 
 import com.osm2xp.gui.Activator;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.translators.IPolyHandler;
 import com.osm2xp.translators.ITranslationListener;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 
@@ -137,10 +138,10 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 	}
 
 	@Override
-	public void processRoad(OsmPolygon polygon) {
-		checkSetBase(polygon);
+	public void polyProcessed(OsmPolygon poly, IPolyHandler handler) {
+		checkSetBase(poly);
 		g2d.setColor(Color.BLACK);
-		Shape drawPath = calculateDrawPath(polygon);
+		Shape drawPath = calculateDrawPath(poly);
 		g2d.setStroke(new BasicStroke(4));
 		if (drawPath != null) {
 			g2d.draw(drawPath);

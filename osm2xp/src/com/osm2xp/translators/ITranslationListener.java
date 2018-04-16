@@ -7,6 +7,6 @@ public interface ITranslationListener {
 	public void process3dObject(OsmPolygon polygon);
 	public void processStreetLights(OsmPolygon polygon);
 	public void processForest(OsmPolygon polygon);
+	public void polyProcessed(OsmPolygon poly, IPolyHandler handler);
 	public void complete();
-	public void processRoad(OsmPolygon poly);
 }

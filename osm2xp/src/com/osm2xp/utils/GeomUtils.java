@@ -7,10 +7,8 @@ import java.util.List;
 import math.geom2d.Angle2D;
 import math.geom2d.Box2D;
 import math.geom2d.Point2D;
-import math.geom2d.Shape2D;
 import math.geom2d.line.Line2D;
 import math.geom2d.line.LineSegment2D;
-import math.geom2d.line.LinearShape2D;
 import math.geom2d.polygon.LinearRing2D;
 import math.geom2d.polygon.Rectangle2D;
 
@@ -553,6 +551,14 @@ public class GeomUtils {
 		LinearRing2D result = new LinearRing2D();
 		for (Node node : nodes) {
 			result.addPoint(new Point2D(node.getLat(), node.getLon()));
+		}
+		return result;
+	}
+	
+	public static Point2D[] getPointsFromOsmNodes(List<Node> nodes) {
+		Point2D[] result = new Point2D[nodes.size()];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = new Point2D(nodes.get(i).getLat(), nodes.get(i).getLon());
 		}
 		return result;
 	}

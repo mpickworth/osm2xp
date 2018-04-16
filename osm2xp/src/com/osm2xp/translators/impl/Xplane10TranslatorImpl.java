@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import math.geom2d.Point2D;
@@ -21,8 +19,10 @@ import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.model.xplane.XplaneDsf3DObject;
 import com.osm2xp.model.xplane.XplaneDsfObject;
+import com.osm2xp.translators.IPolyHandler;
 import com.osm2xp.translators.ITranslationListener;
 import com.osm2xp.translators.ITranslator;
+import com.osm2xp.translators.roads.XP10RoadTranslator;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.MiscUtils;
 import com.osm2xp.utils.OsmUtils;
@@ -96,8 +96,7 @@ public class Xplane10TranslatorImpl implements ITranslator {
 	 */
 	private double levelHeight = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).getDouble("levelHeight", 3);
 
-	private String[] allowedHighwayTypes = GuiOptionsHelper.getAllowedHighwayTypes();
-	private String[] allowedHighwaySurfaceTypes = GuiOptionsHelper.getAllowedHighwaySurfaceTypes();
+	private List<IPolyHandler> polyHandlers = new ArrayList<IPolyHandler>();
 	
 	/**
 	 * Constructor.
@@ -122,10 +121,15 @@ public class Xplane10TranslatorImpl implements ITranslator {
 		this.folderPath = folderPath;
 		this.dsfObjectsProvider = dsfObjectsProvider;
 		this.startTime = new Date();
+		polyHandlers.add(new XP10RoadTranslator(writer));
 	}
 
 	@Override
 	public void complete() {
+		
+		for (IPolyHandler polyHandler : polyHandlers) {
+			polyHandler.translationComplete();
+		}
 
 		// if smart exclusions enabled and tile is not empty, send them to
 		// writer
@@ -502,7 +506,7 @@ public class Xplane10TranslatorImpl implements ITranslator {
 					if (!processBuilding(poly)) {
 						// nothing generated? try to generate a forest.
 						if (!processForest(poly)) {
-							processRoad(poly);
+							processOther(poly);
 						}
 					}
 				}
@@ -510,11 +514,10 @@ public class Xplane10TranslatorImpl implements ITranslator {
 		}
 	}
 
-	private boolean processRoad(OsmPolygon poly) {
-		if (ArrayUtils.contains(allowedHighwayTypes, poly.getTagValue("highway"))) {
-			String surface = poly.getTagValue("surface"); //Generate if surface type is either missing or among allowe values
-			if (StringUtils.stripToEmpty(surface).trim().isEmpty() || ArrayUtils.contains(allowedHighwaySurfaceTypes, surface)) {
-				translationListener.processRoad(poly);
+	private boolean processOther(OsmPolygon poly) {
+		for (IPolyHandler handler : polyHandlers) {
+			if (handler.handlePoly(poly)) {
+				translationListener.polyProcessed(poly, handler);
 				return true;
 			}
 		}
