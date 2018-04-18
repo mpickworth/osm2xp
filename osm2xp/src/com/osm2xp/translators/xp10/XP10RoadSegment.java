@@ -1,4 +1,4 @@
-package com.osm2xp.translators.roads;
+package com.osm2xp.translators.xp10;
 
 import math.geom2d.Point2D;
 
@@ -24,7 +24,7 @@ public class XP10RoadSegment {
 		StringBuilder builder = new StringBuilder();
 		builder.append(String.format("BEGIN_SEGMENT 0 %d %d %3.9f %4.9f 0.000000000\n", type, startId, points[0].y, points[0].x));
 		for (int i = 1; i < points.length - 1; i++) {
-			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000\n",points[0].y, points[0].x));	
+			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000\n",points[i].y, points[i].x));	
 		}
 		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f 0.000000000\n", endId, points[points.length - 1].y, points[points.length - 1].x));
 		return builder.toString();

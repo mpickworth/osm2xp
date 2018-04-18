@@ -419,6 +419,8 @@ public class DsfUtils {
 				sb.append("OBJECT_DEF " + objectPath + "\n");
 			}
 		}
+		
+		sb.append("NETWORK_DEF lib/g10/roads.net");
 
 		return sb.toString();
 

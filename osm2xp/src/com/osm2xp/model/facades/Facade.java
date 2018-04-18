@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Facade", propOrder = { "file", "roofColor", "wallColor",
-		"industrial", "commercial", "residential", "sloped", "minVectorLength",
+		"barrierType", "industrial", "commercial", "residential", "sloped", "minVectorLength",
 		"maxVectorLength", "simpleBuildingOnly", "minHeight", "maxHeight" })
 public class Facade {
 
@@ -23,6 +23,8 @@ public class Facade {
 	protected String roofColor;
 	@XmlElement(required = true)
 	protected String wallColor;
+	@XmlElement(name="barrier")
+	protected BarrierType barrierType;
 	protected boolean industrial;
 	protected boolean commercial;
 	protected boolean residential;
@@ -238,6 +240,14 @@ public class Facade {
 	 */
 	public void setMaxHeight(int value) {
 		this.maxHeight = value;
+	}
+
+	public BarrierType getBarrierType() {
+		return barrierType;
+	}
+
+	public void setBarrierType(BarrierType barrierType) {
+		this.barrierType = barrierType;
 	}
 
 }

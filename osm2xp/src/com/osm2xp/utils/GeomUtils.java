@@ -272,6 +272,21 @@ public class GeomUtils {
 		Double[] vectors = computeExtremeVectors(polygon);
 		return vectors[0];
 	}
+	
+	/**
+	 * Compute perimeter of the polygon in meters.
+	 * 
+	 * @param polygon
+	 * @return Double - perimeter value
+	 */
+	public static Double computePerimeter(LinearRing2D polygon) {
+		Double[] vectors = computeExtremeVectors(polygon);
+		double sum = 0;
+		for (Double current : vectors) {
+			sum += current;
+		}
+		return sum;
+	}
 
 	/**
 	 * Compute the laregest vector of the polygon in meters.

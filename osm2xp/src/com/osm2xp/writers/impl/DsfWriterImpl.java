@@ -97,11 +97,6 @@ public class DsfWriterImpl implements IWriter {
 				|| XplaneOptionsHelper.getOptions().isGenerateXmlStats()) {
 			new File(sceneFolder + File.separatorChar + "stats").mkdirs();
 		}
-		// package facade set
-		if (XplaneOptionsHelper.getOptions().isPackageFacades()
-				&& XplaneOptionsHelper.getOptions().isGenerateBuildings()) {
-			DsfUtils.copyFacadeSet(sceneFolder);
-		}
 
 		// write the libraty file if needed
 		if (!XplaneOptionsHelper.getOptions().isPackageFacades()) {

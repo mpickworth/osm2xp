@@ -138,13 +138,17 @@ public class FilesUtils {
 		}
 		return listeSetsFacades;
 	}
+	
+	public static void copyDirectory(File sourceLocation, File targetLocation) throws IOException {
+		copyDirectory(sourceLocation, targetLocation, false);
+	}
 
 	/**
 	 * @param sourceLocation
 	 * @param targetLocation
 	 * @throws IOException
 	 */
-	public static void copyDirectory(File sourceLocation, File targetLocation)
+	public static void copyDirectory(File sourceLocation, File targetLocation, boolean rewrite)
 			throws IOException {
 		if (sourceLocation.isDirectory()) {
 			if (!targetLocation.exists()) {
@@ -154,9 +158,12 @@ public class FilesUtils {
 			String[] children = sourceLocation.list();
 			for (int i = 0; i < children.length; i++) {
 				copyDirectory(new File(sourceLocation, children[i]), new File(
-						targetLocation, children[i]));
+						targetLocation, children[i]), rewrite);
 			}
 		} else {
+			if (!rewrite && targetLocation.isFile()) {
+				return;
+			}
 			try (InputStream in = new FileInputStream(sourceLocation);OutputStream out = new FileOutputStream(targetLocation)) {
 				byte[] buf = new byte[1024];
 				int len;

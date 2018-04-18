@@ -21,6 +21,8 @@ import com.osm2xp.utils.FilesUtils;
  */
 public class FacadeSetHelper {
 
+	public static final String FACADE_SET_DESCRIPTOR_FILE_NAME = "osm2xpFacadeSetDescriptor.xml";
+
 	/**
 	 * @param file
 	 * @param osm2XpProject
@@ -29,7 +31,7 @@ public class FacadeSetHelper {
 	public static void saveFacadeSet(FacadeSet facadeSet, String facadeSetFolder)
 			throws Osm2xpBusinessException {
 		File facadeSetFile = new File(facadeSetFolder + File.separator
-				+ "osm2xpFacadeSetDescriptor.xml");
+				+ FACADE_SET_DESCRIPTOR_FILE_NAME);
 		try {
 			JAXBContext jc = JAXBContext.newInstance(FacadeSet.class
 					.getPackage().getName());
@@ -48,7 +50,7 @@ public class FacadeSetHelper {
 
 	public static FacadeSet getFacadeSet(String facadeSetFolder) {
 		File facadeSetFile = new File(facadeSetFolder + File.separator
-				+ "osm2xpFacadeSetDescriptor.xml");
+				+ FACADE_SET_DESCRIPTOR_FILE_NAME);
 		if (facadeSetFile.exists()) {
 			return loadFacadeSet(facadeSetFile.getPath());
 		} else {

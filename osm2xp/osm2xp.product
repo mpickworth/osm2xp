@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Osm2xp" uid="com.osm2xp.product" id="com.osm2xp.osm2xp" application="com.osm2xp.application" version="2.0.3" useFeatures="false" includeLaunchers="true">
+<product name="Osm2XP" uid="com.osm2xp.product" id="com.osm2xp.osm2xp" application="com.osm2xp.application" version="2.0.3" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
       <text>
@@ -37,8 +37,10 @@ Icons by Open Icon Library http://http://openiconlibrary.sourceforge.net/
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Dosgi.requiredJavaVersion=1.5</vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+      <vmArgs>-Dosgi.requiredJavaVersion=1.5
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
    </launcherArgs>
 
    <windowImages/>
@@ -46,12 +48,10 @@ Icons by Open Icon Library http://http://openiconlibrary.sourceforge.net/
    <splash
       startupProgressRect="5,275,445,15" />
    <launcher name="osm2xp">
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>

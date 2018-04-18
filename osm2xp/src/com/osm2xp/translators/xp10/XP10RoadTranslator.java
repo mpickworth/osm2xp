@@ -1,4 +1,4 @@
-package com.osm2xp.translators.roads;
+package com.osm2xp.translators.xp10;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +18,7 @@ import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.writers.IWriter;
 
-public class XP10RoadTranslator implements IPolyHandler {
+public class XP10RoadTranslator extends XP10WritingTranslator {
 	
 	private String[] allowedHighwayTypes = GuiOptionsHelper.getAllowedHighwayTypes();
 	private String[] allowedHighwaySurfaceTypes = GuiOptionsHelper.getAllowedHighwaySurfaceTypes();
@@ -28,10 +28,8 @@ public class XP10RoadTranslator implements IPolyHandler {
 	private List<OsmPolygon> roadPolys = new ArrayList<OsmPolygon>();
 	private int renumberCounter = 1;
 	
-	private IWriter writer;
-
 	public XP10RoadTranslator(IWriter writer) {
-		this.writer = writer;
+		super(writer);
 	}
 
 	@Override

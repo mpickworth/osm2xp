@@ -1,29 +1,20 @@
 package com.osm2xp.translators.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 import math.geom2d.Point2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
-import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
-import com.osm2xp.model.osm.Relation;
-import com.osm2xp.model.osm.Tag;
-import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
-import com.osm2xp.model.xplane.XplaneDsfObject;
-import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.GeomUtils;
-import com.osm2xp.utils.MiscUtils;
 import com.osm2xp.utils.OsmUtils;
 import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.StatsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
-import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.osm2xp.writers.IWriter;
 
 /**
@@ -32,20 +23,8 @@ import com.osm2xp.writers.IWriter;
  * @author Benjamin Blanchet
  * 
  */
-public class Xplane9TranslatorImpl implements ITranslator {
+public class Xplane9TranslatorImpl extends XPlaneTranslatorImpl {
 
-	/**
-	 * Residential buildings maximum area.
-	 */
-	private final static double ASSERTION_RESIDENTIAL_MAX_AREA = 0.5;
-	/**
-	 * Buildings minimum vectors.
-	 */
-	private final static int BUILDING_MIN_VECTORS = 3;
-	/**
-	 * Buildings maximum vectors.
-	 */
-	private final static int BUILDING_MAX_VECTORS = 512;
 	/**
 	 * current lat/long tile.
 	 */
@@ -59,17 +38,11 @@ public class Xplane9TranslatorImpl implements ITranslator {
 	 */
 	private IWriter writer;
 	/**
-	 * start time.
-	 */
-	private Date startTime;
-	/**
-	 * generated scenery folder path.
-	 */
-	private String folderPath;
-	/**
 	 * dsf object provider.
 	 */
 	private DsfObjectsProvider dsfObjectsProvider;
+
+	static int merde;
 
 	/**
 	 * Constructor.
@@ -88,54 +61,10 @@ public class Xplane9TranslatorImpl implements ITranslator {
 	public Xplane9TranslatorImpl(GenerationStats stats, IWriter writer,
 			Point2D currentTile, String folderPath,
 			DsfObjectsProvider dsfObjectsProvider) {
-		this.currentTile = currentTile;
-		this.stats = stats;
-		this.writer = writer;
-		this.folderPath = folderPath;
-		this.dsfObjectsProvider = dsfObjectsProvider;
-		this.startTime = new Date();
+		super(stats, writer, currentTile, folderPath, dsfObjectsProvider);
 	}
 
-	@Override
-	public void complete() {
-		if (!StatsHelper.isTileEmpty(stats)) {
-			Osm2xpLogger.info("stats : " + stats.getBuildingsNumber()
-					+ " buildings, " + stats.getForestsNumber() + " forests, "
-					+ stats.getStreetlightsNumber() + " street lights, "
-					+ stats.getObjectsNumber() + " objects. (generation took "
-					+ MiscUtils.getTimeDiff(startTime, new Date()) + ")");
-			writer.complete(null);
-
-			// stats
-			try {
-				if (XplaneOptionsHelper.getOptions().isGenerateXmlStats()
-						|| XplaneOptionsHelper.getOptions()
-								.isGeneratePdfStats()) {
-					StatsHelper.getStatsList().add(stats);
-
-				}
-				if (XplaneOptionsHelper.getOptions().isGenerateXmlStats()) {
-					StatsHelper.saveStats(folderPath, currentTile, stats);
-				}
-				if (XplaneOptionsHelper.getOptions().isGeneratePdfStats()) {
-					StatsHelper.generatePdfReport(folderPath, stats);
-				}
-			} catch (Osm2xpBusinessException e) {
-				Osm2xpLogger.error("Error saving stats file for tile "
-						+ currentTile, e);
-			}
-		} else if (!GuiOptionsHelper.getOptions().isSinglePass()) {
-			Osm2xpLogger.info("Tile " + (int) currentTile.x + "/"
-					+ (int) currentTile.y + " is empty, no dsf generated");
-		}
-	}
-
-	@Override
-	public void init() {
-		// writer initialization
-		writer.init(currentTile);
-
-	}
+	
 
 	/**
 	 * Write streetlight objects in dsf file.
@@ -179,242 +108,6 @@ public class Xplane9TranslatorImpl implements ITranslator {
 		writer.write(sb.toString());
 	}
 
-	/**
-	 * write a building in the dsf file.
-	 * 
-	 * @param polygon
-	 * @param facade
-	 * @param size
-	 */
-	private void writeBuildingToDsf(OsmPolygon osmPolygon, Integer facade) {
-		if (facade != null && osmPolygon.getHeight() != null) {
-			StringBuffer sb = new StringBuffer();
-			osmPolygon.setPolygon(GeomUtils.setClockwise(osmPolygon
-					.getPolygon()));
-			if (osmPolygon.getPolygon().getArea() * 100000000 > 0.1
-					&& osmPolygon.getPolygon().getVertexNumber() > 3) {
-
-				sb.append("BEGIN_POLYGON " + facade + " "
-						+ osmPolygon.getHeight() + " 2");
-				sb.append(System.getProperty("line.separator"));
-				sb.append("BEGIN_WINDING");
-				sb.append(System.getProperty("line.separator"));
-
-				// on supprime le dernier point pour ne pas boucler
-				osmPolygon.getPolygon().removePoint(
-						osmPolygon.getPolygon().getLastPoint());
-				for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
-					sb.append("POLYGON_POINT " + loc.y + " " + loc.x);
-					sb.append(System.getProperty("line.separator"));
-				}
-				sb.append("END_WINDING");
-				sb.append(System.getProperty("line.separator"));
-				sb.append("END_POLYGON");
-				sb.append(System.getProperty("line.separator"));
-
-				// stats TODO not working anymore since v2 facades new features.
-				if (dsfObjectsProvider.getPolygonsList().get(facade)
-						.toLowerCase().contains("building")
-						|| dsfObjectsProvider.getPolygonsList().get(facade)
-								.toLowerCase().contains("shape")) {
-					StatsHelper.addBuildingType("Building", stats);
-				} else {
-					if (dsfObjectsProvider.getPolygonsList().get(facade)
-							.toLowerCase().contains("house")
-							|| dsfObjectsProvider.getPolygonsList().get(facade)
-									.toLowerCase().contains("common")) {
-						StatsHelper.addBuildingType("Residential", stats);
-					} else {
-						StatsHelper.addBuildingType("Facade rule", stats);
-					}
-				}
-				writer.write(sb.toString(), GeomUtils
-						.cleanCoordinatePoint(osmPolygon.getPolygon()
-								.getFirstPoint()));
-			}
-		}
-	}
-
-	/**
-	 * Compute the height for this polygon and osm tags.
-	 * 
-	 * 
-	 * @return Integer the height.
-	 */
-	private Integer computeBuildingHeight(OsmPolygon polygon) {
-		Integer result = null;
-		Integer osmHeight = polygon.getHeight();
-		if (osmHeight != null) {
-			result = osmHeight;
-		} else {
-
-			if (polygon.getArea() * 10000000 < 0.2) {
-				result = XplaneOptionsHelper.getOptions().getResidentialMin();
-			} else {
-				if (polygon.getArea() * 10000000 > ASSERTION_RESIDENTIAL_MAX_AREA)
-					result = MiscUtils.getRandomSize(XplaneOptionsHelper
-							.getOptions().getBuildingMin(), XplaneOptionsHelper
-							.getOptions().getBuildingMax());
-				else if (polygon.getArea() * 10000000 < ASSERTION_RESIDENTIAL_MAX_AREA)
-					result = MiscUtils.getRandomSize(XplaneOptionsHelper
-							.getOptions().getResidentialMin(),
-							XplaneOptionsHelper.getOptions()
-									.getResidentialMax());
-			}
-		}
-		return result;
-	}
-
-	static int merde;
-
-	/**
-	 * compute the dsf index of the residential facade object used for a given
-	 * polygon
-	 * 
-	 * @param polygon
-	 * @param height
-	 * @return Integer the facade index
-	 */
-	private Integer computeResidentialFacadeIndex(OsmPolygon osmPolygon) {
-		Integer result = null;
-		// we check if we can use a sloped roof if the user wants them
-		if (XplaneOptionsHelper.getOptions().isGenerateSlopedRoofs()
-				&& osmPolygon.isSimplePolygon()) {
-			result = dsfObjectsProvider.computeFacadeDsfIndex(true, true, true,
-					osmPolygon);
-			// System.out.println(merde++);
-		}
-		// no sloped roof, so we'll use a standard house facade
-		else {
-
-			// if the polygon is a simple rectangle, we'll use a facade made for
-			// simple shaped buildings
-			if (osmPolygon.getPolygon().getEdges().size() == 4) {
-				result = dsfObjectsProvider.computeFacadeDsfIndex(true, true,
-						false, osmPolygon);
-			}
-			// the building has a complex footprint, so we'll use a facade made
-			// for this case
-			else {
-				result = dsfObjectsProvider.computeFacadeDsfIndex(false, true,
-						false, osmPolygon);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * compute the dsf index of the building facade object used for a given
-	 * polygon
-	 * 
-	 * @param polygon
-	 * @param height
-	 * @param roofColor
-	 * @return
-	 */
-	private Integer computeBuildingFacadeIndex(OsmPolygon osmPolygon) {
-		Integer result = null;
-		// if the polygon is a simple rectangle, we'll use a facade made for
-		// simple shaped buildings
-		if (osmPolygon.getPolygon().getEdges().size() == 4) {
-			result = dsfObjectsProvider.computeFacadeDsfIndex(true, false,
-					false, osmPolygon);
-		}
-		// the building has a complex footprint, so we'll use a facade made
-		// for this case
-		else {
-			result = dsfObjectsProvider.computeFacadeDsfIndex(false, false,
-					false, osmPolygon);
-		}
-		return result;
-	}
-
-	/**
-	 * Compute the facade index for given osm tags, polygon and height.
-	 * 
-	 * @param tags
-	 * @param polygon
-	 * @param height
-	 * @return Integer the facade index.
-	 */
-	public Integer computeFacadeIndex(OsmPolygon polygon) {
-		Integer result = null;
-		// first, do we are on a residential object?
-		// yes if there is residential or house tag
-		// or if surface of the polygon is under the max surface for a
-		// residential house
-		// and height is under max residential height
-		if ((OsmUtils.isValueinTags("residential", polygon.getTags())
-				|| OsmUtils.isValueinTags("house", polygon.getTags()) || polygon
-				.getArea() * 10000000 < ASSERTION_RESIDENTIAL_MAX_AREA)
-				&& polygon.getHeight() < XplaneOptionsHelper.getOptions()
-						.getResidentialMax()) {
-
-			result = computeResidentialFacadeIndex(polygon);
-		}
-
-		// do we are on a building object?
-		// yes if there is industrial or Commercial tag
-		// or if surface of the polygon is above the max surface for a
-		// residential house
-		// and height is above max residential height
-		else {
-			if (OsmUtils.isValueinTags("industrial", polygon.getTags())
-					|| OsmUtils.isValueinTags("Commercial", polygon.getTags())
-					|| polygon.getArea() * 10000000 > ASSERTION_RESIDENTIAL_MAX_AREA
-					|| polygon.getHeight() > XplaneOptionsHelper.getOptions()
-							.getResidentialMax()) {
-
-				result = computeBuildingFacadeIndex(polygon);
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * write a 3D object in the dsf file
-	 * 
-	 * @param object
-	 *            a xplane dsf object
-	 * @throws Osm2xpBusinessException
-	 */
-	private void write3dObjectToDsf(XplaneDsfObject object)
-			throws Osm2xpBusinessException {
-
-		String objectDsfText = object.asObjDsfText();
-		writer.write(objectDsfText, GeomUtils.cleanCoordinatePoint(object
-				.getOsmPolygon().getCenter()));
-		// stats
-		StatsHelper.addObjectType(
-				dsfObjectsProvider.getObjectsList().get(object.getDsfIndex()),
-				stats);
-
-	}
-
-	@Override
-	public void processNode(Node node) throws Osm2xpBusinessException {
-		// process the node if we're on a single pass mode.
-		// if not on single pass, only process if the node is on the current
-		// lat/long tile
-		if ((!GuiOptionsHelper.getOptions().isSinglePass() && GeomUtils
-				.compareCoordinates(currentTile, node))
-				|| GuiOptionsHelper.getOptions().isSinglePass()) {
-			// write a 3D object in the dsf file if this node is in an object
-			// rule
-			XplaneDsfObject object = dsfObjectsProvider
-					.getRandomDsfObjectIndexAndAngle(node.getTag(),
-							node.getId());
-			if (object != null) {
-				List<Node> nodes = new ArrayList<Node>();
-				nodes.add(node);
-				object.setPolygon(new OsmPolygon(node.getId(), node.getTag(),
-						nodes));
-				write3dObjectToDsf(object);
-			}
-		}
-
-	}
-
 	@Override
 	public void processPolygon(OsmPolygon osmPolygon)
 			throws Osm2xpBusinessException {
@@ -453,81 +146,7 @@ public class Xplane9TranslatorImpl implements ITranslator {
 		}
 	}
 
-	/**
-	 * Construct and write a facade building in the dsf file.
-	 * 
-	 * @param osmPolygon
-	 *            osm polygon
-	 * @return true if a building has been gennerated in the dsf file.
-	 */
-	private boolean processBuilding(OsmPolygon osmPolygon) {
-		Boolean result = false;
-		if (XplaneOptionsHelper.getOptions().isGenerateBuildings()
-				&& OsmUtils.isBuilding(osmPolygon.getTags())
-				&& !OsmUtils.isExcluded(osmPolygon.getTags(),
-						osmPolygon.getId())
-				&& osmPolygon.getPolygon().getVertexNumber() > BUILDING_MIN_VECTORS
-				&& osmPolygon.getPolygon().getVertexNumber() < BUILDING_MAX_VECTORS) {
-
-			// check that the largest vector of the building
-			// and that the area of the osmPolygon.getPolygon() are over the
-			// minimum values set by the user
-			Double maxVector = osmPolygon.getMaxVectorSize();
-			if (maxVector > XplaneOptionsHelper.getOptions()
-					.getMinHouseSegment()
-					&& maxVector < XplaneOptionsHelper.getOptions()
-							.getMaxHouseSegment()
-					&& ((osmPolygon.getPolygon().getArea() * 100000) * 100000) > XplaneOptionsHelper
-							.getOptions().getMinHouseArea()) {
-
-				// simplify shape if checked and if necessary
-				if (GuiOptionsHelper.getOptions().isSimplifyShapes()
-						&& !osmPolygon.isSimplePolygon()) {
-					osmPolygon.simplifyPolygon();
-				}
-
-				// compute height and facade dsf index
-				osmPolygon.setHeight(computeBuildingHeight(osmPolygon));
-				Integer facade = computeFacadeIndex(osmPolygon);
-				// write building in dsf file
-				writeBuildingToDsf(osmPolygon, facade);
-				result = true;
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * choose and write a 3D object in the dsf file.
-	 * 
-	 * @param polygon
-	 *            osm polygon.
-	 * @return true if a 3D object has been written in the dsf file.
-	 */
-	private boolean process3dObject(OsmPolygon osmPolygon) {
-		Boolean result = false;
-		// simplify shape if checked and if necessary
-		if (GuiOptionsHelper.getOptions().isSimplifyShapes()
-				&& !osmPolygon.isSimplePolygon()) {
-			osmPolygon.simplifyPolygon();
-		}
-		if (XplaneOptionsHelper.getOptions().isGenerateObj()) {
-			XplaneDsfObject object = dsfObjectsProvider
-					.getRandomDsfObject(osmPolygon);
-			if (object != null) {
-				object.setPolygon(osmPolygon);
-				try {
-					write3dObjectToDsf(object);
-					result = true;
-				} catch (Osm2xpBusinessException e) {
-					result = false;
-				}
-
-			}
-		}
-		return result;
-	}
-
+	
 	/**
 	 * send a streetLight in the dsf file.
 	 * 
@@ -546,74 +165,4 @@ public class Xplane9TranslatorImpl implements ITranslator {
 		return result;
 	}
 
-	/**
-	 * @param way
-	 * @param polygon
-	 * @return
-	 */
-	private boolean processForest(OsmPolygon osmPolygon) {
-		Boolean result = false;
-		if (XplaneOptionsHelper.getOptions().isGenerateFor()) {
-			Integer[] forestIndexAndDensity = dsfObjectsProvider
-					.getRandomForestIndexAndDensity(osmPolygon.getTags());
-			if (forestIndexAndDensity != null) {
-				writeForestToDsf(osmPolygon, forestIndexAndDensity);
-				result = true;
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * @param polygon
-	 *            the forest polygon
-	 * @param forestIndexAndDensity
-	 *            index and density of the forest rule
-	 */
-	private void writeForestToDsf(OsmPolygon osmPolygon,
-			Integer[] forestIndexAndDensity) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("BEGIN_POLYGON " + forestIndexAndDensity[0] + " "
-				+ forestIndexAndDensity[1] + " 2");
-		sb.append(System.getProperty("line.separator"));
-		sb.append("BEGIN_WINDING");
-		sb.append(System.getProperty("line.separator"));
-		for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
-			sb.append("POLYGON_POINT " + loc.y + " " + loc.x);
-			sb.append(System.getProperty("line.separator"));
-		}
-		sb.append("END_WINDING");
-		sb.append(System.getProperty("line.separator"));
-		sb.append("END_POLYGON");
-		sb.append(System.getProperty("line.separator"));
-
-		// stats
-		StatsHelper.addForestType(
-				dsfObjectsProvider.getPolygonsList().get(
-						forestIndexAndDensity[0]), stats);
-
-		writer.write(sb.toString(), GeomUtils.cleanCoordinatePoint(osmPolygon
-				.getPolygon().getFirstPoint()));
-	}
-
-	@Override
-	public void processRelation(Relation relation)
-			throws Osm2xpBusinessException {
-	}
-
-	@Override
-	public Boolean mustStoreNode(Node node) {
-		Boolean result = true;
-		if (!GuiOptionsHelper.getOptions().isSinglePass()) {
-			result = GeomUtils.compareCoordinates(currentTile, node);
-		}
-		return result;
-	}
-
-	@Override
-	public Boolean mustStoreWay(Way way) {
-		List<Tag> tags = way.getTag();
-		return (OsmUtils.isBuilding(tags) || OsmUtils.isForest(tags) || OsmUtils
-				.isObject(tags));
-	}
 }
