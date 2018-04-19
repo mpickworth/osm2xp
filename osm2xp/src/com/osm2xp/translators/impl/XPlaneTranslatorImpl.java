@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
@@ -20,6 +22,11 @@ import com.osm2xp.translators.BuildingType;
 import com.osm2xp.translators.IPolyHandler;
 import com.osm2xp.translators.ITranslationListener;
 import com.osm2xp.translators.ITranslator;
+import com.osm2xp.translators.xplane.IDRenumbererService;
+import com.osm2xp.translators.xplane.XPBarrierTranslator;
+import com.osm2xp.translators.xplane.XPPowerlineTranslator;
+import com.osm2xp.translators.xplane.XPRailTranslator;
+import com.osm2xp.translators.xplane.XPRoadTranslator;
 import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.MiscUtils;
@@ -30,6 +37,7 @@ import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.osm2xp.writers.IWriter;
 
+import math.geom2d.Box2D;
 import math.geom2d.Point2D;
 
 public class XPlaneTranslatorImpl implements ITranslator{
@@ -45,7 +53,11 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	/**
 	 * Buildings maximum vectors.
 	 */
-	protected static final int BUILDING_MAX_VECTORS = 512;
+	protected static final int BUILDING_MAX_VECTORS = 512;	
+	/**
+	 * Factor to get bounding box lat/long
+	 */
+	protected static final double COORD_DIV_FACTOR = 1000000000;
 	/**
 	 * current lat/long tile.
 	 */
@@ -53,7 +65,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	/**
 	 * Line separator
 	 */
-	protected static final String LINE_SEP = System.getProperty("line.separator");
+	public static final String LINE_SEP = System.getProperty("line.separator");
 	/**
 	 * stats object.
 	 */
@@ -89,6 +101,13 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		this.writer = writer;
 		this.dsfObjectsProvider = dsfObjectsProvider;
 		this.startTime = new Date();
+		
+		IDRenumbererService.reinit();
+		
+		polyHandlers.add(new XPBarrierTranslator(dsfObjectsProvider, writer));
+		polyHandlers.add(new XPRoadTranslator(writer));
+		polyHandlers.add(new XPRailTranslator(writer));
+		polyHandlers.add(new XPPowerlineTranslator(writer));
 	}
 	
 	@Override
@@ -242,12 +261,16 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		// or if surface of the polygon is under the max surface for a
 		// residential house
 		// and height is under max residential height
-		if ((OsmUtils.isValueinTags("residential", polygon.getTags())
-				|| OsmUtils.isValueinTags("house", polygon.getTags()) || polygon
-				.getArea() * 10000000 < ASSERTION_RESIDENTIAL_MAX_AREA)
-				&& polygon.getHeight() < XplaneOptionsHelper.getOptions()
-						.getResidentialMax()) {
-	
+		if (OsmUtils.isValueinTags("residential", polygon.getTags())
+				|| OsmUtils.isValueinTags("house", polygon.getTags())) {
+			return BuildingType.RESIDENTIAL;
+		}
+		if (!StringUtils.stripToEmpty(polygon.getTagValue("shop")).isEmpty()) {
+			return BuildingType.COMMERCIAL;
+		}
+		if (polygon.getArea() * 10000000 < ASSERTION_RESIDENTIAL_MAX_AREA
+			&& polygon.getHeight() < XplaneOptionsHelper.getOptions()
+					.getResidentialMax()) {
 			return BuildingType.RESIDENTIAL;
 		}
 		// do we are on a building object?
@@ -318,6 +341,15 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				dsfObjectsProvider.getObjectsList().get(object.getDsfIndex()),
 				stats);
 	
+	}
+
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		if (bbox != null && GuiOptionsHelper.isUseExclusionsFromPBF()) {
+			Box2D tileRect = new Box2D(currentTile, 1,1);
+			Box2D bboxRect = new Box2D(bbox.getBottom() / COORD_DIV_FACTOR,bbox.getTop() / COORD_DIV_FACTOR, bbox.getLeft() / COORD_DIV_FACTOR, bbox.getRight() / COORD_DIV_FACTOR);
+			dsfObjectsProvider.setExclusionBox(tileRect.intersection(bboxRect));
+		}
 	}
 
 	@Override

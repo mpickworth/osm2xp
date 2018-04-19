@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
+
 import math.geom2d.Point2D;
 
 import com.osm2xp.constants.FsxConstants;
@@ -161,5 +163,10 @@ public class FsxTranslatorImpl implements ITranslator {
 	public Boolean mustStoreWay(Way way) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
 	}
 }

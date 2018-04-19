@@ -6,13 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import math.geom2d.Box2D;
 import math.geom2d.polygon.LinearRing2D;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
-import com.osm2xp.model.facades.FacadeSet;
 import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.options.FacadeTagRule;
 import com.osm2xp.model.options.ForestTagRule;
@@ -27,7 +26,6 @@ import com.osm2xp.model.xplane.XplaneDsfLightObject;
 import com.osm2xp.model.xplane.XplaneDsfObject;
 import com.osm2xp.translators.BuildingType;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
-import com.osm2xp.utils.logging.Osm2xpLogger;
 
 /**
  * DsfObjectsProvider.
@@ -45,6 +43,7 @@ public class DsfObjectsProvider {
 	private List<String> lightsObjectsList = new ArrayList<String>();
 
 	private FacadeSetManager facadeSetManager;
+	private Box2D exclusionBox;
 
 	/**
 	 * @param facadeSet
@@ -86,6 +85,14 @@ public class DsfObjectsProvider {
 		}
 		
 		return polygonsList.indexOf(resFacade.getFile());
+	}
+	
+	public Integer getRandomBarrierFacade(BarrierType barrierType, OsmPolygon polygon) {
+		Facade randomBarrierFacade = facadeSetManager.getRandomBarrierFacade(barrierType);
+		if (randomBarrierFacade != null) {
+			return polygonsList.indexOf(randomBarrierFacade.getFile());
+		}
+		return -1;
 	}
 
 
@@ -410,6 +417,14 @@ public class DsfObjectsProvider {
 			}
 		}
 		return result;
+	}
+
+	public void setExclusionBox(Box2D boundingBox) {
+		this.exclusionBox = boundingBox;
+	}
+
+	public Box2D getExclusionBox() {
+		return exclusionBox;
 	}
 
 }

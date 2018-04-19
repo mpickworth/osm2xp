@@ -578,6 +578,13 @@
                   label="Tools"
                   style="pulldown">
             </command>
+            <command
+                  commandId="osm2xp.command.showConsole"
+                  icon="images/toolbarsIcons/console_32.png"
+                  label="Show Console"
+                  style="push"
+                  tooltip="Open Console view">
+            </command>
          </toolbar>
       </menuContribution>
       <menuContribution
@@ -738,6 +745,11 @@
       <command
             defaultHandler="com.osm2xp.gui.handlers.modes.CommandFlightGearMode"
             id="osm2xp.command.flightGearMode"
+            name="flightGearMode">
+      </command>
+      <command
+            defaultHandler="com.osm2xp.gui.handlers.modes.CommandShowConsole"
+            id="osm2xp.command.showConsole"
             name="flightGearMode">
       </command>
    </extension>

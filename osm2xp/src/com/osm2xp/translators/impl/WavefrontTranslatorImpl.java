@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 import org.osm2world.core.ConversionFacade;
 import org.osm2world.core.target.Target;
 import org.osm2world.core.target.obj.ObjTarget;
@@ -452,5 +453,10 @@ public class WavefrontTranslatorImpl implements ITranslator {
 	@Override
 	public Boolean mustStoreWay(Way way) {
 		return null;
+	}
+
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
 	}
 }

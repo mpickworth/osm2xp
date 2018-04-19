@@ -1,5 +1,7 @@
 package com.osm2xp.translators;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
+
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
@@ -72,5 +74,7 @@ public interface ITranslator {
 	 * @return true if this way is of interest for this translator.
 	 */
 	public Boolean mustStoreWay(Way way);
+
+	public void processBoundingBox(HeaderBBox bbox);
 
 }

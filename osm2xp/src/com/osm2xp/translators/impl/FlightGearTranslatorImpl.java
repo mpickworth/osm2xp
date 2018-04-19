@@ -9,6 +9,7 @@ import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
 import org.apache.commons.lang.StringUtils;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.options.ObjectFile;
@@ -152,5 +153,10 @@ public class FlightGearTranslatorImpl implements ITranslator {
 	@Override
 	public Boolean mustStoreWay(Way way) {
 		return null;
+	}
+	
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
 	}
 }

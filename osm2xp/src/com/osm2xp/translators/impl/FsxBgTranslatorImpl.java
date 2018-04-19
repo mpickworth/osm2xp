@@ -2,6 +2,8 @@ package com.osm2xp.translators.impl;
 
 import java.text.MessageFormat;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
+
 import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
@@ -137,5 +139,10 @@ public class FsxBgTranslatorImpl implements ITranslator {
 	@Override
 	public Boolean mustStoreWay(Way way) {
 		return null;
+	}
+	
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
 	}
 }

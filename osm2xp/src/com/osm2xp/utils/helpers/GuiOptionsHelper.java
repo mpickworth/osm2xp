@@ -33,6 +33,7 @@ public class GuiOptionsHelper {
 	private static GuiOptions options;
 	public static final String SCENE_NAME = "sceneName";
 	public static final String USED_FILES = "usedFiles";
+	public static final String USE_EXCLUSIONS_FROM_PBF = "useExclusionsFromPBF";
 	
 	public static final String ALLOWED_HIGHWAY_TYPES = "allowedHighwayTypes";
 	public static final String ALLOWED_HIGHWAY_SURFACE_TYPES = "allowedHighwaySurfaceTypes";
@@ -103,6 +104,10 @@ public class GuiOptionsHelper {
 	
 	private static String getStringProperty(String property, String defaultVal) {
 		return InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(property, defaultVal);
+	}
+	
+	private static boolean getBooleanProperty(String property, boolean defaultVal) {
+		return InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).getBoolean(property, defaultVal);
 	}
 	
 	private static void putProperty(String property, String value) {
@@ -224,6 +229,13 @@ public class GuiOptionsHelper {
 	public static void setAllowedHighwaySurfaceTypes(String[] types) {
 		putProperty(ALLOWED_HIGHWAY_SURFACE_TYPES, Arrays.asList(types).stream().collect(Collectors.joining(";")));
 	}
+
+	public static boolean isUseExclusionsFromPBF() {
+		return getBooleanProperty(USE_EXCLUSIONS_FROM_PBF, true);
+	}
 	
+	public static void setUseExclusionsFromPBF(boolean useExclusionsFromPBF) {
+		putProperty(USE_EXCLUSIONS_FROM_PBF, String.valueOf(useExclusionsFromPBF));
+	}
 	
 }

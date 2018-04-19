@@ -41,13 +41,13 @@ public class FacadeSetManager {
 			File folder = new File(pathStr);
 			if (pathStr.endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
 				folder = folder.getParentFile();
-				if (XplaneOptionsHelper.getOptions().isPackageFacades()
-						&& XplaneOptionsHelper.getOptions().isGenerateBuildings()) {
-					copyFacades(folder, targetFolder);
-				}
-				if (folder.isDirectory()) {
-					list.add(FacadeSetHelper.getFacadeSet(folder.getAbsolutePath()));
-				}
+			}
+			if (XplaneOptionsHelper.getOptions().isPackageFacades()
+					&& XplaneOptionsHelper.getOptions().isGenerateBuildings()) {
+				copyFacades(folder, targetFolder);
+			}
+			if (folder.isDirectory()) {
+				list.add(FacadeSetHelper.getFacadeSet(folder.getAbsolutePath()));
 			}
 		}
 		list.stream().flatMap(set -> set.getFacades().stream()).forEach(facade -> addFacade(facade));
@@ -116,7 +116,21 @@ public class FacadeSetManager {
 	}
 	
 	public List<String> getAllFacadeStrings() {
-		return buildingFacades.values().stream().distinct().map(facade -> facade.getFile()).sorted().collect(Collectors.toList());
+		List<String> facadeStrings = barrierFacades.values().stream().distinct().map(facade -> facade.getFile()).sorted().collect(Collectors.toList());
+		facadeStrings.addAll(buildingFacades.values().stream().distinct().map(facade -> facade.getFile()).sorted().collect(Collectors.toList()));
+		return facadeStrings;
+	}
+	
+	public Facade getRandomBarrierFacade(BarrierType barrierType) {
+		if (barrierFacades.isEmpty()) {
+			return null;
+		}
+		Collection<Facade> facades = barrierFacades.get(barrierType);
+		if (facades.isEmpty()) {
+			facades = barrierFacades.values();
+		}
+		Facade[] facadeArray = facades.toArray(new Facade[0]);
+		return (facadeArray[new Random().nextInt(facades.size())]);
 	}
 	
 	public Facade getRandomHouseSlopedFacade(BuildingType buildingType, double minVector, double height,

@@ -9,6 +9,7 @@ import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
 import java.util.GregorianCalendar;
 
+import math.geom2d.Box2D;
 import math.geom2d.Point2D;
 
 import com.osm2xp.constants.Osm2xpConstants;
@@ -354,7 +355,10 @@ public class DsfUtils {
 		StringBuilder sb = new StringBuilder();
 		int latitude = (int) coordinates.x;
 		int longitude = (int) coordinates.y;
-		String tileCoordinate = longitude + ".000000/" + latitude + ".000000/"
+		Box2D exclusionBox = dsfObjectsProvider.getExclusionBox();
+		String exclusionCoordinate = exclusionBox != null ? formatDsfCoord(exclusionBox.getMinY()) + "/" + formatDsfCoord(exclusionBox.getMinX()) + "/" + 
+				formatDsfCoord(exclusionBox.getMaxY()) + "/" + formatDsfCoord(exclusionBox.getMaxX()) + "\n"				
+				: longitude + ".000000/" + latitude + ".000000/"
 				+ (longitude + 1) + ".000000/" + (latitude + 1) + ".000000\n";
 
 		sb.append("I\n");
@@ -375,7 +379,7 @@ public class DsfUtils {
 		sb.append("PROPERTY sim/creation_agent Osm2Xp "
 				+ Osm2xpConstants.OSM2XP_VERSION + " by Benjamin Blanchet \n");
 		// Exclusions
-		sb.append(getDsfExclusions(tileCoordinate));
+		sb.append(getDsfExclusions(exclusionCoordinate));
 		sb.append("PROPERTY sim/west " + longitude + "\n");
 		sb.append("PROPERTY sim/east " + (longitude + 1) + "\n");
 		sb.append("PROPERTY sim/north " + (latitude + 1) + "\n");
@@ -404,10 +408,10 @@ public class DsfUtils {
 				String facadeDeclaration = null;
 				if (!XplaneOptionsHelper.getOptions().isPackageFacades()) {
 
-					facadeDeclaration = "POLYGON_DEF \\lib\\osm2xp\\facades\\"
+					facadeDeclaration = "POLYGON_DEF /lib/osm2xp/facades/"
 							+ facade + "\n";
 				} else {
-					facadeDeclaration = "POLYGON_DEF facades\\" + facade + "\n";
+					facadeDeclaration = "POLYGON_DEF facades/" + facade + "\n";
 				}
 				sb.append(facadeDeclaration);
 			}
@@ -420,10 +424,19 @@ public class DsfUtils {
 			}
 		}
 		
-		sb.append("NETWORK_DEF lib/g10/roads.net");
+		sb.append("NETWORK_DEF lib/g10/roads.net\n");
 
 		return sb.toString();
 
+	}
+
+	/**
+	 * Formats lat/long to string with 9 chars after "."
+	 * @param coord coord value to format
+	 * @return formatted string
+	 */
+	public static String formatDsfCoord(double coord) {
+		return String.format("%.9f", coord);
 	}
 
 }

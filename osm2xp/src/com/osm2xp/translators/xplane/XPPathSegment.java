@@ -1,15 +1,15 @@
-package com.osm2xp.translators.xp10;
+package com.osm2xp.translators.xplane;
 
 import math.geom2d.Point2D;
 
-public class XP10RoadSegment {
+public class XPPathSegment {
 	
 	private int type;
 	private long startId;
 	private long endId;
 	private Point2D[] points;
 
-	public XP10RoadSegment(int type, long startId, long endId, Point2D[] points) {
+	public XPPathSegment(int type, long startId, long endId, Point2D[] points) {
 		if (points.length < 2) {
 			throw new IllegalArgumentException("Need at least 2 points to generate road segment");
 		}

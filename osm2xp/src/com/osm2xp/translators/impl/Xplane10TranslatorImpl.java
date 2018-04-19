@@ -10,9 +10,6 @@ import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.translators.IPolyHandler;
 import com.osm2xp.translators.ITranslator;
-import com.osm2xp.translators.xp10.XP10BarrierTranslator;
-import com.osm2xp.translators.xp10.XP10RailTranslator;
-import com.osm2xp.translators.xp10.XP10RoadTranslator;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.MiscUtils;
 import com.osm2xp.utils.OsmUtils;
@@ -55,9 +52,6 @@ public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl implements ITra
 			Point2D currentTile, String folderPath,
 			DsfObjectsProvider dsfObjectsProvider) {
 		super(stats, writer, currentTile, folderPath, dsfObjectsProvider);
-		polyHandlers.add(new XP10RoadTranslator(writer));
-		polyHandlers.add(new XP10BarrierTranslator(writer));
-		polyHandlers.add(new XP10RailTranslator(writer));
 	}
 
 	@Override

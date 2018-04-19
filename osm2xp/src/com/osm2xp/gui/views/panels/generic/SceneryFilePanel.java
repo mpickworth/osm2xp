@@ -174,11 +174,24 @@ public class SceneryFilePanel extends Osm2xpPanel {
 			
 		};
 		
+		Button btnExclusionsFromFile = new Button(this, SWT.CHECK);
+		btnExclusionsFromFile.setText("Use exclusion coordinates from OSM file");
+		btnExclusionsFromFile.setToolTipText("Use bounding box from PBF/OSM file as exclusion zone instead of excluding whole tile. Can be useful when generating zones smaller than 1 tile");
+		btnExclusionsFromFile.setSelection(GuiOptionsHelper.isUseExclusionsFromPBF());
+		btnExclusionsFromFile.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				GuiOptionsHelper.setUseExclusionsFromPBF(btnExclusionsFromFile.getSelection());
+			}
+		});
+		btnExclusionsFromFile.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
+				false, true, 3, 1));
+		
 		btnGenerateAllTiles = new Button(this, SWT.CHECK);
 		btnGenerateAllTiles.setSelection(true);
 		btnGenerateAllTiles.setText("Generate all tiles");
 		btnGenerateAllTiles.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
-				false, true, 1, 1));
+				false, true, 3, 1));
 		btnGenerateAllTiles.addSelectionListener(tileSettingAdapter);
 		grpCoordinates = new Group(this, SWT.NONE);
 		gridCoordinates = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);

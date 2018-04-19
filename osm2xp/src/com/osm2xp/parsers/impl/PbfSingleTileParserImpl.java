@@ -183,6 +183,7 @@ public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
 
 	@Override
 	protected void parse(HeaderBlock header) {
+		translator.processBoundingBox(header.getBbox());
 	}
 
 	public void process() throws OsmParsingException {
