@@ -1,6 +1,7 @@
 package com.osm2xp.translators.xplane;
 
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
 
 public class XPRailTranslator extends XPPathTranslator {
@@ -11,6 +12,9 @@ public class XPRailTranslator extends XPPathTranslator {
 
 	@Override
 	public boolean handlePoly(OsmPolygon osmPolygon) {
+		if (!XplaneOptionsHelper.getOptions().isGenerateRailways()) {
+			return false;
+		}
 		if ("rail".equals(osmPolygon.getTagValue("railway"))) {
 			addSegmentsFrom(osmPolygon);
 			return true; 
@@ -19,7 +23,7 @@ public class XPRailTranslator extends XPPathTranslator {
 	}
 
 	@Override
-	protected int getRoadType(OsmPolygon polygon) {
+	protected int getPathType(OsmPolygon polygon) {
 		return 151; //TODO using only one type for now
 	}
 

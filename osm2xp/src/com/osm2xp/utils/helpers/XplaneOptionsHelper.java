@@ -68,7 +68,12 @@ public class XplaneOptionsHelper extends OptionsHelper {
 		result.setFacadeLod(25000);
 		result.setGenerateBuildings(true);
 		result.setGenerateFor(true);
+		result.setGenerateFence(true);
+		result.setGeneratePowerlines(true);
+		result.setGenerateRailways(true);
+		result.setGenerateRoads(true);
 		result.setGeneratePdfStats(true);
+		result.setGenerateDebugImg(false);
 		result.setGenerateSlopedRoofs(true);
 		result.setGenerateObj(true);
 		result.setPackageFacades(true);

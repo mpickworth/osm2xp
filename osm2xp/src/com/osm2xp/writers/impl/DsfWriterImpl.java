@@ -55,7 +55,6 @@ public class DsfWriterImpl implements IWriter {
 				}
 				// write into this dsf file
 				dsfWriters.get(coordinates).write((String) data);
-
 			}
 		} catch (IOException e) {
 			Osm2xpLogger.error(e.getMessage());

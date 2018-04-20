@@ -493,10 +493,12 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		return result;
 	}
 
-	private boolean processOther(OsmPolygon poly) {
+	protected boolean processOther(OsmPolygon poly) {
 		for (IPolyHandler handler : polyHandlers) {
 			if (handler.handlePoly(poly)) {
-				translationListener.polyProcessed(poly, handler);
+				if (translationListener != null) {
+					translationListener.polyProcessed(poly, handler);
+				}
 				return true;
 			}
 		}

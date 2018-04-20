@@ -16,6 +16,10 @@ import com.osm2xp.gui.Activator;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.translators.IPolyHandler;
 import com.osm2xp.translators.ITranslationListener;
+import com.osm2xp.translators.xplane.XPBarrierTranslator;
+import com.osm2xp.translators.xplane.XPPowerlineTranslator;
+import com.osm2xp.translators.xplane.XPRailTranslator;
+import com.osm2xp.translators.xplane.XPRoadTranslator;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 
 import math.geom2d.Box2D;
@@ -140,13 +144,33 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 	@Override
 	public void polyProcessed(OsmPolygon poly, IPolyHandler handler) {
 		checkSetBase(poly);
-		g2d.setColor(Color.BLACK);
+		setDrawingType(handler);
 		Shape drawPath = calculateDrawPath(poly);
-		g2d.setStroke(new BasicStroke(4));
 		if (drawPath != null) {
 			g2d.draw(drawPath);
 		}
 		g2d.setStroke(new BasicStroke(1));
+	}
+
+	protected void setDrawingType(IPolyHandler handler) {
+		Color color = Color.BLACK;
+		if (handler instanceof XPRailTranslator) {
+			color = Color.GRAY;
+			g2d.setStroke(new BasicStroke(4));
+		}
+		if (handler instanceof XPBarrierTranslator) {
+			color = Color.CYAN;
+			g2d.setStroke(new BasicStroke(1));
+		}
+		if (handler instanceof XPPowerlineTranslator) {
+			color = Color.BLUE;
+			g2d.setStroke(new BasicStroke(2));
+		}
+		if (handler instanceof XPRoadTranslator) {
+			color = Color.BLACK;
+			g2d.setStroke(new BasicStroke(4));
+		}
+		g2d.setColor(color);
 	}
 
 }

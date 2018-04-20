@@ -18,10 +18,10 @@ import javax.xml.bind.annotation.XmlType;
 		"excludeBch", "excludeNet", "excludeLin", "excludePol", "excludeStr",
 		"residentialMin", "residentialMax", "buildingMin", "buildingMax",
 		"minHouseSegment", "maxHouseSegment", "minHouseArea", "generateObj",
-		"generateFor", "generateStreetLights", "generateBuildings",
-		"generateSlopedRoofs", "lightsDensity", "packageFacades",
-		"hardBuildings", "lightObject", "facadeLod", "facadeSet",
-		"generateXmlStats", "generatePdfStats", "buildingsExclusions",
+		"generateFor", "generateBuildings","generatePowerlines","generateRailways","generateRoads","generateFence",
+		"generateSlopedRoofs", "generateStreetLights", "lightsDensity", "packageFacades",
+		"hardBuildings", "lightObject", "facadeLod", 
+		"generateXmlStats", "generatePdfStats", "generateDebugImg", "buildingsExclusions",
 		"forestsRules", "objectsRules", "lightsRules", "facadesRules",
 		"streetLightObjects" })
 @XmlRootElement(name = "XplaneOptions")
@@ -46,9 +46,13 @@ public class XplaneOptions {
 	protected int smartExclusionSize;
 	protected int smartExclusionDistance;
 	protected boolean generateObj;
-	protected boolean generateFor;
+	protected boolean generateFor = true;
+	protected boolean generateBuildings = true;
+	protected boolean generatePowerlines = true;
+	protected boolean generateRailways = true;
+	protected boolean generateRoads = true;
+	protected boolean generateFence = true;
 	protected boolean generateStreetLights;
-	protected boolean generateBuildings;
 	protected boolean generateSlopedRoofs;
 	protected int lightsDensity;
 	protected boolean packageFacades;
@@ -57,9 +61,10 @@ public class XplaneOptions {
 	protected String lightObject;
 	protected int facadeLod;
 	@XmlElement(required = true)
-	protected String facadeSet;
+//	protected String facadeSet;
 	protected boolean generateXmlStats;
 	protected boolean generatePdfStats;
+	protected boolean generateDebugImg = false;
 	@XmlElement(name = "BuildingsExclusions", required = true)
 	protected BuildingsExclusionsList buildingsExclusions;
 	@XmlElement(name = "ForestsRules", required = true)
@@ -97,8 +102,7 @@ public class XplaneOptions {
 			final boolean generateBuildings, final boolean generateSlopedRoofs,
 			final int lightsDensity, final boolean packageFacades,
 			final boolean hardBuildings, final String lightObject,
-			final int facadeLod, final String facadeSet,
-			final boolean generateXmlStats, final boolean generatePdfStats,
+			final int facadeLod, final boolean generateXmlStats, final boolean generatePdfStats,
 			final BuildingsExclusionsList buildingsExclusions,
 			final ForestsRulesList forestsRules,
 			final LightsRulesList lightsRules,
@@ -131,7 +135,7 @@ public class XplaneOptions {
 		this.hardBuildings = hardBuildings;
 		this.lightObject = lightObject;
 		this.facadeLod = facadeLod;
-		this.facadeSet = facadeSet;
+//		this.facadeSet = facadeSet;
 		this.generateXmlStats = generateXmlStats;
 		this.generatePdfStats = generatePdfStats;
 		this.buildingsExclusions = buildingsExclusions;
@@ -555,9 +559,9 @@ public class XplaneOptions {
 	 * @return possible object is {@link String }
 	 * 
 	 */
-	public String getFacadeSet() {
-		return facadeSet;
-	}
+//	public String getFacadeSet() {
+//		return facadeSet;
+//	}
 
 	/**
 	 * Sets the value of the facadeSet property.
@@ -566,9 +570,9 @@ public class XplaneOptions {
 	 *            allowed object is {@link String }
 	 * 
 	 */
-	public void setFacadeSet(String value) {
-		this.facadeSet = value;
-	}
+//	public void setFacadeSet(String value) {
+//		this.facadeSet = value;
+//	}
 
 	/**
 	 * Gets the value of the generateXmlStats property.
@@ -741,6 +745,46 @@ public class XplaneOptions {
 
 	public boolean isGenerateLights() {
 		return true;
+	}
+
+	public boolean isGeneratePowerlines() {
+		return generatePowerlines;
+	}
+
+	public void setGeneratePowerlines(boolean generatePowerlines) {
+		this.generatePowerlines = generatePowerlines;
+	}
+
+	public boolean isGenerateRailways() {
+		return generateRailways;
+	}
+
+	public void setGenerateRailways(boolean generateRailways) {
+		this.generateRailways = generateRailways;
+	}
+
+	public boolean isGenerateRoads() {
+		return generateRoads;
+	}
+
+	public void setGenerateRoads(boolean generateRoads) {
+		this.generateRoads = generateRoads;
+	}
+
+	public boolean isGenerateFence() {
+		return generateFence;
+	}
+
+	public void setGenerateFence(boolean generateFence) {
+		this.generateFence = generateFence;
+	}
+
+	public boolean isGenerateDebugImg() {
+		return generateDebugImg;
+	}
+
+	public void setGenerateDebugImg(boolean generateDebugImg) {
+		this.generateDebugImg = generateDebugImg;
 	}
 
 }

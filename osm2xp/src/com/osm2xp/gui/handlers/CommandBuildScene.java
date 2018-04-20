@@ -1,19 +1,23 @@
 package com.osm2xp.gui.handlers;
 
+import java.io.File;
+import java.util.Arrays;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandlerListener;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 
-import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.constants.Perspectives;
 import com.osm2xp.controllers.BuildController;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.dialogs.utils.Osm2xpDialogsHelper;
+import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.utils.helpers.FsxOptionsHelper;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
-import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
 /**
@@ -48,7 +52,7 @@ public class CommandBuildScene implements IHandler {
 			}
 		} else {
 			Osm2xpDialogsHelper
-					.displayErrorDialog("Bad configuration, please check following errors:\n"
+					.displayErrorDialog("Bad configuration", "Please check following errors:\n"
 							+ getConfigurationErrors());
 		}
 		return null;
@@ -66,10 +70,14 @@ public class CommandBuildScene implements IHandler {
 				.equals(Perspectives.PERSPECTIVE_XPLANE10)
 				|| GuiOptionsHelper.getOptions().getOutputFormat()
 						.equals(Perspectives.PERSPECTIVE_XPLANE9)) {
-
-			if (XplaneOptionsHelper.getOptions().isGenerateBuildings()
-					&& XplaneOptionsHelper.getOptions().getFacadeSet() == null) {
-				errors.append("-No facade set selected.\n");
+			String[] setPaths = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"").split(File.pathSeparator);
+			if (setPaths == null || setPaths.length == 0) {
+				errors.append(" - Zero facade sets selected.\n");
+			} else {
+				boolean oneExists = Arrays.asList(setPaths).stream().anyMatch(str -> !str.trim().isEmpty() && new File(str).exists());
+				if (!oneExists) {
+					errors.append(" - All speciefied facade sets are invalid.\n");
+				}
 			}
 		}
 		// FSX validation

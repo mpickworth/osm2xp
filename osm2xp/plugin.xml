@@ -655,22 +655,22 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="com.osm2xp.application"
-            name="Osm2xp">
+            name="Osm2XP">
          <property
                name="appName"
-               value="Osm2xp">
+               value="Osm2XP">
          </property>
          <property
                name="startupProgressRect"
                value="5,275,445,15">
          </property>
          <property
-               name="preferenceCustomization"
-               value="plugin_customization.ini">
+               name="aboutText"
+               value="Osm2xp 2.1B1, OpenStreetMap scenery generator for flight Simulators.&#x0A;&#x0A;Copyright (C) 2010-2013  Benjamin Blanchet for Javee software solutions.&#x0A;&#x0A;Contact : osm2xp@gmail.com&#x0A;Website : http://osm2xp.com&#x0A;&#x0A;&#x0A;    This program is free software: you can redistribute it and/or modify&#x0A;    it under the terms of the GNU General Public License as published by&#x0A;    the Free Software Foundation, either version 3 of the License, or&#x0A;    (at your option) any later version.&#x0A;&#x0A;    This program is distributed in the hope that it will be useful,&#x0A;    but WITHOUT ANY WARRANTY; without even the implied warranty of&#x0A;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the&#x0A;    GNU General Public License for more details.&#x0A;&#x0A;    You should have received a copy of the GNU General Public License&#x0A;    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.&#x0A;&#x0A;&#x0A;FreeMem plugin by Markus junginger http://www.junginger.biz/eclipse/freemem.html&#x0A;Osm2world by Tobiass Knerr http://osm2world.org/&#x0A;Icons by Open Icon Library http://http://openiconlibrary.sourceforge.net/">
          </property>
          <property
-               name="aboutText"
-               value="Osm2xp 2.0.2, OpenStreetMap scenery generator for flight simulation.&#x0A;&#x0A;Copyright Benjamin Blanchet 2010-2012&#x0A;&#x0A;Contact : osm2xp@gmail.com&#x0A;Website : http://osm2xp.com&#x0A;&#x0A;this work is under Attribution-NonCommercial-NoDerivs 3.0 Unported licence (http://creativecommons.org/licenses/by-nc-nd/3.0/)&#x0A;&#x0A;You are free to Share ,to copy, distribute and transmit the work&#x0A;&#x0A;You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).&#x0A;You may not use this work for commercial purposes.&#x0A;You may not alter, transform, or build upon this work.&#x0A;&#x0A;&#x0A;FreeMem plugin by Markus junginger http://www.junginger.biz/eclipse/freemem.html&#x0A;Osm2world by Tobiass Knerr http://osm2world.org/&#x0A;Icons by Open Icon Library http://http://openiconlibrary.sourceforge.net/">
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
          </property>
          
       </product>

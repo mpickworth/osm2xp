@@ -103,7 +103,9 @@ public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl implements ITra
 			Osm2xpLogger.info("Tile " + (int) currentTile.x + "/"
 					+ (int) currentTile.y + " is empty, no dsf generated");
 		}
-		translationListener.complete();
+		if (translationListener != null) {
+			translationListener.complete();
+		}
 	}
 
 	@Override

@@ -24,6 +24,7 @@ import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.StatsHelper;
 import com.osm2xp.utils.helpers.WavefrontOptionsHelper;
+import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
 import com.osm2xp.writers.impl.BglWriterImpl;
 import com.osm2xp.writers.impl.DsfWriterImpl;
@@ -191,7 +192,9 @@ public class TranslatorBuilder {
 		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
 		Xplane10TranslatorImpl translatorImpl = new Xplane10TranslatorImpl(stats, writer, currentTile,
 				folderPath, dsfObjectsProvider);
-		translatorImpl.setTranslationListener(new ImageDebugTranslationListener());
+		if (XplaneOptionsHelper.getOptions().isGenerateDebugImg()) {
+			translatorImpl.setTranslationListener(new ImageDebugTranslationListener());
+		}
 		return translatorImpl;
 	}
 
@@ -214,7 +217,11 @@ public class TranslatorBuilder {
 //		FacadeSet facadeSet = FacadeSetHelper.getFacadeSet(FacadeSetPath);
 		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(new FacadeSetManager(new File(folderPath)));
 		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
-		return new Xplane9TranslatorImpl(stats, writer, currentTile,
+		Xplane9TranslatorImpl xplane9TranslatorImpl = new Xplane9TranslatorImpl(stats, writer, currentTile,
 				folderPath, dsfObjectsProvider);
+		if (XplaneOptionsHelper.getOptions().isGenerateDebugImg()) {
+			xplane9TranslatorImpl.setTranslationListener(new ImageDebugTranslationListener());
+		}
+		return xplane9TranslatorImpl;
 	}
 }

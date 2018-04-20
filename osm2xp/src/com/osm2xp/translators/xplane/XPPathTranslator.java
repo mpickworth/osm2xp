@@ -52,7 +52,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 			Node node = nodes.get(i);
 			currentSegment.add(node);
 			if ((currentSegment.size() > 1 && pathCrossingIds.contains(node.getId())) || i == nodes.size() - 1) {
-				result.add(new XPPathSegment(getRoadType(poly), 
+				result.add(new XPPathSegment(getPathType(poly), 
 						IDRenumbererService.getNewId(currentSegment.get(0).getId()), 
 						IDRenumbererService.getNewId(node.getId()),
 						GeomUtils.getPointsFromOsmNodes(currentSegment)));
@@ -65,6 +65,6 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 		return result;
 	}
 
-	protected abstract int getRoadType(OsmPolygon polygon); 
+	protected abstract int getPathType(OsmPolygon polygon); 
 
 }

@@ -63,18 +63,17 @@ Bundle-ClassPath: .,
  lib/protobuf-java-3.4.0.jar
 Bundle-Activator: com.osm2xp.gui.Activator
 Require-Bundle: org.eclipse.ui,
-  org.eclipse.core.runtime,
-  org.eclipse.ui.console;bundle-version="3.5.0",
-  org.eclipse.core.databinding;bundle-version="1.4.0",
-  org.eclipse.core.databinding.beans;bundle-version="1.2.100",
-  org.eclipse.jface.databinding;bundle-version="1.5.0",
-  org.eclipse.core.databinding.property;bundle-version="1.4.0",
-  org.eclipse.core.resources;bundle-version="3.7.100",
-  org.eclipse.ui.forms;bundle-version="3.5.100",
-  org.eclipse.help;bundle-version="3.5.100",
-  org.eclipse.help.ui;bundle-version="3.5.101",
-  org.eclipse.help.webapp;bundle-version="3.6.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ org.eclipse.core.runtime,
+ org.eclipse.ui.console;bundle-version="3.5.0",
+ org.eclipse.core.databinding;bundle-version="1.4.0",
+ org.eclipse.core.databinding.beans;bundle-version="1.2.100",
+ org.eclipse.jface.databinding;bundle-version="1.5.0",
+ org.eclipse.core.databinding.property;bundle-version="1.4.0",
+ org.eclipse.core.resources;bundle-version="3.7.100",
+ org.eclipse.ui.forms;bundle-version="3.5.100",
+ org.eclipse.help;bundle-version="3.5.100",
+ org.eclipse.help.ui;bundle-version="3.5.101"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.osm2xp.constants,
  com.osm2xp.controllers,

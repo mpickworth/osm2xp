@@ -9,6 +9,8 @@ import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
 import java.util.GregorianCalendar;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
 import math.geom2d.Box2D;
 import math.geom2d.Point2D;
 
@@ -17,6 +19,8 @@ import com.osm2xp.constants.Perspectives;
 import com.osm2xp.constants.XplaneConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.exceptions.Osm2xpTechnicalException;
+import com.osm2xp.gui.Activator;
+import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.xplane.XplaneDsfObject;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
@@ -192,7 +196,7 @@ public class DsfUtils {
 				outputlibrary.write("EXPORT \\lib\\osm2xp\\facades\\" + facade
 						+ " .." + File.separator + "osm2xpFacades"
 						+ File.separator
-						+ XplaneOptionsHelper.getOptions().getFacadeSet()
+						+ InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"")
 						+ File.separator + facade + "\n");
 
 			}
@@ -208,29 +212,29 @@ public class DsfUtils {
 	 * 
 	 * @throws Osm2xpBusinessException
 	 */
-	public static void copyFacadeSet(String sceneFolder) {
-		if (XplaneOptionsHelper.getOptions().isPackageFacades()
-				&& !new File(sceneFolder + File.separatorChar + "facades")
-						.exists()) {
-			File from = new File(Osm2xpConstants.FACADES_SETS_PATH
-					+ File.separatorChar
-					+ XplaneOptionsHelper.getOptions().getFacadeSet());
-			File to = new File(sceneFolder + File.separatorChar + "facades");
-
-			try {
-				FilesUtils.copyDirectory(from, to);
-				applyFacadeLod(to);
-				if (!XplaneOptionsHelper.getOptions().isHardBuildings()) {
-					DsfUtils.removeConcreteRoofsAndWalls(to);
-				}
-			} catch (FileNotFoundException e) {
-				throw new Osm2xpTechnicalException(e);
-			} catch (IOException e) {
-				throw new Osm2xpTechnicalException(e);
-			}
-
-		}
-	}
+//	public static void copyFacadeSet(String sceneFolder) {
+//		if (XplaneOptionsHelper.getOptions().isPackageFacades()
+//				&& !new File(sceneFolder + File.separatorChar + "facades")
+//						.exists()) {
+//			File from = new File(Osm2xpConstants.FACADES_SETS_PATH
+//					+ File.separatorChar
+//					+ XplaneOptionsHelper.getOptions().getFacadeSet());
+//			File to = new File(sceneFolder + File.separatorChar + "facades");
+//
+//			try {
+//				FilesUtils.copyDirectory(from, to);
+//				applyFacadeLod(to);
+//				if (!XplaneOptionsHelper.getOptions().isHardBuildings()) {
+//					DsfUtils.removeConcreteRoofsAndWalls(to);
+//				}
+//			} catch (FileNotFoundException e) {
+//				throw new Osm2xpTechnicalException(e);
+//			} catch (IOException e) {
+//				throw new Osm2xpTechnicalException(e);
+//			}
+//
+//		}
+//	}
 
 	/**
 	 * Compile a dsf file from a text file

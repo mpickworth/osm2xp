@@ -138,7 +138,9 @@ public class Xplane9TranslatorImpl extends XPlaneTranslatorImpl {
 						// nothing generated? try to generate a forest.
 						if (!processForest(poly)) {
 							// still nothing? try to generate a streetlight.
-							processStreetLights(poly);
+							if (!processStreetLights(poly)) {
+								processOther(poly);
+							}
 						}
 					}
 				}

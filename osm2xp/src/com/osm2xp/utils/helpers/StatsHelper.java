@@ -15,6 +15,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
 import math.geom2d.Point2D;
 
 import com.lowagie.text.BadElementException;
@@ -29,6 +31,8 @@ import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
+import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.stats.BuildingStat;
 import com.osm2xp.model.stats.BuildingsStats;
 import com.osm2xp.model.stats.ForestStat;
@@ -451,8 +455,8 @@ public class StatsHelper {
 					+ GuiOptionsHelper.getOptions().getOutputFormat(),
 					new Font(Font.TIMES_ROMAN, 12, Font.NORMAL)));
 			if (XplaneOptionsHelper.getOptions().isGenerateBuildings()) {
-				preface.add(new Paragraph("Facade set: "
-						+ XplaneOptionsHelper.getOptions().getFacadeSet(),
+				preface.add(new Paragraph("Facade sets: "
+						+ InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,""),
 						new Font(Font.TIMES_ROMAN, 12, Font.NORMAL)));
 				preface.add(new Paragraph("Facade L.O.D: "
 						+ XplaneOptionsHelper.getOptions().getFacadeLod(),

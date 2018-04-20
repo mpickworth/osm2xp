@@ -67,7 +67,7 @@ public class XplaneAdvancedOptionsView extends ViewPart implements
 				Section.TWISTIE | Section.EXPANDED | Section.TITLE_BAR);
 		sectionGeneratedItems.setLayoutData(new TableWrapData(
 				TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 1));
-		sectionGeneratedItems.setText("generated items");
+		sectionGeneratedItems.setText("Generated items");
 		GeneratedItemsPanel scGeneratedItemsPanel = new GeneratedItemsPanel(
 				sectionGeneratedItems, SWT.BORDER);
 		toolkit.adapt(scGeneratedItemsPanel, true, true);
@@ -106,7 +106,7 @@ public class XplaneAdvancedOptionsView extends ViewPart implements
 				Section.TWISTIE | Section.TITLE_BAR);
 		statsOptionsSection.setLayoutData(new TableWrapData(
 				TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 1));
-		statsOptionsSection.setText("Stats options");
+		statsOptionsSection.setText("Stats and Debug options");
 		StatsOptionsPanel statsOptionsPanel = new StatsOptionsPanel(
 				statsOptionsSection, SWT.BORDER);
 

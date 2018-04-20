@@ -4,6 +4,7 @@ import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
 
 import math.geom2d.Point2D;
@@ -22,6 +23,9 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 
 	@Override
 	public boolean handlePoly(OsmPolygon osmPolygon) {
+		if (!XplaneOptionsHelper.getOptions().isGenerateFence()) {
+			return false;
+		}
 		String barrierType = osmPolygon.getTagValue("barrier");
 		if (barrierType != null && GeomUtils.computePerimeter(osmPolygon.getPolygon()) > MIN_BARRIER_PERIMETER) {
 			Integer facade = dsfObjectsProvider.getRandomBarrierFacade(getBarrierType(barrierType),osmPolygon);
@@ -36,9 +40,8 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 				sb.append("BEGIN_WINDING");
 				sb.append(LINE_SEP);
 	
-				// on supprime le dernier point pour ne pas boucler
-				osmPolygon.getPolygon().removePoint(
-						osmPolygon.getPolygon().getLastPoint());
+//				osmPolygon.getPolygon().removePoint(
+//						osmPolygon.getPolygon().getLastPoint());
 				for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
 					sb.append("POLYGON_POINT " + loc.y + " " + loc.x);
 					sb.append(LINE_SEP);
