@@ -1,6 +1,7 @@
 package com.osm2xp.translators.xplane;
 
 import math.geom2d.Point2D;
+import static com.osm2xp.translators.impl.XPlaneTranslatorImpl.LINE_SEP;
 
 public class XPPathSegment {
 	
@@ -8,6 +9,8 @@ public class XPPathSegment {
 	private long startId;
 	private long endId;
 	private Point2D[] points;
+	
+	private String comment;
 
 	public XPPathSegment(int type, long startId, long endId, Point2D[] points) {
 		if (points.length < 2) {
@@ -22,11 +25,19 @@ public class XPPathSegment {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(String.format("BEGIN_SEGMENT 0 %d %d %3.9f %4.9f 0.000000000\n", type, startId, points[0].y, points[0].x));
-		for (int i = 1; i < points.length - 1; i++) {
-			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000\n",points[i].y, points[i].x));	
+		if (getComment() != null) {
+			builder.append("#");
+			builder.append(getComment());
+			builder.append(LINE_SEP);
 		}
-		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f 0.000000000\n", endId, points[points.length - 1].y, points[points.length - 1].x));
+		builder.append(String.format("BEGIN_SEGMENT 0 %d %d %3.9f %4.9f 0.000000000", type, startId, points[0].y, points[0].x));
+		builder.append(LINE_SEP);
+		for (int i = 1; i < points.length - 1; i++) {
+			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000",points[i].y, points[i].x));
+			builder.append(LINE_SEP);
+		}
+		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f 0.000000000", endId, points[points.length - 1].y, points[points.length - 1].x));
+		builder.append(LINE_SEP);
 		return builder.toString();
 	}
 
@@ -35,6 +46,14 @@ public class XPPathSegment {
 			throw new IndexOutOfBoundsException("Point index out of bounds " + i);
 		}
 		return points[i];
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 }

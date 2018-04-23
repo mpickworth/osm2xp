@@ -26,5 +26,10 @@ public class XPRailTranslator extends XPPathTranslator {
 	protected int getPathType(OsmPolygon polygon) {
 		return 151; //TODO using only one type for now
 	}
+	
+	@Override
+	protected String getComment(OsmPolygon poly) {
+		return "railway";
+	}
 
 }

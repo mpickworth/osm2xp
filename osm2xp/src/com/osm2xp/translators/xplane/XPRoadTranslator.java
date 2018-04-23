@@ -36,5 +36,11 @@ public class XPRoadTranslator extends XPPathTranslator {
 		// TODO Implement actual logics for this, using const value for now
 		return 50;
 	}
+	
+	@Override
+	protected String getComment(OsmPolygon poly) {
+		return "road";
+	}
+
 
 }

@@ -31,11 +31,12 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 			Integer facade = dsfObjectsProvider.getRandomBarrierFacade(getBarrierType(barrierType),osmPolygon);
 			if (facade != null && facade >= 0) {
 				StringBuffer sb = new StringBuffer();
+				sb.append("#Barrier " + barrierType + " facade " + facade);
+				sb.append(LINE_SEP);
 				osmPolygon.setPolygon(GeomUtils.setClockwise(osmPolygon
 						.getPolygon()));
 				
-				sb.append("BEGIN_POLYGON " + facade + " "
-						+ osmPolygon.getHeight() + " 2");
+				sb.append("BEGIN_POLYGON " + facade + " 2 2"); //TODO need actual wall height here, using "2" for now
 				sb.append(LINE_SEP);
 				sb.append("BEGIN_WINDING");
 				sb.append(LINE_SEP);

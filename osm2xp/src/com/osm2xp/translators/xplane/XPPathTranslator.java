@@ -35,8 +35,8 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	public void translationComplete() {
 		for (OsmPolygon poly : pathPolys) {
 			List<XPPathSegment> segments = getSegmentsFor(poly);
-			for (XPPathSegment roadSegment : segments) {
-				writer.write(roadSegment.toString(), GeomUtils.cleanCoordinatePoint(roadSegment.getPoint(0)));
+			for (XPPathSegment pathSegment : segments) {
+				writer.write(pathSegment.toString(), GeomUtils.cleanCoordinatePoint(pathSegment.getPoint(0)));
 			}
 		}
 	}
@@ -52,10 +52,12 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 			Node node = nodes.get(i);
 			currentSegment.add(node);
 			if ((currentSegment.size() > 1 && pathCrossingIds.contains(node.getId())) || i == nodes.size() - 1) {
-				result.add(new XPPathSegment(getPathType(poly), 
+				XPPathSegment segment = new XPPathSegment(getPathType(poly), 
 						IDRenumbererService.getNewId(currentSegment.get(0).getId()), 
 						IDRenumbererService.getNewId(node.getId()),
-						GeomUtils.getPointsFromOsmNodes(currentSegment)));
+						GeomUtils.getPointsFromOsmNodes(currentSegment));
+				segment.setComment(getComment(poly));
+				result.add(segment);
 				currentSegment.clear();
 				if (i < nodes.size() - 1) {
 					currentSegment.add(node);
@@ -63,6 +65,15 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 			}
 		}		
 		return result;
+	}
+
+	/**
+	 * Get comment to be written into DSF file for this path/poly
+	 * @param poly
+	 * @return comment string, without "#' mark before. <code>null</code> by default, override if necessary
+	 */
+	protected String getComment(OsmPolygon poly) {
+		return null;
 	}
 
 	protected abstract int getPathType(OsmPolygon polygon); 
