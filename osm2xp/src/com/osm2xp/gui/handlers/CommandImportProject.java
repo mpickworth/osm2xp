@@ -2,10 +2,9 @@ package com.osm2xp.gui.handlers;
 
 import java.io.File;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -22,18 +21,9 @@ import com.osm2xp.utils.logging.Osm2xpLogger;
  * @author Benjamin Blanchet
  * 
  */
-public class CommandImportProject implements IHandler {
+public class CommandImportProject extends AbstractHandler {
 	private static final String[] FILTER_NAMES = { "osm2xp project (*.project)" };
 	private static final String[] FILTER_EXTS = { "*.project" };
-
-	@Override
-	public void addHandlerListener(IHandlerListener handlerListener) {
-	}
-
-	@Override
-	public void dispose() {
-
-	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -76,11 +66,6 @@ public class CommandImportProject implements IHandler {
 	@Override
 	public boolean isHandled() {
 		return true;
-	}
-
-	@Override
-	public void removeHandlerListener(IHandlerListener handlerListener) {
-
 	}
 
 }

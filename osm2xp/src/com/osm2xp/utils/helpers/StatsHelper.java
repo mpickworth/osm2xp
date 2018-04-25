@@ -49,6 +49,7 @@ import com.osm2xp.model.stats.ObjectsStats;
  */
 public class StatsHelper {
 
+	private static final String STATS_FOLDER = "stats";
 	private static List<GenerationStats> statsList = new ArrayList<GenerationStats>();
 
 	public static void RecapStats(String folderPath)
@@ -350,7 +351,7 @@ public class StatsHelper {
 	 */
 	public static void saveStats(String folderPath, Point2D tile,
 			GenerationStats stats) throws Osm2xpBusinessException {
-		File file = new File(folderPath + File.separator + "stats"
+		File file = new File(folderPath + File.separator + STATS_FOLDER
 				+ File.separator + "stats_" + (int) tile.x + "-" + (int) tile.y
 				+ ".xml");
 		try {
@@ -375,7 +376,7 @@ public class StatsHelper {
 	public static void saveRecapStats(String folderPath)
 			throws Osm2xpBusinessException {
 		if (!statsList.isEmpty()) {
-			File file = new File(folderPath + File.separator + "stats"
+			File file = new File(folderPath + File.separator + STATS_FOLDER
 					+ File.separator + "recapStats" + ".xml");
 			GenerationStats stats = getRecapStats();
 			try {
@@ -401,7 +402,7 @@ public class StatsHelper {
 
 	public static void generatePdfRecapReport(String folderPath)
 			throws Osm2xpBusinessException {
-		File file = new File(folderPath + File.separator + "stats"
+		File file = new File(folderPath + File.separator + STATS_FOLDER
 				+ File.separator + "recapStats.pdf");
 		String title = "Osm2xp recap stats ";
 		generatePdfReport(file, getRecapStats(), title);
@@ -409,7 +410,7 @@ public class StatsHelper {
 
 	public static void generatePdfReport(String folderPath,
 			GenerationStats stats) throws Osm2xpBusinessException {
-		File file = new File(folderPath + File.separator + "stats"
+		File file = new File(folderPath + File.separator + STATS_FOLDER
 				+ File.separator + "stats_" + stats.getLatitude() + "-"
 				+ stats.getLongitude() + ".pdf");
 		String title = "Osm2xp report for tile " + stats.getLatitude() + "/"

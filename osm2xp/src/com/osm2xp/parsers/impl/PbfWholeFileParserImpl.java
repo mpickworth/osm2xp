@@ -191,7 +191,7 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 
 				if (nodes != null) {
 					OsmPolygon polygon = new OsmPolygon(way.getId(),
-							way.getTag(), nodes);
+							way.getTag(), nodes, nodes.size() < ids.size());
 					translator.processPolygon(polygon);
 				}
 

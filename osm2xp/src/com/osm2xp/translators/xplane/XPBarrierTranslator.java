@@ -23,7 +23,7 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 
 	@Override
 	public boolean handlePoly(OsmPolygon osmPolygon) {
-		if (!XplaneOptionsHelper.getOptions().isGenerateFence()) {
+		if (!XplaneOptionsHelper.getOptions().isGenerateFence() || osmPolygon.isPartial()) {
 			return false;
 		}
 		String barrierType = osmPolygon.getTagValue("barrier");

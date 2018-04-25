@@ -175,8 +175,10 @@ public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl implements ITra
 				&& OsmUtils.isBuilding(osmPolygon.getTags())
 				&& !OsmUtils.isExcluded(osmPolygon.getTags(),
 						osmPolygon.getId())
+				&& !specialExcluded(osmPolygon)
+				&& !osmPolygon.isPartial()
 				&& osmPolygon.getPolygon().getVertexNumber() > BUILDING_MIN_VECTORS
-				&& osmPolygon.getPolygon().getVertexNumber() < BUILDING_MAX_VECTORS) {
+				&& osmPolygon.getPolygon().getVertexNumber() < BUILDING_MAX_VECTORS) { 
 	
 			// check that the largest vector of the building
 			// and that the area of the osmPolygon.getPolygon() are over the

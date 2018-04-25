@@ -22,7 +22,7 @@ import com.osm2xp.utils.FilesUtils;
  * @author Benjamin Blanchet
  * 
  */
-public class Jdbm3ProcessorImpl implements IDataSink {
+public class Jdbm3ProcessorImpl extends AbstractDataProcessor {
 	private DB db;
 	private ConcurrentMap<Long, double[]> nodesMap;
 	// private RecordManager recMan;
@@ -91,22 +91,6 @@ public class Jdbm3ProcessorImpl implements IDataSink {
 			result = new Node(null, node[0], node[1], id);
 		}
 		return result;
-
-	}
-
-	@Override
-	public List<Node> getNodes(List<Long> ids) throws DataSinkException {
-
-		List<Node> nodes = new ArrayList<Node>();
-		for (Long nd : ids) {
-			Node node = getNode(nd);
-			if (node == null) {
-				return null;
-			} else {
-				nodes.add(node);
-			}
-		}
-		return nodes;
 
 	}
 

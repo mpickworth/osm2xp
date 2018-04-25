@@ -1,9 +1,8 @@
 package com.osm2xp.gui.handlers;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 
@@ -15,16 +14,7 @@ import com.osm2xp.gui.dialogs.FacadeSetEditorDialog;
  * @author Benjamin Blanchet
  * 
  */
-public class CommandFacadeSetEditor implements IHandler {
-
-	@Override
-	public void addHandlerListener(IHandlerListener handlerListener) {
-	}
-
-	@Override
-	public void dispose() {
-
-	}
+public class CommandFacadeSetEditor extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -52,11 +42,6 @@ public class CommandFacadeSetEditor implements IHandler {
 	@Override
 	public boolean isHandled() {
 		return true;
-	}
-
-	@Override
-	public void removeHandlerListener(IHandlerListener handlerListener) {
-
 	}
 
 }

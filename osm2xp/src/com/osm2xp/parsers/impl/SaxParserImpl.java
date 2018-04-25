@@ -173,7 +173,7 @@ public class SaxParserImpl implements ContentHandler, IParser {
 
 		if (nodes != null) {
 			OsmPolygon polygon = new OsmPolygon(way.getId(), way.getTag(),
-					nodes);
+					nodes, nodes.size() < ids.size());
 			translator.processPolygon(polygon);
 		}
 

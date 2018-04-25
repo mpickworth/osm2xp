@@ -22,7 +22,7 @@ import com.osm2xp.utils.logging.Osm2xpLogger;
  * @author Benjamin Blanchet
  * 
  */
-public class H2DBDProcessorImpl implements IDataSink {
+public class H2DBDProcessorImpl extends AbstractDataProcessor {
 
 	private static final String QUERY_SELECT_NODE = "SELECT * FROM nodes where id=";
 	private static final String QUERY_INSERT_NODE = "INSERT INTO NODES (id,latitude,longitude) VALUES ";
@@ -90,20 +90,6 @@ public class H2DBDProcessorImpl implements IDataSink {
 			throw new DataSinkException("H2DB get node error", e);
 		}
 		return node;
-	}
-
-	@Override
-	public List<Node> getNodes(List<Long> ids) throws DataSinkException {
-		List<Node> nodes = new ArrayList<Node>();
-		for (Long id : ids) {
-			Node node = getNode(id);
-			if (node == null) {
-				return null;
-			} else {
-				nodes.add(node);
-			}
-		}
-		return nodes;
 	}
 
 	@Override

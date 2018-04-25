@@ -51,7 +51,9 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 		for (int i = 0; i < nodes.size(); i++) {
 			Node node = nodes.get(i);
 			currentSegment.add(node);
-			if ((currentSegment.size() > 1 && pathCrossingIds.contains(node.getId())) || i == nodes.size() - 1) {
+//			boolean isTilesBorder = i < nodes.size() - 1 ? isDifferentTiles(node, nodes.get(i+1)) : false;
+			if ((i == nodes.size() - 1) ||
+				(currentSegment.size() > 1 && pathCrossingIds.contains(node.getId()))) {
 				XPPathSegment segment = new XPPathSegment(getPathType(poly), 
 						IDRenumbererService.getNewId(currentSegment.get(0).getId()), 
 						IDRenumbererService.getNewId(node.getId()),
@@ -65,6 +67,12 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 			}
 		}		
 		return result;
+	}
+
+	private boolean isDifferentTiles(Node node, Node nextNode) {
+		int latDiff = (int) (Math.floor(node.getLat()) - Math.floor(nextNode.getLat()));
+		int lonDiff = (int) (Math.floor(node.getLon()) - Math.floor(nextNode.getLon()));
+		return latDiff != 0 || lonDiff != 0;
 	}
 
 	/**

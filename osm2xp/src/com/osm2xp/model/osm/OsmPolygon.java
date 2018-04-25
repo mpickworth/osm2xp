@@ -36,12 +36,18 @@ public class OsmPolygon {
 	private LinearRing2D polygon;
 	private Point2D center;
 	private Integer height;
+	/**
+	 * Whether only part of nodes is present for this.
+	 * Can be OK to use for forest, road or powerline generation, but not OK for buildings or fences
+	 */
+	private boolean partial;
 
-	public OsmPolygon(long id, List<Tag> tags, List<Node> nodes) {
+	public OsmPolygon(long id, List<Tag> tags, List<Node> nodes, boolean partial) {
 		super();
 		this.id = id;
 		this.tags = tags;
 		this.nodes = nodes;
+		this.partial = partial;
 		this.height = OsmUtils.getHeightFromTags(tags);
 
 	}
@@ -83,7 +89,7 @@ public class OsmPolygon {
 				Point2D tilePoint = GeomUtils.cleanCoordinatePoint(point);
 				if (polygons.get(tilePoint) == null) {
 					polygons.put(tilePoint, new OsmPolygon(id, tags,
-							new ArrayList<Node>()));
+							new ArrayList<Node>(), false));
 				}
 				polygons.get(tilePoint).getNodes()
 						.add(new Node(null, point.x, point.y, 1));
@@ -199,6 +205,20 @@ public class OsmPolygon {
 
 	public void setHeight(Integer height) {
 		this.height = height;
+	}
+
+	/**
+	 * Whether all polygon nodes was read from source file
+	 * Can be OK to generate road, railway, powerline or forest piece based on partial data,
+	 * but not OK to generate building
+	 * @return all polygon nodes was read from source file
+	 */
+	public boolean isPartial() {
+		return partial;
+	}
+
+	public void setPartial(boolean partial) {
+		this.partial = partial;
 	}
 
 }

@@ -43,15 +43,13 @@ public class MemoryProcessorImpl implements IDataSink {
 		final List<Node> nodes = new ArrayList<Node>();
 		for (Long nd : ids) {
 			final Node node = getNode(nd);
-			if (node == null) {
-				return null;
-			} else {
+			if (node != null) {
 				nodes.add(node);
-			}
+			} 
 		}
-		return nodes;
+		return nodes.size() > 0 ? nodes : null;
 	}
-
+	
 	@Override
 	public void complete() {
 		nodeMap = null;

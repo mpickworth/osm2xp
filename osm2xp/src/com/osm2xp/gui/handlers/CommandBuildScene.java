@@ -4,10 +4,9 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import com.osm2xp.constants.Perspectives;
@@ -26,19 +25,7 @@ import com.osm2xp.utils.logging.Osm2xpLogger;
  * @author Benjamin Blanchet
  * 
  */
-public class CommandBuildScene implements IHandler {
-
-	@Override
-	public void addHandlerListener(IHandlerListener handlerListener) {
-		// TODO Auto-model.options method stub
-
-	}
-
-	@Override
-	public void dispose() {
-		// TODO Auto-model.options method stub
-
-	}
+public class CommandBuildScene extends AbstractHandler{
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -97,20 +84,12 @@ public class CommandBuildScene implements IHandler {
 
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-model.options method stub
 		return true;
 	}
 
 	@Override
 	public boolean isHandled() {
-		// TODO Auto-model.options method stub
 		return true;
-	}
-
-	@Override
-	public void removeHandlerListener(IHandlerListener handlerListener) {
-		// TODO Auto-model.options method stub
-
 	}
 
 }

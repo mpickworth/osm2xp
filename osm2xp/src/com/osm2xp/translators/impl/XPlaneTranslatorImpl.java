@@ -99,6 +99,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		this.currentTile = currentTile;
 		this.stats = stats;
 		this.writer = writer;
+		this.folderPath = folderPath;
 		this.dsfObjectsProvider = dsfObjectsProvider;
 		this.startTime = new Date();
 		
@@ -166,6 +167,8 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			if (osmPolygon.getPolygon().getArea() * 100000000 > 0.1
 					&& osmPolygon.getPolygon().getVertexNumber() > 3) {
 	
+				sb.append("# " + getBuildingComment(osmPolygon, facade));
+				sb.append(LINE_SEP);
 				sb.append("BEGIN_POLYGON " + facade + " "
 						+ osmPolygon.getHeight() + " 2");
 				sb.append(LINE_SEP);
@@ -205,6 +208,29 @@ public class XPlaneTranslatorImpl implements ITranslator{
 								.getFirstPoint()));
 			}
 		}
+	}
+
+	protected String getBuildingComment(OsmPolygon osmPolygon, Integer facade) {
+		String street = osmPolygon.getTagValue("addr:street");
+		String name = osmPolygon.getTagValue("name");
+		String number = osmPolygon.getTagValue("addr:housenumber");
+		StringBuilder builder = new StringBuilder("building");
+		
+		if (name != null) {
+			builder.append(" ");
+			builder.append(name);
+		}
+		if (street != null) {
+			builder.append(" ");
+			builder.append(street);
+		}
+		if (number != null) {
+			builder.append(" ");
+			builder.append(number);
+		}
+		builder.append(" facade ");
+		builder.append(facade);
+		return builder.toString();
 	}
 
 	/**
@@ -371,7 +397,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 					List<Node> nodes = new ArrayList<Node>();
 					nodes.add(node);
 					object.setPolygon(new OsmPolygon(node.getId(), node
-							.getTag(), nodes));
+							.getTag(), nodes, false));
 					writeObjectToDsf(object);
 				}
 			}
@@ -427,6 +453,10 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	protected boolean process3dObject(OsmPolygon osmPolygon) {
 		Boolean result = false;
 
+		if (osmPolygon.isPartial()) {
+			return false;
+		}
+		
 		if (XplaneOptionsHelper.getOptions().isGenerateObj()) {
 			// simplify shape if checked and if necessary
 			if (GuiOptionsHelper.getOptions().isSimplifyShapes()
@@ -462,6 +492,8 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				&& OsmUtils.isBuilding(osmPolygon.getTags())
 				&& !OsmUtils.isExcluded(osmPolygon.getTags(),
 						osmPolygon.getId())
+				&& !specialExcluded(osmPolygon)
+				&& !osmPolygon.isPartial()
 				&& osmPolygon.getPolygon().getVertexNumber() > BUILDING_MIN_VECTORS
 				&& osmPolygon.getPolygon().getVertexNumber() < BUILDING_MAX_VECTORS) {
 
@@ -491,6 +523,14 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			}
 		}
 		return result;
+	}
+
+	//Avoid generating a bunch of little garages //TODO rewrite this in more generic way in future
+	protected boolean specialExcluded(OsmPolygon osmPolygon) {
+		if ("garage".equals(osmPolygon.getTagValue("building")) && GeomUtils.computePerimeter(osmPolygon.getPolygon()) < 30) {
+			return true;
+		}
+		return false;
 	}
 
 	protected boolean processOther(OsmPolygon poly) {
@@ -591,7 +631,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	public Boolean mustStoreWay(Way way) {
 		List<Tag> tags = way.getTag();
 		return (OsmUtils.isBuilding(tags) || OsmUtils.isForest(tags) || OsmUtils
-				.isObject(tags));
+				.isObject(tags) || OsmUtils.isRailway(tags) || OsmUtils.isRoad(tags) || OsmUtils.isPowerline(tags) || OsmUtils.isFence(tags));
 	}
 
 	public void setTranslationListener(ITranslationListener translationListener) {

@@ -2,10 +2,9 @@ package com.osm2xp.gui.handlers;
 
 import java.io.File;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -19,21 +18,9 @@ import com.osm2xp.utils.logging.Osm2xpLogger;
  * @author Benjamin Blanchet
  * 
  */
-public class CommandLoadRoofColorFile implements IHandler {
+public class CommandLoadRoofColorFile extends AbstractHandler {
 	private static final String[] FILTER_NAMES = { "Text files (*.txt)" };
 	private static final String[] FILTER_EXTS = { "*.txt" };
-
-	@Override
-	public void addHandlerListener(IHandlerListener handlerListener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -58,12 +45,6 @@ public class CommandLoadRoofColorFile implements IHandler {
 	@Override
 	public boolean isHandled() {
 		return true;
-	}
-
-	@Override
-	public void removeHandlerListener(IHandlerListener handlerListener) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

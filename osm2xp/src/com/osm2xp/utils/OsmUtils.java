@@ -311,6 +311,22 @@ public class OsmUtils {
 		return userTag.getKey().equalsIgnoreCase(tag.getKey())
 				&& userTag.getValue().equalsIgnoreCase(tag.getValue());
 	}
+	
+	public static boolean isRailway(List<Tag> tags) {
+		return isTagInTagsList("railway","rail", tags);
+	}
+	
+	public static boolean isRoad(List<Tag> tags) {
+		return isStringInTags("highway", tags);
+	}
+	
+	public static boolean isPowerline(List<Tag> tags) {
+		return isTagInTagsList("power","line", tags);
+	}
+	
+	public static boolean isFence(List<Tag> tags) {
+		return isStringInTags("barrier", tags);
+	}
 
 	public static boolean isBuilding(List<Tag> tags) {
 		return ((isStringInTags("building", tags) && !isTagInTagsList("wall",
