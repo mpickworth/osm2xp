@@ -1,7 +1,13 @@
 package com.osm2xp.gui.dialogs;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -35,9 +41,12 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
+import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSet;
 import com.osm2xp.utils.helpers.FacadeSetHelper;
+import com.osm2xp.utils.helpers.ScaleChangeHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
 /**
@@ -66,16 +75,27 @@ public class FacadeSetEditorDialog extends Dialog {
 	private Spinner spinnerMinHeight;
 	private Spinner spinnerMaxHeight;
 	private Group grpFacadeFile;
+	private Button buildingButton;
+	private Button fenceButton;
+	private Button wallButton;
+	private Composite buildingParamsComposite;
+	private Button adjustScaleButton;
 
 	/**
 	 * Create the dialog.
 	 * 
 	 * @param parentShell
 	 */
-	public FacadeSetEditorDialog(Shell parentShell, String facadeSetFolder) {
+	public FacadeSetEditorDialog(Shell parentShell, String facadeSetFolder, FacadeSet facadeSet) {
 		super(parentShell);
 		this.facadeSetFolder = facadeSetFolder;
-		this.facadeSet = FacadeSetHelper.getFacadeSet(facadeSetFolder);
+		this.facadeSet = facadeSet;
+	}
+	
+	@Override
+	protected void configureShell(Shell newShell) {
+		super.configureShell(newShell);
+		newShell.setText("Facade set editor");
 	}
 
 	/**
@@ -190,17 +210,48 @@ public class FacadeSetEditorDialog extends Dialog {
 		}
 		grpFacadeFile = new Group(groupProperties, SWT.NONE);
 		grpFacadeFile.setVisible(false);
-		grpFacadeFile.setLayout(new GridLayout(2, false));
+		grpFacadeFile.setLayout(new GridLayout(3, false));
 		grpFacadeFile.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
 				true, 1, 1));
 		grpFacadeFile.setText("Facade file");
+		
+		buildingButton = new Button(grpFacadeFile, SWT.RADIO);
+		buildingButton.setText("Building");
+		fenceButton = new Button(grpFacadeFile, SWT.RADIO);
+		fenceButton.setText("Fence");
+		wallButton = new Button(grpFacadeFile, SWT.RADIO);
+		wallButton.setText("Wall");
+		
+		buildingParamsComposite = new Composite(grpFacadeFile, SWT.NONE);
+		buildingParamsComposite.setLayout(new GridLayout(2, false));
+		GridDataFactory.fillDefaults().grab(true, true).span(3,1).applyTo(buildingParamsComposite);
+		
+		SelectionAdapter facadeTypeAdapter = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				buildingParamsComposite.setVisible(buildingButton.getSelection());
+				buildingParamsComposite.setEnabled(buildingButton.getSelection());
+				if (buildingButton.getSelection()) {
+					currentFacade.setBarrierType(null);
+				}
+				if (fenceButton.getSelection()) {
+					currentFacade.setBarrierType(BarrierType.FENCE);
+				}
+				if (wallButton.getSelection()) {
+					currentFacade.setBarrierType(BarrierType.WALL);
+				}
+			}
+		};
+		buildingButton.addSelectionListener(facadeTypeAdapter);
+		fenceButton.addSelectionListener(facadeTypeAdapter);
+		wallButton.addSelectionListener(facadeTypeAdapter);
 
-		Label labelRoofColor = new Label(grpFacadeFile, SWT.NONE);
+		Label labelRoofColor = new Label(buildingParamsComposite, SWT.NONE);
 		labelRoofColor.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 1, 1));
 		labelRoofColor.setText("Roof color : ");
 
-		textRoofColor = new Text(grpFacadeFile, SWT.BORDER);
+		textRoofColor = new Text(buildingParamsComposite, SWT.BORDER);
 
 		textRoofColor.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1));
@@ -218,12 +269,12 @@ public class FacadeSetEditorDialog extends Dialog {
 				}
 			}
 		});
-		Label labelWallColor = new Label(grpFacadeFile, SWT.NONE);
+		Label labelWallColor = new Label(buildingParamsComposite, SWT.NONE);
 		labelWallColor.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 1, 1));
 		labelWallColor.setText("Wall color :");
 
-		textWallColor = new Text(grpFacadeFile, SWT.BORDER);
+		textWallColor = new Text(buildingParamsComposite, SWT.BORDER);
 		textWallColor.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
 				false, 1, 1));
 
@@ -240,10 +291,10 @@ public class FacadeSetEditorDialog extends Dialog {
 				}
 			}
 		});
-		new Label(grpFacadeFile, SWT.NONE);
-		new Label(grpFacadeFile, SWT.NONE);
+		new Label(buildingParamsComposite, SWT.NONE);
+		new Label(buildingParamsComposite, SWT.NONE);
 
-		btnIndustrial = new Button(grpFacadeFile, SWT.CHECK);
+		btnIndustrial = new Button(buildingParamsComposite, SWT.CHECK);
 		btnIndustrial.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -252,7 +303,7 @@ public class FacadeSetEditorDialog extends Dialog {
 		});
 		btnIndustrial.setText("Industrial");
 
-		btnResidential = new Button(grpFacadeFile, SWT.CHECK);
+		btnResidential = new Button(buildingParamsComposite, SWT.CHECK);
 		btnResidential.setText("Residential");
 		btnResidential.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -260,7 +311,7 @@ public class FacadeSetEditorDialog extends Dialog {
 				currentFacade.setResidential(btnResidential.getSelection());
 			}
 		});
-		btnCommercial = new Button(grpFacadeFile, SWT.CHECK);
+		btnCommercial = new Button(buildingParamsComposite, SWT.CHECK);
 		btnCommercial.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 1, 1));
 		btnCommercial.setText("Commercial");
@@ -270,7 +321,7 @@ public class FacadeSetEditorDialog extends Dialog {
 				currentFacade.setCommercial(btnCommercial.getSelection());
 			}
 		});
-		btnSimplebuildingOnly = new Button(grpFacadeFile, SWT.CHECK);
+		btnSimplebuildingOnly = new Button(buildingParamsComposite, SWT.CHECK);
 		btnSimplebuildingOnly.setText("Simple building only");
 		btnSimplebuildingOnly.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -279,7 +330,7 @@ public class FacadeSetEditorDialog extends Dialog {
 						.getSelection());
 			}
 		});
-		btnSlopedRoof = new Button(grpFacadeFile, SWT.CHECK);
+		btnSlopedRoof = new Button(buildingParamsComposite, SWT.CHECK);
 		btnSlopedRoof.setText("Sloped roof");
 		btnSlopedRoof.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -289,18 +340,18 @@ public class FacadeSetEditorDialog extends Dialog {
 				currentFacade.setSimpleBuildingOnly(true);
 			}
 		});
-		new Label(grpFacadeFile, SWT.NONE);
-		new Label(grpFacadeFile, SWT.NONE);
-		new Label(grpFacadeFile, SWT.NONE);
-		new Label(grpFacadeFile, SWT.NONE);
-		new Label(grpFacadeFile, SWT.NONE);
+		new Label(buildingParamsComposite, SWT.NONE);
+		new Label(buildingParamsComposite, SWT.NONE);
+		new Label(buildingParamsComposite, SWT.NONE);
+		new Label(buildingParamsComposite, SWT.NONE);
+		new Label(buildingParamsComposite, SWT.NONE);
 
-		Label labelMinVector = new Label(grpFacadeFile, SWT.NONE);
+		Label labelMinVector = new Label(buildingParamsComposite, SWT.NONE);
 		labelMinVector.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
 				false, 1, 1));
 		labelMinVector.setText("Minimum vector length :");
 
-		spinnerMinVector = new Spinner(grpFacadeFile, SWT.BORDER);
+		spinnerMinVector = new Spinner(buildingParamsComposite, SWT.BORDER);
 		spinnerMinVector.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				if (spinnerMinVector.getSelection() > 0) {
@@ -316,27 +367,27 @@ public class FacadeSetEditorDialog extends Dialog {
 		spinnerMinVector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
 				false, false, 1, 1));
 
-		Label lblNewLabel = new Label(grpFacadeFile, SWT.NONE);
+		Label lblNewLabel = new Label(buildingParamsComposite, SWT.NONE);
 		lblNewLabel.setText("Maximum vector length :");
 
-		spinnerMaxVector = new Spinner(grpFacadeFile, SWT.BORDER);
+		spinnerMaxVector = new Spinner(buildingParamsComposite, SWT.BORDER);
 		spinnerMaxVector.setIncrement(100);
 		spinnerMaxVector.setMaximum(1000);
 		spinnerMaxVector.setDigits(2);
 		spinnerMaxVector.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
 				false, false, 1, 1));
 
-		Label lblMinimumHeightmeters = new Label(grpFacadeFile, SWT.NONE);
+		Label lblMinimumHeightmeters = new Label(buildingParamsComposite, SWT.NONE);
 		lblMinimumHeightmeters.setText("Minimum height (meters) :");
 
-		spinnerMinHeight = new Spinner(grpFacadeFile, SWT.BORDER);
+		spinnerMinHeight = new Spinner(buildingParamsComposite, SWT.BORDER);
 		spinnerMinHeight.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
 				false, false, 1, 1));
 
-		Label lblMaximumHeightmeters = new Label(grpFacadeFile, SWT.NONE);
+		Label lblMaximumHeightmeters = new Label(buildingParamsComposite, SWT.NONE);
 		lblMaximumHeightmeters.setText("Maximum height (meters) : ");
 
-		spinnerMaxHeight = new Spinner(grpFacadeFile, SWT.BORDER);
+		spinnerMaxHeight = new Spinner(buildingParamsComposite, SWT.BORDER);
 		spinnerMaxHeight.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
 				false, false, 1, 1));
 
@@ -368,11 +419,48 @@ public class FacadeSetEditorDialog extends Dialog {
 			}
 		});
 
+		adjustScaleButton = new Button(grpFacadeSetProperties, SWT.PUSH);
+		adjustScaleButton.setText("Adjust facade scale");
+		GridDataFactory.swtDefaults().applyTo(adjustScaleButton);
+		adjustScaleButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				doAdjustFacadeScale();
+			}
+		});
+		
 		return container;
 	}
 
+	protected void doAdjustFacadeScale() {
+		File facadeFile = new File(facadeSetFolder, currentFacade.getFile());
+		InputDialog inputDialog = new InputDialog(getShell(), "Adjust facade scale","WARNING: feature is experimental. Use with care!\n"
+				+ "Current scale " + ScaleChangeHelper.getScaleStr(facadeFile) + "\n" +
+				"Enter factor:", "1.0", newText -> {
+					try {
+						Double.parseDouble(newText);
+					} catch (Exception e) {
+						return "Enter valid number";
+					}
+					return null;
+				} );
+		if (inputDialog.open() == Dialog.OK) {
+			try {
+				ScaleChangeHelper.changeScale(facadeFile, Double.parseDouble(inputDialog.getValue()));
+			} catch (NumberFormatException e) {
+				Activator.log(e);
+			} catch (IOException e) {
+				MessageDialog.openError(getShell(), "Error changing scale for " + currentFacade.getFile(), "Error changing scale: " + e.getMessage());
+			}
+		}
+	}
+
 	private void updateProperties() {
-		grpFacadeFile.setVisible(true);
+		grpFacadeFile.setVisible(currentFacade != null);
+		adjustScaleButton.setEnabled(currentFacade != null);
+		if (currentFacade == null) {
+			return;
+		}
 		if (currentFacade.getRoofColor() != null) {
 			textRoofColor.setText(currentFacade.getRoofColor());
 		} else {
@@ -414,7 +502,14 @@ public class FacadeSetEditorDialog extends Dialog {
 		} else {
 			spinnerMinHeight.setSelection(0);
 		}
-
+		
+		BarrierType barrierType = currentFacade.getBarrierType();
+		buildingParamsComposite.setEnabled(barrierType == null);
+		buildingParamsComposite.setVisible(barrierType == null);
+		buildingButton.setSelection(barrierType == null);
+		fenceButton.setSelection(barrierType == BarrierType.FENCE);
+		wallButton.setSelection(barrierType == BarrierType.WALL);
+		
 	}
 
 	/**
@@ -446,7 +541,7 @@ public class FacadeSetEditorDialog extends Dialog {
 	 */
 	@Override
 	protected Point getInitialSize() {
-		return new Point(733, 615);
+		return new Point(733, 700);
 	}
 
 }
