@@ -54,4 +54,24 @@ public class ScaleChangeHelper {
 		return "";
 	}
 	
+//	public static void testChangeScale() {
+//		File folder = new File("d:\\util\\xplane\\tmpfacades\\");
+//		if (folder.isDirectory()) {
+//			File[] listFiles = folder.listFiles();
+//			for (File file : listFiles) {
+//				if (file.getName().endsWith(".fac")) {
+//					try {
+//						changeScale(file, 2.5);
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		}
+//	}
+//	
+//	public static void main(String[] args) {
+//		testChangeScale();
+//	}
 }
