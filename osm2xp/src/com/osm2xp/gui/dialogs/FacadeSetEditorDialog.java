@@ -521,9 +521,9 @@ public class FacadeSetEditorDialog extends Dialog {
 	protected void createButtonsForButtonBar(Composite parent) {
 		Button button = createButton(parent, IDialogConstants.OK_ID,
 				IDialogConstants.OK_LABEL, true);
-		button.addMouseListener(new MouseAdapter() {
+		button.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void mouseDown(MouseEvent e) {
+			public void widgetSelected(SelectionEvent e) {
 				try {
 					FacadeSetHelper.saveFacadeSet(facadeSet, facadeSetFolder);
 				} catch (Osm2xpBusinessException e1) {
@@ -531,7 +531,6 @@ public class FacadeSetEditorDialog extends Dialog {
 				}
 			}
 		});
-
 		createButton(parent, IDialogConstants.CANCEL_ID,
 				IDialogConstants.CANCEL_LABEL, false);
 	}

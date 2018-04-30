@@ -54,6 +54,7 @@ public class CommandFacadeSetEditor extends AbstractHandler {
 				facadeSetEditorDialog.open();
 			} catch (Exception e) {
 				MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error reading facade set", "Error reading facade set from " + folderPath + " :" + e.getMessage());
+				Activator.log(e);
 			}
 
 		}
