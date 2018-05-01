@@ -65,10 +65,10 @@ public class DsfUtils {
 		// write origin
 		Point2D origin = null;// GeomUtils.getRotationPoint(dsfObject.getOsmPolygon().getPolygon(),50,0);
 
-		writer.write("<node id=\"" + cpt++ + "\" lat=\"" + origin.y
-				+ "\" lon=\"" + origin.x + "\" version=\"1\" >\n");
-		writer.write("<tag k=\"man_made\" v=\"water_tower\"/>\n");
-		writer.write("</node>\n");
+//		writer.write("<node id=\"" + cpt++ + "\" lat=\"" + origin.y //TODO
+//				+ "\" lon=\"" + origin.x + "\" version=\"1\" >\n");
+//		writer.write("<tag k=\"man_made\" v=\"water_tower\"/>\n");
+//		writer.write("</node>\n");
 
 		writer.complete(null);
 	}
@@ -103,17 +103,21 @@ public class DsfUtils {
 					File facade = filesList[cpt];
 					String line = null;
 					String facadeContent = new String();
-					RandomAccessFile reader = new RandomAccessFile(facade, "rw");
-					while ((line = reader.readLine()) != null) {
-						facadeContent += line + "\r\n";
+					try (RandomAccessFile reader = new RandomAccessFile(facade, "rw");FileWriter writer = new FileWriter(facade.getAbsolutePath());) {
+						
+						while ((line = reader.readLine()) != null) {
+							facadeContent += line + "\r\n";
+						}
+						facadeContent = facadeContent.replaceAll(
+								DEFAULT_FACADE_LOD, "LOD 0.000000 "
+										+ XplaneOptionsHelper.getOptions()
+										.getFacadeLod() + ".000000");
+						
+						writer.write(facadeContent);
+						writer.close();
+					} catch (IOException e) {
+						throw e;
 					}
-					facadeContent = facadeContent.replaceAll(
-							DEFAULT_FACADE_LOD, "LOD 0.000000 "
-									+ XplaneOptionsHelper.getOptions()
-											.getFacadeLod() + ".000000");
-					FileWriter writer = new FileWriter(facade.getAbsolutePath());
-					writer.write(facadeContent);
-					writer.close();
 
 				}
 			}

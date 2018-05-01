@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.osm2xp.constants.Osm2xpConstants;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.options.ForestTagRule;
 import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.options.XplaneObjectTagRule;
@@ -393,42 +394,43 @@ public class OsmUtils {
 	public static String CreateTempFile(String folderPath,
 			List<OsmPolygon> wayList, String fileName) throws IOException {
 
-		FileWriter writer = null;
 		String filePath = folderPath + File.separator + fileName + ".osm";
-		writer = new FileWriter(filePath, false);
 
-		BufferedWriter output = new BufferedWriter(writer);
-		output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		output.write("<osm version=\"0.6\" generator=\"osm2xp "
-				+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
-
-		// write all nodes
-		for (OsmPolygon osmPolygon : wayList) {
-			for (Node node : osmPolygon.getNodes()) {
-				output.write("<node id=\"" + node.getId() + "\" lat=\""
-						+ node.getLat() + "\" lon=\"" + node.getLon()
-						+ "\" version=\"1\" />\n");
-			}
-
-		}
-
-		for (OsmPolygon osmPolygon : wayList) {
-			output.write("<way id=\"" + osmPolygon.getId()
-					+ "\" visible=\"true\" version=\"2\" >\n");
-			for (Node node : osmPolygon.getNodes()) {
-				output.write("<nd ref=\"" + node.getId() + "\"/>\n");
-			}
-			for (Tag tag : osmPolygon.getTags()) {
-				String normalizedTag = getNormalizedTagText(tag);
-				if (normalizedTag != null) {
-					output.write(normalizedTag);
+		try (BufferedWriter output = new BufferedWriter(new FileWriter(filePath, false))){
+			output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+			output.write("<osm version=\"0.6\" generator=\"osm2xp "
+					+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
+	
+			// write all nodes
+			for (OsmPolygon osmPolygon : wayList) {
+				for (Node node : osmPolygon.getNodes()) {
+					output.write("<node id=\"" + node.getId() + "\" lat=\""
+							+ node.getLat() + "\" lon=\"" + node.getLon()
+							+ "\" version=\"1\" />\n");
 				}
-
+	
 			}
-			output.write("</way>\n");
+	
+			for (OsmPolygon osmPolygon : wayList) {
+				output.write("<way id=\"" + osmPolygon.getId()
+						+ "\" visible=\"true\" version=\"2\" >\n");
+				for (Node node : osmPolygon.getNodes()) {
+					output.write("<nd ref=\"" + node.getId() + "\"/>\n");
+				}
+				for (Tag tag : osmPolygon.getTags()) {
+					String normalizedTag = getNormalizedTagText(tag);
+					if (normalizedTag != null) {
+						output.write(normalizedTag);
+					}
+	
+				}
+				output.write("</way>\n");
+			}
+			output.write("</osm>");
+			output.flush();
+		} catch (IOException e) {
+			Activator.log(e);
 		}
-		output.write("</osm>");
-		output.flush();
 		new File(filePath).deleteOnExit();
 		return filePath;
 	}
@@ -436,38 +438,38 @@ public class OsmUtils {
 	public static String CreateTempFile(String folderPath, OsmPolygon osmPolygon)
 			throws IOException {
 
-		FileWriter writer = null;
 		String filePath = folderPath + File.separator + osmPolygon.getId()
 				+ ".osm";
-		writer = new FileWriter(filePath, false);
-
-		BufferedWriter output = new BufferedWriter(writer);
-		output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		output.write("<osm version=\"0.6\" generator=\"osm2xp "
-				+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
-
-		for (Node node : osmPolygon.getNodes()) {
-			output.write("<node id=\"" + node.getId() + "\" lat=\""
-					+ node.getLat() + "\" lon=\"" + node.getLon()
-					+ "\" version=\"1\" />\n");
-		}
-
-		output.write("<way id=\"" + osmPolygon.getId()
-				+ "\" visible=\"true\" version=\"2\" >\n");
-		for (Node nd : osmPolygon.getNodes()) {
-			output.write("<nd ref=\"" + nd.getId() + "\"/>\n");
-		}
-		for (Tag tag : osmPolygon.getTags()) {
-			String normalizedTag = getNormalizedTagText(tag);
-			if (normalizedTag != null) {
-				output.write(normalizedTag);
+		try (BufferedWriter output = new BufferedWriter(new FileWriter(filePath, false))){
+			output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+			output.write("<osm version=\"0.6\" generator=\"osm2xp "
+					+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
+	
+			for (Node node : osmPolygon.getNodes()) {
+				output.write("<node id=\"" + node.getId() + "\" lat=\""
+						+ node.getLat() + "\" lon=\"" + node.getLon()
+						+ "\" version=\"1\" />\n");
 			}
-
+	
+			output.write("<way id=\"" + osmPolygon.getId()
+					+ "\" visible=\"true\" version=\"2\" >\n");
+			for (Node nd : osmPolygon.getNodes()) {
+				output.write("<nd ref=\"" + nd.getId() + "\"/>\n");
+			}
+			for (Tag tag : osmPolygon.getTags()) {
+				String normalizedTag = getNormalizedTagText(tag);
+				if (normalizedTag != null) {
+					output.write(normalizedTag);
+				}
+	
+			}
+			output.write("</way>\n");
+	
+			output.write("</osm>");
+			output.flush();
+		} catch (IOException e) {
+			Activator.log(e);
 		}
-		output.write("</way>\n");
-
-		output.write("</osm>");
-		output.flush();
 		new File(filePath).deleteOnExit();
 		return filePath;
 	}
