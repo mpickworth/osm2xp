@@ -179,8 +179,9 @@ public class FacadeSetManager {
 		if (goodFacades == null || goodFacades.isEmpty()) { //Use all facades if no facades for this type are registered
 			goodFacades = buildingFacades.values();
 		}
-		List<Facade> resList = goodFacades.stream().filter(facade -> facade.isSloped() && (facade.getMinVectorLength() <= minVector && facade
-						.getMaxVectorLength() >= minVector)).collect(Collectors.toList());
+		List<Facade> resList = goodFacades.stream().filter(facade -> facade.isSloped() && (facade.getMaxVectorLength() == 0 ||
+				(facade.getMinVectorLength() <= minVector && facade
+						.getMaxVectorLength() >= minVector))).collect(Collectors.toList());
 		Collections.shuffle(resList);
 		if (buildingColor == null && resList.size() > 0) {
 			return resList.get(0);
