@@ -186,8 +186,9 @@ public class FacadeSetPanel extends Osm2xpPanel {
 			File installFolder = FileUtils.toFile(Platform.getInstallLocation().getURL());
 			facadeSets.add(new File(installFolder, "facades").getAbsolutePath());
 			persistFacadeSets();
+		} else {
+			facadeSets.addAll(Arrays.asList(facades).stream().filter(str -> !str.trim().isEmpty()).collect(Collectors.toList()));
 		}
-		facadeSets.addAll(Arrays.asList(facades));
 		refreshViewer();
 	}
 

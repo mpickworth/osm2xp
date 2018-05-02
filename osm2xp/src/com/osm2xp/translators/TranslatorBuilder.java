@@ -3,10 +3,13 @@ package com.osm2xp.translators;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
 import math.geom2d.Point2D;
 
 import com.osm2xp.constants.Perspectives;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.stats.GenerationStats;
@@ -188,7 +191,8 @@ public class TranslatorBuilder {
 			Point2D currentTile, String folderPath) {
 
 		GenerationStats stats = StatsHelper.initStats(currentFile, currentTile);
-		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(new FacadeSetManager(new File(folderPath)));
+		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"");
+		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(FacadeSetManager.getManager(facadeSetsStr, new File(folderPath)));
 		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
 		Xplane10TranslatorImpl translatorImpl = new Xplane10TranslatorImpl(stats, writer, currentTile,
 				folderPath, dsfObjectsProvider);
@@ -215,7 +219,8 @@ public class TranslatorBuilder {
 //				+ File.separator
 //				+ XplaneOptionsHelper.getOptions().getFacadeSet();
 //		FacadeSet facadeSet = FacadeSetHelper.getFacadeSet(FacadeSetPath);
-		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(new FacadeSetManager(new File(folderPath)));
+		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"");
+		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(FacadeSetManager.getManager(facadeSetsStr, new File(folderPath)));
 		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
 		Xplane9TranslatorImpl xplane9TranslatorImpl = new Xplane9TranslatorImpl(stats, writer, currentTile,
 				folderPath, dsfObjectsProvider);

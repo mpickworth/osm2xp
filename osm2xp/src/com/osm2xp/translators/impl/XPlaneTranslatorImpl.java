@@ -179,7 +179,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				osmPolygon.getPolygon().removePoint(
 						osmPolygon.getPolygon().getLastPoint());
 				for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
-					sb.append("POLYGON_POINT " + loc.x + " " + loc.y);
+					sb.append(String.format("POLYGON_POINT %1.9f %2.9f",loc.x,loc.y));
 					sb.append(LINE_SEP);
 				}
 				sb.append("END_WINDING");

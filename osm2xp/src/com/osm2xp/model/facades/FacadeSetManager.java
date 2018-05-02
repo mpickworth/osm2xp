@@ -7,13 +7,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.Status;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -23,6 +25,7 @@ import com.osm2xp.translators.BuildingType;
 import com.osm2xp.utils.DsfUtils;
 import com.osm2xp.utils.FilesUtils;
 import com.osm2xp.utils.MiscUtils;
+import com.osm2xp.utils.StatusInfo;
 import com.osm2xp.utils.helpers.FacadeSetHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
@@ -30,27 +33,60 @@ public class FacadeSetManager {
 	
 	public static final String FACADE_SETS_PROP = "facadeSets";
 	
+	private static Map<String, FacadeSetManager> managerMap = new HashMap<String, FacadeSetManager>();
+	
 	protected Multimap<BuildingType, Facade> buildingFacades = HashMultimap.create();
 	
 	protected Multimap<BarrierType, Facade> barrierFacades = HashMultimap.create();
 
-	public FacadeSetManager(File targetFolder) {
+	private String[] setPaths;
+	
+	/**
+	 * Get {@link FacadeSetManager} for given options
+	 * @param facadeSetsStr Facade set paths separated with ';'
+	 * @param targetFolder Generation target folder, or <code>null</code> if you need to just check facade set availability
+	 * @return {@link FacadeSetManager} instance
+	 */
+	public static FacadeSetManager getManager(String facadeSetsStr, File targetFolder) {
+		FacadeSetManager facadeSetManager = managerMap.get(facadeSetsStr);
+		if (facadeSetManager == null) {
+			facadeSetManager = new FacadeSetManager(facadeSetsStr);
+			managerMap.put(facadeSetsStr, facadeSetManager);
+		}
+		facadeSetManager.checkCopyFacades(targetFolder);
+		return facadeSetManager;
+	}
+
+	private FacadeSetManager(String facadeSetsStr) {
 		List<FacadeSet> list = new ArrayList<FacadeSet>();
-		String[] setPaths = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FACADE_SETS_PROP,"").split(File.pathSeparator);
+		setPaths = facadeSetsStr.split(File.pathSeparator);
 		for (String pathStr : setPaths) {
+			if (pathStr.trim().isEmpty()) {
+				continue;
+			}
 			File folder = new File(pathStr);
 			if (pathStr.endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
 				folder = folder.getParentFile();
-			}
-			if (XplaneOptionsHelper.getOptions().isPackageFacades()
-					&& XplaneOptionsHelper.getOptions().isGenerateBuildings()) {
-				copyFacades(folder, targetFolder);
 			}
 			if (folder.isDirectory()) {
 				list.add(FacadeSetHelper.getFacadeSet(folder.getAbsolutePath()));
 			}
 		}
 		list.stream().flatMap(set -> set.getFacades().stream()).forEach(facade -> addFacade(facade));
+	}
+	
+	protected void checkCopyFacades(File targetFolder) {
+		if (targetFolder != null && XplaneOptionsHelper.getOptions().isPackageFacades()
+				&& (XplaneOptionsHelper.getOptions().isGenerateBuildings() || XplaneOptionsHelper.getOptions().isGenerateFence())) {
+			for (String pathStr : setPaths) {
+				File folder = new File(pathStr);
+				if (pathStr.endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
+					folder = folder.getParentFile();
+				}
+				copyFacades(folder, targetFolder);
+			}
+		}
+		
 	}
 
 	protected void copyFacades(File srcFolder, File targetFolder) {
@@ -188,6 +224,37 @@ public class FacadeSetManager {
 		}
 
 		return facadeResult;
+	}
+	
+	public IStatus getFacadeSetStatus() {
+		if (!XplaneOptionsHelper.getOptions().isGenerateBuildings() && !XplaneOptionsHelper.getOptions().isGenerateFence()) {
+			return Status.OK_STATUS;	
+		}
+		if (setPaths == null || setPaths.length == 0 || (setPaths.length == 1 && setPaths[0].trim().isEmpty())) {
+			return new StatusInfo(IStatus.ERROR, "No facade sets configured. Please add at least one facade set.");
+		}
+		if (buildingFacades.isEmpty() && barrierFacades.isEmpty()) {
+			return new StatusInfo(IStatus.ERROR, "All specified facade sets are invalid.");
+		}
+		if (XplaneOptionsHelper.getOptions().isGenerateBuildings() && buildingFacades.isEmpty()) {
+			return new StatusInfo(IStatus.WARNING, "'Generte buildings' option chosen, but no building facades loaded.");
+		}
+		if (XplaneOptionsHelper.getOptions().isGenerateFence() && barrierFacades.isEmpty()) {
+			return new StatusInfo(IStatus.WARNING, "'Generte fence' option chosen, but no fence facades loaded.");
+		}
+		StringBuilder badPaths = new StringBuilder();
+		for (String path : setPaths) {
+			if (!new File(path).exists()) {
+				if (badPaths.length() > 0) {
+					badPaths.append(", ");
+				}
+				badPaths.append(path);
+			}
+		}
+		if (badPaths.length() > 0) {
+			return new StatusInfo(IStatus.WARNING, "Invalid facade path(s): " + badPaths);
+		}
+		return Status.OK_STATUS;
 	}
 
 
