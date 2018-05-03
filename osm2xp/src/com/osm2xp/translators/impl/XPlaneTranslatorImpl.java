@@ -162,7 +162,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	protected void writeBuildingToDsf(OsmPolygon osmPolygon, Integer facade) {
 		if (facade != null && osmPolygon.getHeight() != null) {
 			StringBuffer sb = new StringBuffer();
-			osmPolygon.setPolygon(GeomUtils.setClockwise(osmPolygon
+			osmPolygon.setPolygon(GeomUtils.setCCW(osmPolygon
 					.getPolygon()));
 			if (osmPolygon.getPolygon().getArea() * 100000000 > 0.1
 					&& osmPolygon.getPolygon().getVertexNumber() > 3) {
@@ -414,7 +414,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		// polygon is null or empty don't process it
 		if (osmPolygon.getNodes() != null && !osmPolygon.getNodes().isEmpty()) {
 			// polygon MUST be in clockwise order
-			osmPolygon.setPolygon(GeomUtils.forceClockwise(osmPolygon
+			osmPolygon.setPolygon(GeomUtils.forceCCW(osmPolygon
 					.getPolygon()));
 			// if we're on a single pass mode
 			// here we must check if the polygon is on more than one tile

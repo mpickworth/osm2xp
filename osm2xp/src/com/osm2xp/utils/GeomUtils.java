@@ -611,23 +611,44 @@ public class GeomUtils {
 	}
 
 	/**
+	 * Set clockwise point order for given {@link LinearRing2D} if necessary
 	 * @param linearRing2D
-	 * @return
+	 * @return clockwise {@link LinearRing2D}
 	 */
 	public static LinearRing2D setClockwise(LinearRing2D linearRing2D) {
-		double clockwise = 0;
+		return setDirection(linearRing2D, true);
+	}
+	
+	/**
+	 * Set counter-clockwise point order for given {@link LinearRing2D} if necessary
+	 * X-Plane needs facades to be defined in counter-clockwise order, see <a href="https://developer.x-plane.com/2010/07/facade-tuning-and-tips/">this article</a> 
+	 * @param linearRing2D
+	 * @return counter-clockwise {@link LinearRing2D}
+	 */
+	public static LinearRing2D setCCW(LinearRing2D linearRing2D) {
+		return setDirection(linearRing2D, false);
+	}
+	
+	/**
+	 * Set specified point order for given {@link LinearRing2D} if necessary
+	 * @param linearRing2D
+	 * @param clockwise <code>true</code> to set clockwise point order, <code>false</code> - for counter-clockwise one
+	 * @return
+	 */
+	public static LinearRing2D setDirection(LinearRing2D linearRing2D, boolean clockwise) {
+		double edgeSum = 0;
 		for (int i = 0; i < linearRing2D.getVertices().size() - 1; i++) {
 			double a = (linearRing2D.getVertex(i + 1).x - linearRing2D
 					.getVertex(i).x);
 			double b = (linearRing2D.getVertex(i + 1).y + linearRing2D
 					.getVertex(i).y);
-			clockwise = clockwise + (a * b);
+			edgeSum = edgeSum + (a * b);
 		}
-		if (clockwise < 0) {
-			Collection<Point2D> clockwiseVectors = linearRing2D
+		if ((edgeSum < 0 && clockwise) || (edgeSum > 0 && !clockwise)) {
+			Collection<Point2D> newVectors = linearRing2D
 					.getReverseCurve().getVertices();
 			linearRing2D.clearVertices();
-			linearRing2D.getVertices().addAll(clockwiseVectors);
+			linearRing2D.getVertices().addAll(newVectors);
 		}
 		return linearRing2D;
 	}
@@ -638,9 +659,11 @@ public class GeomUtils {
 	 * @param ring2d
 	 * @return
 	 */
-	public static LinearRing2D forceClockwise(LinearRing2D ring2d) {
+	//XXX This method was named 'forceClocwise', but check for CCW is performed instead. Renamed it respectively.  
+	// X-Plane facades needs to be *CCW* (see https://developer.x-plane.com/2010/07/facade-tuning-and-tips/)
+	public static LinearRing2D forceCCW(LinearRing2D ring2d) {
 		LinearRing2D result = null;
-		if (ring2d.getVertices().size() > 4) {
+		if (ring2d.getVertices().size() > 3) { //XXX was 4. Why? 
 
 			Coordinate[] coords = new Coordinate[ring2d.getVertices().size()];
 			for (int i = 0; i < ring2d.getVertices().size(); i++) {

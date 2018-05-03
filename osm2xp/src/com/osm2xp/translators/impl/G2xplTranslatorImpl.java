@@ -71,7 +71,7 @@ public class G2xplTranslatorImpl implements ITranslator {
 		LinearRing2D polygon = new LinearRing2D();
 		if (OsmUtils.isBuilding(osmPolygon.getTags())) {
 			polygon = GeomUtils.getPolygonFromOsmNodes(osmPolygon.getNodes());
-			polygon = GeomUtils.setClockwise(polygon);
+			polygon = GeomUtils.setCCW(polygon);
 			StringBuilder wayText = new StringBuilder();
 			wayText.append(osmPolygon.getId() + ":");
 			for (Point2D point : polygon.getVertices()) {

@@ -2,7 +2,13 @@ package com.osm2xp.gui.dialogs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -32,6 +38,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -42,6 +49,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
+import com.osm2xp.gui.dialogs.utils.Osm2xpDialogsHelper;
 import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSet;
@@ -428,6 +436,16 @@ public class FacadeSetEditorDialog extends Dialog {
 				doAdjustFacadeScale();
 			}
 		});
+		Button generateDefaultsButton = new Button(grpFacadeSetProperties, SWT.PUSH);
+		generateDefaultsButton.setText("Generate stubs");
+		generateDefaultsButton.setToolTipText("Generate descriptors for .fac files present in folder, but missing from XML facades descriptor");
+		GridDataFactory.swtDefaults().applyTo(generateDefaultsButton);
+		generateDefaultsButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				doGenerateStubDescriptors();
+			}
+		});
 		
 		return container;
 	}
@@ -453,6 +471,36 @@ public class FacadeSetEditorDialog extends Dialog {
 				MessageDialog.openError(getShell(), "Error changing scale for " + currentFacade.getFile(), "Error changing scale: " + e.getMessage());
 			}
 		}
+	}
+	
+	/**
+	 * Generate descriptors for .fac files contained in facade set folder, but not contained in facade set description
+	 */
+	protected void doGenerateStubDescriptors() {
+		Job facadeGenerationJob = new Job("Generate facade stub") {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				Set<String> describedFiles = facadeSet.getFacades().stream().map(facade -> facade.getFile().toLowerCase()).collect(Collectors.toSet());
+				File folder = new File(facadeSetFolder);
+				if (!folder.isDirectory()) {
+					Osm2xpDialogsHelper.displayErrorDialog("Error generating stubs", facadeSetFolder + " is not a directory");
+				}
+				String[] facFiles = folder.list((dir, name) -> name.endsWith(".fac"));
+				for (String fileName : facFiles) {
+					if (!describedFiles.contains(fileName.toLowerCase())) {
+						facadeSet.getFacades().add(FacadeSetHelper.generateDefaultDescriptor(new File(facadeSetFolder, fileName)));
+					}
+				}
+				Display.getDefault().asyncExec(() ->{
+					viewer.setInput(facadeSet.getFacades());
+				});
+				return Status.OK_STATUS;
+			}
+			
+		};
+		facadeGenerationJob.setUser(false);
+		facadeGenerationJob.schedule();
 	}
 
 	private void updateProperties() {

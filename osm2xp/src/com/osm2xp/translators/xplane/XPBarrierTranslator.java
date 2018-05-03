@@ -33,7 +33,7 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 				StringBuffer sb = new StringBuffer();
 				sb.append("#Barrier " + barrierType + " facade " + facade);
 				sb.append(LINE_SEP);
-				osmPolygon.setPolygon(GeomUtils.setClockwise(osmPolygon
+				osmPolygon.setPolygon(GeomUtils.setCCW(osmPolygon
 						.getPolygon()));
 				
 				sb.append("BEGIN_POLYGON " + facade + " 2 2"); //TODO need actual wall height here, using "2" for now

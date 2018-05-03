@@ -114,8 +114,8 @@ public class Xplane9TranslatorImpl extends XPlaneTranslatorImpl {
 
 		// polygon is null or empty don't process it
 		if (osmPolygon.getNodes() != null && !osmPolygon.getNodes().isEmpty()) {
-			// polygon MUST be in clockwise order
-			osmPolygon.setPolygon(GeomUtils.forceClockwise(osmPolygon
+			// polygon MUST be in *counter*-clockwise order (see https://developer.x-plane.com/2010/07/facade-tuning-and-tips/)
+			osmPolygon.setPolygon(GeomUtils.forceCCW(osmPolygon
 					.getPolygon()));
 			// if we're on a single pass mode
 			// here we must check if the polygon is on more than one tile
