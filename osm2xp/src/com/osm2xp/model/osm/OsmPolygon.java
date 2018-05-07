@@ -38,7 +38,7 @@ public class OsmPolygon {
 	private Integer height;
 	/**
 	 * Whether only part of nodes is present for this.
-	 * Can be OK to use for forest, road or powerline generation, but not OK for buildings or fences
+	 * Can be OK to use for forest, road or powerline generation, but not OK for buildings
 	 */
 	private boolean partial;
 

@@ -53,7 +53,6 @@ public class MemoryProcessorImpl implements IDataSink {
 	@Override
 	public void complete() {
 		nodeMap = null;
-
 	}
 
 	@Override

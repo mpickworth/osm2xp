@@ -29,12 +29,15 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -43,6 +46,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
@@ -82,12 +87,14 @@ public class FacadeSetEditorDialog extends Dialog {
 	private Spinner spinnerMaxVector;
 	private Spinner spinnerMinHeight;
 	private Spinner spinnerMaxHeight;
-	private Group grpFacadeFile;
 	private Button buildingButton;
 	private Button fenceButton;
 	private Button wallButton;
 	private Composite buildingParamsComposite;
 	private Button adjustScaleButton;
+	private TabFolder filePropsFolder;
+	private Canvas previewCanvas;
+	private Image previewImage;
 
 	/**
 	 * Create the dialog.
@@ -216,21 +223,30 @@ public class FacadeSetEditorDialog extends Dialog {
 		if (facadeSet.getDescription() != null) {
 			styledTextDescription.setText(facadeSet.getDescription());
 		}
-		grpFacadeFile = new Group(groupProperties, SWT.NONE);
-		grpFacadeFile.setVisible(false);
-		grpFacadeFile.setLayout(new GridLayout(3, false));
-		grpFacadeFile.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-				true, 1, 1));
-		grpFacadeFile.setText("Facade file");
 		
-		buildingButton = new Button(grpFacadeFile, SWT.RADIO);
+		filePropsFolder = new TabFolder(groupProperties, SWT.TOP);
+		filePropsFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		filePropsFolder.setVisible(false);
+		
+		TabItem tab1 = new TabItem(filePropsFolder, SWT.NONE);
+	    tab1.setText("File properties");
+		
+		Composite filePropsComposite = new Composite(filePropsFolder, SWT.NONE);
+		filePropsComposite.setVisible(false);
+		filePropsComposite.setLayout(new GridLayout(3, false));
+		filePropsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+				true, 1, 1));
+//		fileProps.setText("Facade file");
+		tab1.setControl(filePropsComposite);
+		
+		buildingButton = new Button(filePropsComposite, SWT.RADIO);
 		buildingButton.setText("Building");
-		fenceButton = new Button(grpFacadeFile, SWT.RADIO);
+		fenceButton = new Button(filePropsComposite, SWT.RADIO);
 		fenceButton.setText("Fence");
-		wallButton = new Button(grpFacadeFile, SWT.RADIO);
+		wallButton = new Button(filePropsComposite, SWT.RADIO);
 		wallButton.setText("Wall");
 		
-		buildingParamsComposite = new Composite(grpFacadeFile, SWT.NONE);
+		buildingParamsComposite = new Composite(filePropsComposite, SWT.NONE);
 		buildingParamsComposite.setLayout(new GridLayout(2, false));
 		GridDataFactory.fillDefaults().grab(true, true).span(3,1).applyTo(buildingParamsComposite);
 		
@@ -447,6 +463,18 @@ public class FacadeSetEditorDialog extends Dialog {
 			}
 		});
 		
+		TabItem tab2 = new TabItem(filePropsFolder, SWT.NONE);
+	    tab2.setText("Preview");
+	    
+	    previewCanvas = new Canvas(filePropsFolder, SWT.NONE);
+	    tab2.setControl(previewCanvas);
+		previewCanvas.addPaintListener(e -> {
+			if (previewImage != null) {
+				 Rectangle rect = ((Canvas) e.widget).getBounds();
+				 e.gc.drawImage(previewImage,0,0,previewImage.getBounds().width, previewImage.getBounds().height, rect.x, rect.y, rect.width, rect.height);
+			}
+		});
+	    
 		return container;
 	}
 
@@ -504,7 +532,8 @@ public class FacadeSetEditorDialog extends Dialog {
 	}
 
 	private void updateProperties() {
-		grpFacadeFile.setVisible(currentFacade != null);
+		previewImage = null;
+		filePropsFolder.setVisible(currentFacade != null);
 		adjustScaleButton.setEnabled(currentFacade != null);
 		if (currentFacade == null) {
 			return;
@@ -557,7 +586,8 @@ public class FacadeSetEditorDialog extends Dialog {
 		buildingButton.setSelection(barrierType == null);
 		fenceButton.setSelection(barrierType == BarrierType.FENCE);
 		wallButton.setSelection(barrierType == BarrierType.WALL);
-		
+		previewImage = FacadeSetHelper.getPreviewImage(new File(facadeSetFolder, currentFacade.getFile()));
+		previewCanvas.redraw();
 	}
 
 	/**

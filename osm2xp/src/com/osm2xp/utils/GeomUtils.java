@@ -663,7 +663,7 @@ public class GeomUtils {
 	// X-Plane facades needs to be *CCW* (see https://developer.x-plane.com/2010/07/facade-tuning-and-tips/)
 	public static LinearRing2D forceCCW(LinearRing2D ring2d) {
 		LinearRing2D result = null;
-		if (ring2d.getVertices().size() > 3) { //XXX was 4. Why? 
+		if (ring2d.getVertices().size() > 4) { //4 because it makes sense only in case we have 3 points. 4th one is equal to 1st one 
 
 			Coordinate[] coords = new Coordinate[ring2d.getVertices().size()];
 			for (int i = 0; i < ring2d.getVertices().size(); i++) {

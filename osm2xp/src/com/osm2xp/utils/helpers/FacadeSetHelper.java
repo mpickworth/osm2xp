@@ -218,17 +218,18 @@ public class FacadeSetHelper {
 		Set<Double> hCoords = new HashSet<Double>();
 		Set<Double> vCoords = new HashSet<Double>();
 		
-		valuesMap.get("BOTTOM").stream().forEach(str -> vCoords.add(Double.parseDouble(str)));
-		valuesMap.get("MIDDLE").stream().forEach(str -> vCoords.add(Double.parseDouble(str)));
-		valuesMap.get("TOP").stream().forEach(str -> vCoords.add(Double.parseDouble(str)));
+		valuesMap.get("BOTTOM").stream().forEach(str -> vCoords.addAll(parseValues(str)));
+		valuesMap.get("MIDDLE").stream().forEach(str -> vCoords.addAll(parseValues(str)));
+		valuesMap.get("TOP").stream().forEach(str -> vCoords.addAll(parseValues(str)));
 		
-		valuesMap.get("LEFT").stream().forEach(str -> hCoords.add(Double.parseDouble(str)));
-		valuesMap.get("CENTER").stream().forEach(str -> hCoords.add(Double.parseDouble(str)));
-		valuesMap.get("RIGHT").stream().forEach(str -> hCoords.add(Double.parseDouble(str)));
+		valuesMap.get("LEFT").stream().forEach(str -> hCoords.addAll(parseValues(str)));
+		valuesMap.get("CENTER").stream().forEach(str -> hCoords.addAll(parseValues(str)));
+		valuesMap.get("RIGHT").stream().forEach(str -> hCoords.addAll(parseValues(str)));
 		List<Double> hCoordsList = new ArrayList<Double>(hCoords);
 		List<Double> vCoordsList = new ArrayList<Double>(vCoords);
 		Collections.sort(hCoordsList);
 		Collections.sort(vCoordsList);
+		Collections.reverse(vCoordsList);
 		if (hCoordsList.size() > 1 && vCoordsList.size() > 1) {
 			Image commonImg = imageRegistry.get(imgFile.getAbsolutePath());
 			if (commonImg == null) {
@@ -243,10 +244,10 @@ public class FacadeSetHelper {
 			}
 			Rectangle bounds = commonImg.getBounds();
 			int srcX = (int) Math.round(hCoordsList.get(0) * bounds.width);
-			int w = (int) Math.round(hCoordsList.get(hCoordsList.size() - 1) * bounds.width);
+			int w = (int) Math.round(hCoordsList.get(hCoordsList.size() - 1) * bounds.width - srcX);
 			
-			int srcY = (int) Math.round(vCoordsList.get(0) * bounds.width);
-			int h = (int) Math.round(vCoordsList.get(vCoordsList.size() - 1) * bounds.height);
+			int srcY = (int) Math.round((1.0 - vCoordsList.get(0)) * bounds.height);
+			int h = (int) Math.round((1.0 - vCoordsList.get(vCoordsList.size() - 1)) * bounds.height - srcY);
 			
 			final Image destImage = new Image(Display.getDefault(), w, h);
 
@@ -260,7 +261,7 @@ public class FacadeSetHelper {
 			}
 		    
 		    for (int i = 1; i <vCoordsList.size() - 1; i++) {
-		    	int yCoord = (int) Math.round(vCoordsList.get(i) * bounds.height) - srcX;
+		    	int yCoord = (int) Math.round((1.0 - vCoordsList.get(i)) * bounds.height) - srcY;
 				g.drawLine(0,yCoord,bounds.width,yCoord);
 			}
 		    g.dispose();
@@ -269,6 +270,20 @@ public class FacadeSetHelper {
 		}
 		return null;
 		
+	}
+
+	protected static List<Double> parseValues(String str) {
+		if (str == null) {
+			return Collections.emptyList();
+		}
+		List<Double> resList = new ArrayList<Double>();
+		String[] vals = str.split(" ");
+		for (String valStr : vals) {
+			if (!valStr.trim().isEmpty()) {
+				resList.add(Double.parseDouble(valStr));
+			}
+		}
+		return resList;
 	}
 
 }
