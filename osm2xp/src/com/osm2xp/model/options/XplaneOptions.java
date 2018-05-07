@@ -52,6 +52,7 @@ public class XplaneOptions {
 	protected boolean generateRailways = true;
 	protected boolean generateRoads = true;
 	protected boolean generateFence = true;
+	protected boolean generateTanks = true;
 	protected boolean generateStreetLights;
 	protected boolean generateSlopedRoofs;
 	protected int lightsDensity;
@@ -785,6 +786,14 @@ public class XplaneOptions {
 
 	public void setGenerateDebugImg(boolean generateDebugImg) {
 		this.generateDebugImg = generateDebugImg;
+	}
+
+	public boolean isGenerateTanks() {
+		return generateTanks;
+	}
+
+	public void setGenerateTanks(boolean generateTanks) {
+		this.generateTanks = generateTanks;
 	}
 
 }

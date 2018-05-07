@@ -72,6 +72,7 @@ public class XplaneOptionsHelper extends OptionsHelper {
 		result.setGeneratePowerlines(true);
 		result.setGenerateRailways(true);
 		result.setGenerateRoads(true);
+		result.setGenerateTanks(true);
 		result.setGeneratePdfStats(true);
 		result.setGenerateDebugImg(false);
 		result.setGenerateSlopedRoofs(true);
@@ -157,11 +158,8 @@ public class XplaneOptionsHelper extends OptionsHelper {
 		exclusionsList.add(new Tag("aeroway", "hangar"));
 		exclusionsList.add(new Tag("aeroway", "terminal"));
 		exclusionsList.add(new Tag("man_made", "chimney")); //Such a stuff should be handled with objects instead of generating building facades 
-		exclusionsList.add(new Tag("man_made", "gasometer"));
 		exclusionsList.add(new Tag("man_made", "tower"));
 		exclusionsList.add(new Tag("man_made", "cooling_tower"));
-		exclusionsList.add(new Tag("man_made", "storage_tank"));
-		exclusionsList.add(new Tag("man_made", "fuel_storage_tank"));
 		BuildingsExclusionsList result = new BuildingsExclusionsList(
 				exclusionsList);
 		return result;

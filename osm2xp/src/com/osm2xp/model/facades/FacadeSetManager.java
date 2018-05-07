@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
@@ -31,6 +32,8 @@ import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
 public class FacadeSetManager {
 	
+	private static final String FACADES_TARGET_FOLDER_NAME = "facades";
+
 	public static final String FACADE_SETS_PROP = "facadeSets";
 	
 	private static Map<String, FacadeSetManager> managerMap = new HashMap<String, FacadeSetManager>();
@@ -38,6 +41,8 @@ public class FacadeSetManager {
 	protected Multimap<BuildingType, Facade> buildingFacades = HashMultimap.create();
 	
 	protected Multimap<BarrierType, Facade> barrierFacades = HashMultimap.create();
+	
+	protected Map<SpecialBuildingType, String> specialFacades = new HashMap<>();
 
 	private String[] setPaths;
 	
@@ -54,6 +59,7 @@ public class FacadeSetManager {
 			managerMap.put(facadeSetsStr, facadeSetManager);
 		}
 		facadeSetManager.checkCopyFacades(targetFolder);
+		
 		return facadeSetManager;
 	}
 
@@ -73,17 +79,35 @@ public class FacadeSetManager {
 			}
 		}
 		list.stream().flatMap(set -> set.getFacades().stream()).forEach(facade -> addFacade(facade));
+		
+		specialFacades.put(SpecialBuildingType.TANK, "tank.fac"); //TODO set this up statically for now
 	}
 	
 	protected void checkCopyFacades(File targetFolder) {
-		if (targetFolder != null && XplaneOptionsHelper.getOptions().isPackageFacades()
-				&& (XplaneOptionsHelper.getOptions().isGenerateBuildings() || XplaneOptionsHelper.getOptions().isGenerateFence())) {
-			for (String pathStr : setPaths) {
-				File folder = new File(pathStr);
-				if (pathStr.endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
-					folder = folder.getParentFile();
+		if (targetFolder != null && XplaneOptionsHelper.getOptions().isPackageFacades()) {
+			
+			if (XplaneOptionsHelper.getOptions().isGenerateBuildings() || XplaneOptionsHelper.getOptions().isGenerateFence()) {
+				for (String pathStr : setPaths) {
+					File folder = new File(pathStr);
+					if (pathStr.endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
+						folder = folder.getParentFile();
+					}
+					copyFacades(folder, targetFolder);
 				}
-				copyFacades(folder, targetFolder);
+			}
+			if (XplaneOptionsHelper.getOptions().isGenerateTanks()) {
+				File specFacadesFolder = new File(
+						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specfacades");
+				if (specFacadesFolder.isDirectory()) {
+					try {
+						FilesUtils.copyDirectory(specFacadesFolder, new File(targetFolder, FACADES_TARGET_FOLDER_NAME),
+								false);
+					} catch (IOException e) {
+						Activator.log(e);
+					}
+				} else {
+					Activator.log(IStatus.ERROR, "Special facades folder not present in resources dir");
+				} 
 			}
 		}
 		
@@ -93,7 +117,7 @@ public class FacadeSetManager {
 		if (srcFolder.isFile()) {
 			srcFolder = srcFolder.getParentFile();
 		}
-		File facadesFolder = new File(targetFolder, "facades");
+		File facadesFolder = new File(targetFolder, FACADES_TARGET_FOLDER_NAME);
 		facadesFolder.mkdirs();
 
 		try {
@@ -154,6 +178,7 @@ public class FacadeSetManager {
 	public List<String> getAllFacadeStrings() {
 		List<String> facadeStrings = barrierFacades.values().stream().distinct().map(facade -> facade.getFile()).sorted().collect(Collectors.toList());
 		facadeStrings.addAll(buildingFacades.values().stream().distinct().map(facade -> facade.getFile()).sorted().collect(Collectors.toList()));
+		facadeStrings.addAll(specialFacades.values());
 		return facadeStrings;
 	}
 	
@@ -256,6 +281,10 @@ public class FacadeSetManager {
 			return new StatusInfo(IStatus.WARNING, "Invalid facade path(s): " + badPaths);
 		}
 		return Status.OK_STATUS;
+	}
+
+	public String getSpecialFacadeStr(SpecialBuildingType specialBuildingType) {
+		return specialFacades.get(specialBuildingType);
 	}
 
 

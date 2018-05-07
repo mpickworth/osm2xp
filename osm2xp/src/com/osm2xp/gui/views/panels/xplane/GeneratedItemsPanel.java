@@ -27,6 +27,7 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 	private Button btnGenerateRail;
 	private Button btnGeneratePower;
 	private Button btnGenerateFence;
+	private Button btnGenerateTanks;
 
 	public GeneratedItemsPanel(final Composite parent, final int style) {
 		super(parent, style);
@@ -55,6 +56,10 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 		btnGenerateFence= new Button(this, SWT.CHECK);
 		btnGenerateFence.setText("Generate Fence");
 		GridDataFactory.fillDefaults().applyTo(btnGenerateFence);
+		
+		btnGenerateTanks= new Button(this, SWT.CHECK);
+		btnGenerateTanks.setText("Generate Tanks/Gasometers");
+		GridDataFactory.fillDefaults().applyTo(btnGenerateTanks);
 		
 		btnGenerateStreetLights = new Button(this, SWT.CHECK);
 		btnGenerateStreetLights.setText("Generate street lights");
@@ -95,6 +100,8 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 				PojoProperties.value("generatePowerlines").observe(XplaneOptionsHelper.getOptions()));
 		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateFence),		
 				PojoProperties.value("generateFence").observe(XplaneOptionsHelper.getOptions()));
+		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateTanks),		
+				PojoProperties.value("generateTanks").observe(XplaneOptionsHelper.getOptions()));
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSetManager;
+import com.osm2xp.model.facades.SpecialBuildingType;
 import com.osm2xp.model.options.FacadeTagRule;
 import com.osm2xp.model.options.ForestTagRule;
 import com.osm2xp.model.options.TagsRule;
@@ -60,6 +61,10 @@ public class DsfObjectsProvider {
 	public DsfObjectsProvider() {
 		computePolygonsList();
 		computeObjectsList();
+	}
+	
+	public Integer computeSpecialFacadeIndex(SpecialBuildingType specialBuildingType, OsmPolygon polygon) {
+		return polygonsList.indexOf(facadeSetManager.getSpecialFacadeStr(specialBuildingType));
 	}
 
 	/**
