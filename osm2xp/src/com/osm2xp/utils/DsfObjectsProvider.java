@@ -1,15 +1,21 @@
 package com.osm2xp.utils;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
+
 import math.geom2d.Box2D;
 import math.geom2d.polygon.LinearRing2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSetManager;
@@ -36,6 +42,7 @@ import com.osm2xp.utils.helpers.XplaneOptionsHelper;
  */
 public class DsfObjectsProvider {
 
+	public static final String OBJECTS_TARGET_FOLDER_NAME = "objects";
 	private List<String> objectsList = new ArrayList<String>();
 	private List<String> singlesFacadesList = new ArrayList<String>();
 	private List<String> facadesList = new ArrayList<String>();
@@ -45,24 +52,27 @@ public class DsfObjectsProvider {
 
 	private FacadeSetManager facadeSetManager;
 	private Box2D exclusionBox;
+	private String targetFolderPath;
 
 	/**
 	 * @param facadeSet
 	 */
-	public DsfObjectsProvider(FacadeSetManager facadeSetManager) {
+	public DsfObjectsProvider(String folderPath, FacadeSetManager facadeSetManager) {
 		this.facadeSetManager = facadeSetManager;
+		this.targetFolderPath = folderPath;
 		computePolygonsList();
 		computeObjectsList();
 	}
 
 	/**
-	 * @param facadeSet
+	 * @param folderPath target folder path
 	 */
-	public DsfObjectsProvider() {
+	public DsfObjectsProvider(String folderPath) {
+		this.targetFolderPath = folderPath;
 		computePolygonsList();
 		computeObjectsList();
 	}
-	
+
 	public Integer computeSpecialFacadeIndex(SpecialBuildingType specialBuildingType, OsmPolygon polygon) {
 		return polygonsList.indexOf(facadeSetManager.getSpecialFacadeStr(specialBuildingType));
 	}
@@ -164,6 +174,9 @@ public class DsfObjectsProvider {
 
 			}
 		}
+		
+		//add special 3d objects (e.g. chimneys)
+		addSpecial3DObjects();
 
 		// add lights objects
 		for (XplaneLightTagRule object : XplaneOptionsHelper.getOptions()
@@ -175,6 +188,27 @@ public class DsfObjectsProvider {
 
 			}
 		}
+	}
+
+	private void addSpecial3DObjects() {
+		if (XplaneOptionsHelper.getOptions().isGenerateChimneys()) {
+				File specObjectsFolder = new File(
+						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specobjects");
+				if (specObjectsFolder.isDirectory()) {
+					try {
+						FilesUtils.copyDirectory(specObjectsFolder, new File(targetFolderPath, OBJECTS_TARGET_FOLDER_NAME),
+								false);
+					} catch (IOException e) {
+						Activator.log(e);
+					}
+					File[] facFiles = specObjectsFolder.listFiles((parent, name) -> name.toLowerCase().endsWith(".obj"));
+					for (File file : facFiles) {
+						objectsList.add(OBJECTS_TARGET_FOLDER_NAME + "/" + file.getName());
+					}
+				} else {
+					Activator.log(IStatus.ERROR, "Special facades folder not present in resources dir");
+				} 
+			}
 	}
 
 	/**
@@ -195,6 +229,14 @@ public class DsfObjectsProvider {
 		Collections.shuffle(tagRule.getObjectsFiles());
 		String objectFile = tagRule.getObjectsFiles().get(0).getPath();
 		return objectsList.indexOf(objectFile);
+	}
+	
+	/**
+	 * @param height 
+	 * @return chimney object idx
+	 */
+	public Integer getChimneyObject(int height) {
+		return objectsList.indexOf(OBJECTS_TARGET_FOLDER_NAME + "/" + "chimney200.obj"); //TODO add actual logics here
 	}
 
 	/**

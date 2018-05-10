@@ -25,6 +25,7 @@ import com.osm2xp.translators.ITranslationListener;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.translators.xplane.IDRenumbererService;
 import com.osm2xp.translators.xplane.XPBarrierTranslator;
+import com.osm2xp.translators.xplane.XPChimneyTranslator;
 import com.osm2xp.translators.xplane.XPPowerlineTranslator;
 import com.osm2xp.translators.xplane.XPRailTranslator;
 import com.osm2xp.translators.xplane.XPRoadTranslator;
@@ -110,6 +111,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		polyHandlers.add(new XPRoadTranslator(writer));
 		polyHandlers.add(new XPRailTranslator(writer));
 		polyHandlers.add(new XPPowerlineTranslator(writer));
+		polyHandlers.add(new XPChimneyTranslator(writer, dsfObjectsProvider));
 	}
 	
 	@Override

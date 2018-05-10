@@ -53,6 +53,7 @@ public class XplaneOptions {
 	protected boolean generateRoads = true;
 	protected boolean generateFence = true;
 	protected boolean generateTanks = true;
+	protected boolean generateChimneys = true;
 	protected boolean generateStreetLights;
 	protected boolean generateSlopedRoofs;
 	protected int lightsDensity;
@@ -794,6 +795,14 @@ public class XplaneOptions {
 
 	public void setGenerateTanks(boolean generateTanks) {
 		this.generateTanks = generateTanks;
+	}
+
+	public boolean isGenerateChimneys() {
+		return generateChimneys;
+	}
+
+	public void setGenerateChimneys(boolean generateChimneys) {
+		this.generateChimneys = generateChimneys;
 	}
 
 }

@@ -264,7 +264,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 		for (OsmPolygon way : globalWayList) {
 			objectsList.add("objects/" + way.getId() + ".obj");
 		}
-		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider();
+		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath);
 		dsfObjectsProvider.setObjectsList(objectsList);
 		String dsfHeaderText = DsfUtils.getDsfHeader(currentTile,
 				dsfObjectsProvider);
@@ -308,7 +308,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 
 		objectsList.add("objects/" + currentTile.y + "_" + currentTile.x
 				+ ".obj");
-		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider();
+		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath);
 		dsfObjectsProvider.setObjectsList(objectsList);
 		String dsfHeaderText = DsfUtils.getDsfHeader(currentTile,
 				dsfObjectsProvider);

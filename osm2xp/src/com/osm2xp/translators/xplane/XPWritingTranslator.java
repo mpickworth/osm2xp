@@ -7,12 +7,10 @@ public abstract class XPWritingTranslator implements IPolyHandler{
 
 	protected IWriter writer;
 
-	public XPWritingTranslator() {
-		super();
-	}
-
 	public XPWritingTranslator(IWriter writer) {
 		this.writer = writer;
 	}
+	
+	
 
 }
