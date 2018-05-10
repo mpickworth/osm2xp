@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -210,7 +211,11 @@ public class FacadeSetHelper {
 			return img;
 		}
 		Multimap<String, String> valuesMap = getMultiValuesFromFac(facadeFile);
-		String imgFileName = valuesMap.get("TEXTURE").iterator().next();
+		Collection<String> textures = valuesMap.get("TEXTURE");
+		if (textures == null || textures.isEmpty()) {
+			return null;
+		}
+		String imgFileName = textures.iterator().next();
 		File imgFile = new File(facadeFile.getParentFile(), imgFileName);
 		if (!imgFile.isFile()) {
 			return null;

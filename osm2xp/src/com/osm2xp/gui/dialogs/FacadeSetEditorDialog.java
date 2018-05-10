@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
@@ -95,6 +96,7 @@ public class FacadeSetEditorDialog extends Dialog {
 	private TabFolder filePropsFolder;
 	private Canvas previewCanvas;
 	private Image previewImage;
+	private Image errorPreviewImage = AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID,"images/preview_error.png").createImage();
 
 	/**
 	 * Create the dialog.
@@ -110,7 +112,7 @@ public class FacadeSetEditorDialog extends Dialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("Facade set editor");
+		newShell.setText("Facade set editor - " + facadeSetFolder);
 	}
 
 	/**
@@ -587,6 +589,9 @@ public class FacadeSetEditorDialog extends Dialog {
 		fenceButton.setSelection(barrierType == BarrierType.FENCE);
 		wallButton.setSelection(barrierType == BarrierType.WALL);
 		previewImage = FacadeSetHelper.getPreviewImage(new File(facadeSetFolder, currentFacade.getFile()));
+		if (previewImage == null) {
+			previewImage = errorPreviewImage;
+		}
 		previewCanvas.redraw();
 	}
 
