@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlType;
 		"residentialMin", "residentialMax", "buildingMin", "buildingMax",
 		"minHouseSegment", "maxHouseSegment", "minHouseArea", "generateObj",
 		"generateFor", "generateBuildings","generatePowerlines","generateRailways","generateRoads","generateFence",
-		"generateSlopedRoofs", "generateStreetLights", "lightsDensity", "packageFacades",
+		"generateTanks","generateChimneys","generateSlopedRoofs", "generateStreetLights", "lightsDensity", "packageFacades",
 		"hardBuildings", "lightObject", "facadeLod", 
 		"generateXmlStats", "generatePdfStats", "generateDebugImg", "buildingsExclusions",
 		"forestsRules", "objectsRules", "lightsRules", "facadesRules",
