@@ -34,6 +34,7 @@ public class XPChimneyTranslator extends XPWritingTranslator {
 			commentBuilder.append(System.getProperty("line.separator"));
 			writer.write(commentBuilder.toString(), point);
 			writer.write(objStr, point);
+			return true;
 		}
 		return false;
 	}

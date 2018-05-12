@@ -2,6 +2,7 @@ package com.osm2xp.gui.dialogs;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -442,6 +444,39 @@ public class FacadeSetEditorDialog extends Dialog {
 							.getSelection() / 100);
 				}
 
+			}
+		});
+		Button deleteButton = new Button(buildingParamsComposite, SWT.PUSH);
+		deleteButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/remove.gif").createImage());
+		deleteButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (currentFacade != null) {
+					int mode = MessageDialog.open(MessageDialog.QUESTION, getShell(),"Remove facade?", "Remove facade " + currentFacade.getFile() + "?", SWT.NONE, "Remove", "Remove with file", "Cancel");
+					if (mode == 2) {
+						return;
+					}
+					List<Facade> facadesList = facadeSet.getFacades();
+					int idx = facadesList.indexOf(currentFacade);
+					if (idx >= 0) {
+						facadesList.remove(currentFacade);
+						if (mode == 1) {
+							new File(facadeSetFolder, currentFacade.getFile()).delete();
+						}
+						if (facadesList.size() > idx) {
+							currentFacade = facadesList.get(idx);
+						} else if (facadesList.size() > 0) {
+							currentFacade = facadesList.get(0);
+						} else {
+							currentFacade = null;
+						}
+						viewer.setInput(facadeSet.getFacades());
+						if (currentFacade != null) {
+							viewer.setSelection(new StructuredSelection(currentFacade));
+						}
+						updateProperties();
+					}
+				}
 			}
 		});
 
