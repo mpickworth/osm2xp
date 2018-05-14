@@ -27,5 +27,6 @@ public class Osm2xpConstants {
 	public static final String UTILS_PATH = ResourcesPlugin.getWorkspace()
 			.getRoot().getLocation()
 			+ File.separator + "resources" + File.separatorChar + "utils";
+	public static final String MAN_MADE_TAG = "man_made";
 
 }

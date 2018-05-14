@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
+import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.SpecialBuildingType;
@@ -334,7 +335,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		// we check if we can use a sloped roof if the user wants them
 		BuildingType buildingType = getBuildingType(polygon);
 		if (XplaneOptionsHelper.getOptions().isGenerateSlopedRoofs()
-				&& polygon.isSimplePolygon()) {
+				&& polygon.isSimplePolygon() && polygon.getHeight() < 20) { //Suggesting that buildings higher than 20m usually have flat roofs
 			result = dsfObjectsProvider.computeFacadeDsfIndex(true, buildingType, true,
 					polygon);
 		}
@@ -364,7 +365,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	 */
 	private SpecialBuildingType getSpecialBuildingType(OsmPolygon polygon) {
 		if (XplaneOptionsHelper.getOptions().isGenerateTanks()) { 
-			String manMade = polygon.getTagValue("man_made");
+			String manMade = polygon.getTagValue(Osm2xpConstants.MAN_MADE_TAG);
 			if ("storage_tank".equals(manMade) || "fuel_storage_tank".equals(manMade) || "gasometer".equals(manMade)) {
 				return SpecialBuildingType.TANK;
 			}
@@ -554,6 +555,13 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	//Avoid generating a bunch of little garages //TODO rewrite this in more generic way in future
 	protected boolean specialExcluded(OsmPolygon osmPolygon) {
 		if ("garage".equals(osmPolygon.getTagValue("building")) && GeomUtils.computePerimeter(osmPolygon.getPolygon()) < 30) {
+			return true;
+		}
+		String val = osmPolygon.getTagValue(Osm2xpConstants.MAN_MADE_TAG);
+		//We don't want to generate facade-based building for most of "man_made"-typed objects, since usually using facade for them is not a good idea.
+		//Exclusions are e.g. storage tanks or works/factories
+		//Please see https://wiki.openstreetmap.org/wiki/Key:man_made for examples
+		if (val != null && val.indexOf("tank") == -1 && !"yes".equals(val) && !"works".equals(val)) {  
 			return true;
 		}
 		return false;

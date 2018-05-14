@@ -11,9 +11,6 @@ import java.util.Random;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 
-import math.geom2d.Box2D;
-import math.geom2d.polygon.LinearRing2D;
-
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.BarrierType;
@@ -22,9 +19,9 @@ import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.facades.SpecialBuildingType;
 import com.osm2xp.model.options.FacadeTagRule;
 import com.osm2xp.model.options.ForestTagRule;
+import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.options.XplaneLightTagRule;
-import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.XplaneObjectTagRule;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.Tag;
@@ -33,6 +30,9 @@ import com.osm2xp.model.xplane.XplaneDsfLightObject;
 import com.osm2xp.model.xplane.XplaneDsfObject;
 import com.osm2xp.translators.BuildingType;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
+
+import math.geom2d.Box2D;
+import math.geom2d.polygon.LinearRing2D;
 
 /**
  * DsfObjectsProvider.
@@ -43,6 +43,7 @@ import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 public class DsfObjectsProvider {
 
 	public static final String OBJECTS_TARGET_FOLDER_NAME = "objects";
+	public static final String FORESTS_TARGET_FOLDER_NAME = "forests";
 	private List<String> objectsList = new ArrayList<String>();
 	private List<String> singlesFacadesList = new ArrayList<String>();
 	private List<String> facadesList = new ArrayList<String>();
@@ -134,8 +135,9 @@ public class DsfObjectsProvider {
 
 				}
 			}
+			copyForestFiles();
 			polygonsList.addAll(forestsList);
-
+			
 		}
 		// FACADES RULES
 		if (!XplaneOptionsHelper.getOptions().getFacadesRules().getRules()
@@ -176,7 +178,7 @@ public class DsfObjectsProvider {
 		}
 		
 		//add special 3d objects (e.g. chimneys)
-		addSpecial3DObjects();
+		add3DObjects();
 
 		// add lights objects
 		for (XplaneLightTagRule object : XplaneOptionsHelper.getOptions()
@@ -189,9 +191,22 @@ public class DsfObjectsProvider {
 			}
 		}
 	}
+	
+	private void copyForestFiles() {
+		File forestsFolder = new File(
+				ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/forests");
+		if (forestsFolder.isDirectory()) {
+			try {
+				FilesUtils.copyDirectory(forestsFolder, new File(targetFolderPath, FORESTS_TARGET_FOLDER_NAME),
+						false);
+			} catch (IOException e) {
+				Activator.log(e);
+			}
+		}
+	}
 
-	private void addSpecial3DObjects() {
-		if (XplaneOptionsHelper.getOptions().isGenerateChimneys()) {
+	private void add3DObjects() {
+		if (XplaneOptionsHelper.getOptions().isGenerateChimneys() || XplaneOptionsHelper.getOptions().isGenerateObj() ) {
 				File specObjectsFolder = new File(
 						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specobjects");
 				if (specObjectsFolder.isDirectory()) {
@@ -201,8 +216,8 @@ public class DsfObjectsProvider {
 					} catch (IOException e) {
 						Activator.log(e);
 					}
-					File[] facFiles = specObjectsFolder.listFiles((parent, name) -> name.toLowerCase().endsWith(".obj"));
-					for (File file : facFiles) {
+					File[] objFiles = specObjectsFolder.listFiles((parent, name) -> name.toLowerCase().endsWith(".obj"));
+					for (File file : objFiles) {
 						objectsList.add(OBJECTS_TARGET_FOLDER_NAME + "/" + file.getName());
 					}
 				} else {
@@ -236,7 +251,7 @@ public class DsfObjectsProvider {
 	 * @return chimney object idx
 	 */
 	public Integer getChimneyObject(int height) {
-		return objectsList.indexOf(OBJECTS_TARGET_FOLDER_NAME + "/" + "chimney200.obj"); //TODO add actual logics here
+		return objectsList.indexOf(OBJECTS_TARGET_FOLDER_NAME + "/" + "chimney-200.obj"); //TODO add actual logics here
 	}
 
 	/**
@@ -472,6 +487,10 @@ public class DsfObjectsProvider {
 
 	public Box2D getExclusionBox() {
 		return exclusionBox;
+	}
+
+	public Integer getChimneyObject(String chimneyModelFile) {
+		return objectsList.indexOf(OBJECTS_TARGET_FOLDER_NAME + "/" + chimneyModelFile);
 	}
 
 }
