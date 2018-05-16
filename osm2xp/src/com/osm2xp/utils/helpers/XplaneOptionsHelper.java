@@ -120,14 +120,14 @@ public class XplaneOptionsHelper extends OptionsHelper {
 				"power_source", "wind"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile(
-						"opensceneryx/objects/buildings/industrial/wind_turbines/large.obj"));
+						"objects/wind_turbine.obj"));
 			}
 		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
 		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
 				"lighthouse"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile(
-						"opensceneryx/objects/buildings/marine/lighthouses/1.obj"));
+						"objects/capemay.obj"));
 			}
 		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
 		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
@@ -152,7 +152,7 @@ public class XplaneOptionsHelper extends OptionsHelper {
 				"crane"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile(
-						"opensceneryx/objects/buildings/industrial/cranes/1.obj"));
+						"objects/crane.obj"));
 			}
 		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
 		XplaneObjectsRulesList result = new XplaneObjectsRulesList(

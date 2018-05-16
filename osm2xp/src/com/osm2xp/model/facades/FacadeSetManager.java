@@ -81,6 +81,7 @@ public class FacadeSetManager {
 		list.stream().flatMap(set -> set.getFacades().stream()).forEach(facade -> addFacade(facade));
 		
 		specialFacades.put(SpecialBuildingType.TANK, "tank.fac"); //TODO set this up statically for now
+		specialFacades.put(SpecialBuildingType.GARAGE, "garages.fac"); 
 	}
 	
 	protected void checkCopyFacades(File targetFolder) {

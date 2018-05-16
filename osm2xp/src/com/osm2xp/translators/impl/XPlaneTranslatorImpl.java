@@ -45,6 +45,7 @@ import math.geom2d.Point2D;
 
 public class XPlaneTranslatorImpl implements ITranslator{
 
+	private static final String BUILDING_TAG = "building";
 	/**
 	 * Residential buildings maximum area.
 	 */
@@ -193,7 +194,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	
 				// stats TODO not working anymore since v2 facades new features.
 				if (dsfObjectsProvider.getPolygonsList().get(facade)
-						.toLowerCase().contains("building")
+						.toLowerCase().contains(BUILDING_TAG)
 						|| dsfObjectsProvider.getPolygonsList().get(facade)
 								.toLowerCase().contains("shape")) {
 					StatsHelper.addBuildingType("Building", stats);
@@ -218,7 +219,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		String street = osmPolygon.getTagValue("addr:street");
 		String name = osmPolygon.getTagValue("name");
 		String number = osmPolygon.getTagValue("addr:housenumber");
-		StringBuilder builder = new StringBuilder("building");
+		StringBuilder builder = new StringBuilder(BUILDING_TAG);
 		
 		if (name != null) {
 			builder.append(" ");
@@ -259,6 +260,10 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				}
 				
 			}
+			int height = tryGetHeightByType(polygon);
+			if (height > 0) {
+				return height;
+			}
 			
 			if (polygon.getArea() * 10000000 < 0.2) {
 				result = XplaneOptionsHelper.getOptions().getResidentialMin();
@@ -277,8 +282,20 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		return result;
 	}	
 
+	/**
+	 * Guess height by tags, for buiildings like e.g. garages
+	 * @param polygon
+	 * @return
+	 */
+	protected int tryGetHeightByType(OsmPolygon polygon) {
+		if ("garages".equals(polygon.getTagValue(BUILDING_TAG)) || "garage".equals(polygon.getTagValue(BUILDING_TAG))) { //1 level high by default
+			return (int) Math.round(levelHeight);
+		}
+		return 0;
+	}
+
 	protected BuildingType getBuildingType(OsmPolygon polygon) {
-		String typeStr = polygon.getTagValue("building");
+		String typeStr = polygon.getTagValue(BUILDING_TAG);
 		BuildingType type = BuildingType.fromId(typeStr);
 		if (type != null) {
 			return type;
@@ -369,6 +386,9 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			if ("storage_tank".equals(manMade) || "fuel_storage_tank".equals(manMade) || "gasometer".equals(manMade)) {
 				return SpecialBuildingType.TANK;
 			}
+		}
+		if ("garages".equals(polygon.getTagValue(BUILDING_TAG)) || "garage".equals(polygon.getTagValue(BUILDING_TAG))) { //For now - we always generate garages if we generate buildings 
+			return SpecialBuildingType.GARAGE;
 		}
 		return null;
 	}
@@ -554,7 +574,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 
 	//Avoid generating a bunch of little garages //TODO rewrite this in more generic way in future
 	protected boolean specialExcluded(OsmPolygon osmPolygon) {
-		if ("garage".equals(osmPolygon.getTagValue("building")) && GeomUtils.computePerimeter(osmPolygon.getPolygon()) < 30) {
+		if ("garage".equals(osmPolygon.getTagValue(BUILDING_TAG)) && GeomUtils.computePerimeter(osmPolygon.getPolygon()) < 30) {
 			return true;
 		}
 		String val = osmPolygon.getTagValue(Osm2xpConstants.MAN_MADE_TAG);
