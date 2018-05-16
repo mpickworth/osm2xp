@@ -368,6 +368,20 @@
         <maxHeight>100</maxHeight>
     </facades>
     <facades>
+        <file>buildingResidental2.fac</file>
+        <roofColor></roofColor>
+        <wallColor></wallColor>
+        <industrial>false</industrial>
+        <commercial>false</commercial>
+        <residential>true</residential>
+        <sloped>false</sloped>
+        <minVectorLength>0.0</minVectorLength>
+        <maxVectorLength>0.0</maxVectorLength>
+        <simpleBuildingOnly>false</simpleBuildingOnly>
+        <minHeight>50</minHeight>
+        <maxHeight>100</maxHeight>
+    </facades>
+    <facades>
         <file>buildingGlass1.fac</file>
         <roofColor></roofColor>
         <wallColor></wallColor>
@@ -539,7 +553,7 @@
         <minHeight>0</minHeight>
         <maxHeight>0</maxHeight>
     </facades>
-	<facades>
+    <facades>
         <file>Concrete_Grey_Mid.fac</file>
         <roofColor></roofColor>
         <wallColor></wallColor>
@@ -554,7 +568,7 @@
         <minHeight>0</minHeight>
         <maxHeight>0</maxHeight>
     </facades>
-	<facades>
+    <facades>
         <file>Proflist_White_Mid.fac</file>
         <roofColor></roofColor>
         <wallColor></wallColor>
