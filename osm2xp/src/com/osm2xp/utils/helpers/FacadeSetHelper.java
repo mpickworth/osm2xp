@@ -38,7 +38,10 @@ import com.osm2xp.exceptions.Osm2xpTechnicalException;
 import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
+import com.osm2xp.model.facades.FacadeDefinition;
+import com.osm2xp.model.facades.FacadeDefinitionParser;
 import com.osm2xp.model.facades.FacadeSet;
+import com.osm2xp.model.facades.Wall;
 import com.osm2xp.utils.FilesUtils;
 
 /**
@@ -210,28 +213,44 @@ public class FacadeSetHelper {
 		if (img != null) {
 			return img;
 		}
-		Multimap<String, String> valuesMap = getMultiValuesFromFac(facadeFile);
-		Collection<String> textures = valuesMap.get("TEXTURE");
-		if (textures == null || textures.isEmpty()) {
+		FacadeDefinition definition = FacadeDefinitionParser.parse(facadeFile);
+		
+		Collection<String> textures = definition.getProperties().get("TEXTURE");                  
+		if (textures == null || textures.isEmpty()) {                            
+			return null;                                                         
+		}                                                                        
+		String imgFileName = textures.iterator().next();         
+		File imgFile = new File(facadeFile.getParentFile(), imgFileName); 
+		if (!imgFile.isFile()) {                                          
+			return null;                                                  
+		}                                                                 
+		List<Wall> walls = definition.getWalls();
+		if (walls.isEmpty()) {
 			return null;
 		}
-		String imgFileName = textures.iterator().next();
-		File imgFile = new File(facadeFile.getParentFile(), imgFileName);
-		if (!imgFile.isFile()) {
-			return null;
-		}
-		Set<Double> hCoords = new HashSet<Double>();
-		Set<Double> vCoords = new HashSet<Double>();
 		
-		valuesMap.get("BOTTOM").stream().forEach(str -> vCoords.addAll(parseValues(str)));
-		valuesMap.get("MIDDLE").stream().forEach(str -> vCoords.addAll(parseValues(str)));
-		valuesMap.get("TOP").stream().forEach(str -> vCoords.addAll(parseValues(str)));
-		
-		valuesMap.get("LEFT").stream().forEach(str -> hCoords.addAll(parseValues(str)));
-		valuesMap.get("CENTER").stream().forEach(str -> hCoords.addAll(parseValues(str)));
-		valuesMap.get("RIGHT").stream().forEach(str -> hCoords.addAll(parseValues(str)));
-		List<Double> hCoordsList = new ArrayList<Double>(hCoords);
-		List<Double> vCoordsList = new ArrayList<Double>(vCoords);
+//		Multimap<String, String> valuesMap = getMultiValuesFromFac(facadeFile);
+//		Collection<String> textures = valuesMap.get("TEXTURE");
+//		if (textures == null || textures.isEmpty()) {
+//			return null;
+//		}
+//		String imgFileName = textures.iterator().next();
+//		File imgFile = new File(facadeFile.getParentFile(), imgFileName);
+//		if (!imgFile.isFile()) {
+//			return null;
+//		}
+//		Set<Double> hCoords = new HashSet<Double>();
+//		Set<Double> vCoords = new HashSet<Double>();
+//		
+//		valuesMap.get("BOTTOM").stream().forEach(str -> vCoords.addAll(parseValues(str)));
+//		valuesMap.get("MIDDLE").stream().forEach(str -> vCoords.addAll(parseValues(str)));
+//		valuesMap.get("TOP").stream().forEach(str -> vCoords.addAll(parseValues(str)));
+//		
+//		valuesMap.get("LEFT").stream().forEach(str -> hCoords.addAll(parseValues(str)));
+//		valuesMap.get("CENTER").stream().forEach(str -> hCoords.addAll(parseValues(str)));
+//		valuesMap.get("RIGHT").stream().forEach(str -> hCoords.addAll(parseValues(str)));
+		List<Double> hCoordsList = new ArrayList<Double>(walls.get(0).getxCoords());
+		List<Double> vCoordsList = new ArrayList<Double>(walls.get(0).getyCoords());
 		Collections.sort(hCoordsList);
 		Collections.sort(vCoordsList);
 		Collections.reverse(vCoordsList);

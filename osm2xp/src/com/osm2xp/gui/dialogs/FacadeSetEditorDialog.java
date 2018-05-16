@@ -623,7 +623,8 @@ public class FacadeSetEditorDialog extends Dialog {
 		buildingButton.setSelection(barrierType == null);
 		fenceButton.setSelection(barrierType == BarrierType.FENCE);
 		wallButton.setSelection(barrierType == BarrierType.WALL);
-		previewImage = FacadeSetHelper.getPreviewImage(new File(facadeSetFolder, currentFacade.getFile()));
+		File facadeFile = new File(facadeSetFolder, currentFacade.getFile());
+		previewImage = FacadeSetHelper.getPreviewImage(facadeFile);
 		if (previewImage == null) {
 			previewImage = errorPreviewImage;
 		}

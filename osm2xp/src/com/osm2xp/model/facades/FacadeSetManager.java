@@ -36,8 +36,6 @@ public class FacadeSetManager {
 
 	public static final String FACADE_SETS_PROP = "facadeSets";
 	
-	private static Map<String, FacadeSetManager> managerMap = new HashMap<String, FacadeSetManager>();
-	
 	protected Multimap<BuildingType, Facade> buildingFacades = HashMultimap.create();
 	
 	protected Multimap<BarrierType, Facade> barrierFacades = HashMultimap.create();
@@ -53,11 +51,7 @@ public class FacadeSetManager {
 	 * @return {@link FacadeSetManager} instance
 	 */
 	public static FacadeSetManager getManager(String facadeSetsStr, File targetFolder) {
-		FacadeSetManager facadeSetManager = managerMap.get(facadeSetsStr);
-		if (facadeSetManager == null) {
-			facadeSetManager = new FacadeSetManager(facadeSetsStr);
-			managerMap.put(facadeSetsStr, facadeSetManager);
-		}
+		FacadeSetManager facadeSetManager = new FacadeSetManager(facadeSetsStr);
 		facadeSetManager.checkCopyFacades(targetFolder);
 		
 		return facadeSetManager;
