@@ -1,7 +1,10 @@
 package com.onpositive.facadecreator;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -31,10 +34,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
-public class ImageViewer extends JFrame implements ActionListener {
+public class FacadeMarker extends JFrame implements ActionListener {
+
+	private static final String POINT_LABEL_PREFFIX = "Point:";
 
 	private static enum Mode {
 		NONE, HORIZ_MARK, VERT_MARK
@@ -52,8 +58,10 @@ public class ImageViewer extends JFrame implements ActionListener {
 	private int currentX = -1;
 	private int currentY = -1;
 
-	public ImageViewer() {
-		setTitle("ImageViewer");
+	private JLabel coordsLabel;
+
+	public FacadeMarker() {
+		setTitle("Facade Marker");
 		setSize(800, 600);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -70,6 +78,8 @@ public class ImageViewer extends JFrame implements ActionListener {
 		setJMenuBar(mbar);
 
 		label = new JLabel() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -98,15 +108,24 @@ public class ImageViewer extends JFrame implements ActionListener {
 					}
 				}
 			}
+			
+			@Override
+		    public Dimension getPreferredSize(){
+				if (currentImage != null) {
+					return new Dimension(currentImage.getWidth(null), currentImage.getHeight(null));
+				}
+				return super.getPreferredSize();
+		    }
 		};
 		label.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON1) {
-					if (mode == Mode.HORIZ_MARK && currentX >= 0) {
+					if (mode == Mode.HORIZ_MARK && currentX >= 0 && (xCoords.isEmpty() || xCoords.get(xCoords.size() - 1) != currentX)) {
 						xCoords.add(currentX);
 					}
-					if (mode == Mode.VERT_MARK && currentY >= 0) {
+					if (mode == Mode.VERT_MARK && currentY >= 0 && (yCoords.isEmpty() || yCoords.get(yCoords.size() - 1) != currentY)) {
+						
 						yCoords.add(currentY);
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON2) {
@@ -119,6 +138,7 @@ public class ImageViewer extends JFrame implements ActionListener {
 				}
 
 			}
+			
 		});
 		label.addMouseMotionListener(new MouseMotionAdapter() {
 
@@ -134,12 +154,23 @@ public class ImageViewer extends JFrame implements ActionListener {
 					currentY = Math.max(e.getY(), minY);
 					label.repaint();
 				}
+				if (currentImage != null) {
+					double xCoord = 1.0 * e.getX() / currentImage.getWidth(null);
+					double yCoord = 1.0 - (e.getY() * 1.0 / currentImage.getHeight(null));
+					coordsLabel.setText(POINT_LABEL_PREFFIX + String.format("(%1.6f, %2.6f)", xCoord, yCoord));
+				}
 			}
 
 		});
-		JScrollPane jsp = new JScrollPane(label);
+		JPanel subPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		subPanel.add(label);
+
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		mainPanel.add(subPanel, BorderLayout.NORTH);
+		
+		JScrollPane jsp = new JScrollPane(mainPanel);
 		Container contentPane = getContentPane();
-		contentPane.add(jsp, "Center");
+		contentPane.add(jsp);
 
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(1, 4));
@@ -154,6 +185,9 @@ public class ImageViewer extends JFrame implements ActionListener {
 		endMarkBtn = new JButton("End Mark");
 		endMarkBtn.addActionListener(e -> endMark());
 		panel.add(endMarkBtn);
+		coordsLabel = new JLabel(POINT_LABEL_PREFFIX);
+		coordsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		panel.add(coordsLabel);
 		contentPane.add(panel, "South");
 		updateButtonsEnablement();
 	}
@@ -192,9 +226,9 @@ public class ImageViewer extends JFrame implements ActionListener {
 			for (int i = 1; i < resList.size(); i++) {
 				builder.append(getHorizCoordsKeyword(i, resList.size()));
 				builder.append(' ');
-				builder.append(String.format("%.9f", resList.get(i-1)));
+				builder.append(String.format("%.6f", resList.get(i-1)));
 				builder.append(' ');
-				builder.append(String.format("%.9f", resList.get(i)));
+				builder.append(String.format("%.6f", resList.get(i)));
 				builder.append('\n');
 			}
 			StringSelection stringSelection = new StringSelection(builder.toString());
@@ -307,7 +341,7 @@ public class ImageViewer extends JFrame implements ActionListener {
 	}
 
 	public static void main(String[] args) {
-		JFrame frame = new ImageViewer();
+		JFrame frame = new FacadeMarker();
 		frame.setVisible(true);
 	}
 
