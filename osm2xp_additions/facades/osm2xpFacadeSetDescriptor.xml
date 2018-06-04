@@ -493,6 +493,20 @@
         <minHeight>0</minHeight>
         <maxHeight>100</maxHeight>
     </facades>
+	    <facades>
+        <file>warehouse.fac</file>
+        <roofColor></roofColor>
+        <wallColor></wallColor>
+        <industrial>true</industrial>
+        <commercial>false</commercial>
+        <residential>false</residential>
+        <sloped>false</sloped>
+        <minVectorLength>0.0</minVectorLength>
+        <maxVectorLength>0.0</maxVectorLength>
+        <simpleBuildingOnly>false</simpleBuildingOnly>
+        <minHeight>0</minHeight>
+        <maxHeight>100</maxHeight>
+    </facades>
     <facades>
         <file>chainfence_open.fac</file>
         <roofColor></roofColor>

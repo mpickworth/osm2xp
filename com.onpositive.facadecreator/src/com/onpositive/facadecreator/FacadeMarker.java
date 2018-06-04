@@ -125,7 +125,6 @@ public class FacadeMarker extends JFrame implements ActionListener {
 						xCoords.add(currentX);
 					}
 					if (mode == Mode.VERT_MARK && currentY >= 0 && (yCoords.isEmpty() || yCoords.get(yCoords.size() - 1) != currentY)) {
-						
 						yCoords.add(currentY);
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON2) {
@@ -145,13 +144,11 @@ public class FacadeMarker extends JFrame implements ActionListener {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				if (mode == Mode.HORIZ_MARK) {
-					int minX = !xCoords.isEmpty() ? xCoords.get(xCoords.size() - 1) : 0;
-					currentX = Math.max(e.getX(), minX);
+					currentX = e.getX();
 					label.repaint();
 				}
 				if (mode == Mode.VERT_MARK) {
-					int minY = !yCoords.isEmpty() ? yCoords.get(yCoords.size() - 1) : 0;
-					currentY = Math.max(e.getY(), minY);
+					currentY = e.getY();
 					label.repaint();
 				}
 				if (currentImage != null) {
@@ -206,6 +203,7 @@ public class FacadeMarker extends JFrame implements ActionListener {
 
 	private void endMark() {
 		if (mode == Mode.HORIZ_MARK) {
+			Collections.sort(xCoords);
 			int width = currentImage.getWidth(null);
 			List<Double> resList = new ArrayList<Double>();
 			for (Integer coord : xCoords) {
@@ -236,6 +234,7 @@ public class FacadeMarker extends JFrame implements ActionListener {
 			clipboard.setContents(stringSelection, null);
 			
 		} else if (mode == Mode.VERT_MARK) {
+			Collections.sort(yCoords);
 			int width = currentImage.getWidth(null);
 			List<Double> resList = new ArrayList<Double>();
 			for (Integer coord : yCoords) {

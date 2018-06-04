@@ -229,26 +229,6 @@ public class FacadeSetHelper {
 			return null;
 		}
 		
-//		Multimap<String, String> valuesMap = getMultiValuesFromFac(facadeFile);
-//		Collection<String> textures = valuesMap.get("TEXTURE");
-//		if (textures == null || textures.isEmpty()) {
-//			return null;
-//		}
-//		String imgFileName = textures.iterator().next();
-//		File imgFile = new File(facadeFile.getParentFile(), imgFileName);
-//		if (!imgFile.isFile()) {
-//			return null;
-//		}
-//		Set<Double> hCoords = new HashSet<Double>();
-//		Set<Double> vCoords = new HashSet<Double>();
-//		
-//		valuesMap.get("BOTTOM").stream().forEach(str -> vCoords.addAll(parseValues(str)));
-//		valuesMap.get("MIDDLE").stream().forEach(str -> vCoords.addAll(parseValues(str)));
-//		valuesMap.get("TOP").stream().forEach(str -> vCoords.addAll(parseValues(str)));
-//		
-//		valuesMap.get("LEFT").stream().forEach(str -> hCoords.addAll(parseValues(str)));
-//		valuesMap.get("CENTER").stream().forEach(str -> hCoords.addAll(parseValues(str)));
-//		valuesMap.get("RIGHT").stream().forEach(str -> hCoords.addAll(parseValues(str)));
 		List<Double> hCoordsList = new ArrayList<Double>(walls.get(0).getxCoords());
 		List<Double> vCoordsList = new ArrayList<Double>(walls.get(0).getyCoords());
 		Collections.sort(hCoordsList);
@@ -294,20 +274,6 @@ public class FacadeSetHelper {
 		}
 		return null;
 		
-	}
-
-	protected static List<Double> parseValues(String str) {
-		if (str == null) {
-			return Collections.emptyList();
-		}
-		List<Double> resList = new ArrayList<Double>();
-		String[] vals = str.split(" ");
-		for (String valStr : vals) {
-			if (!valStr.trim().isEmpty()) {
-				resList.add(Double.parseDouble(valStr));
-			}
-		}
-		return resList;
 	}
 
 }
