@@ -2,8 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.onpositive</groupId>
-	<artifactId>facademarker</artifactId>
+	<artifactId>facadeviewer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<developers>
+		<developer>
+			<name>Dmitry Karpenko</name>
+			<organization>OnPositive</organization>
+		</developer>
+	</developers>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -18,14 +24,15 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>com.onpositive.facademarker.FacadeMarker</mainClass>
-						</manifest>
-					</archive>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>com.onpositive.facadeviewer.ui.FacadeViewer</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>
@@ -37,11 +44,17 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<resources>
-			<resource>
-				<directory>icons</directory>
-				<targetPath>icons</targetPath>
-			</resource>
-		</resources>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>r05</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+	</dependencies>
 </project>

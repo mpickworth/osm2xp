@@ -1,4 +1,4 @@
-package com.onpositive.facadecreator;
+package com.onpositive.facademarker;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -13,7 +13,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -23,22 +22,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
-public class FacadeMarker extends JFrame implements ActionListener {
+public class FacadeMarker extends JFrame {
 
 	private static final String POINT_LABEL_PREFFIX = "Point:";
 
@@ -60,22 +58,55 @@ public class FacadeMarker extends JFrame implements ActionListener {
 
 	private JLabel coordsLabel;
 
+	private AbstractAction refreshAction;
+
+	private JLabel label;
+
+	private JButton markHorizontalBtn;
+
+	private JButton markVerticalBtn;
+
+	private JButton endMarkBtn;
+
+	private File selectedFile;
+
+	@SuppressWarnings("serial")
 	public FacadeMarker() {
 		setTitle("Facade Marker");
 		setSize(800, 600);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setIconImage(new ImageIcon(getClass().getResource("/icons/mark_32.png")).getImage());
 
-		JMenuBar mbar = new JMenuBar();
-		JMenu m = new JMenu("File");
-		openItem = new JMenuItem("Open");
-		openItem.addActionListener(this);
-//		openItem.setAccelerator(KeyStroke.getKeyStroke("ctrl o"));
-		m.add(openItem);
-		exitItem = new JMenuItem("Exit");
-		exitItem.addActionListener(this);
-		m.add(exitItem);
-		mbar.add(m);
-		setJMenuBar(mbar);
+		AbstractAction openAction = new AbstractAction("Choose folder", new ImageIcon(getClass().getResource("/icons/open_32.png"))) {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doOpen();
+			}
+		};
+		refreshAction = new AbstractAction("Refresh", new ImageIcon(getClass().getResource("/icons/refresh_32.png"))) {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doRefresh();
+			}
+		};
+		AbstractAction exitAction = new AbstractAction("Exit", new ImageIcon(getClass().getResource("/icons/exit_32.png"))) {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		};
+		
+		JToolBar toolBar = new JToolBar("Formatting");
+		toolBar.add(openAction);
+		toolBar.add(refreshAction);
+		toolBar.add(exitAction);
+		refreshAction.setEnabled(false);
+		
+		Container contentPane = getContentPane();
+		contentPane.add(toolBar, "North");
 
 		label = new JLabel() {
 			private static final long serialVersionUID = 1L;
@@ -166,7 +197,6 @@ public class FacadeMarker extends JFrame implements ActionListener {
 		mainPanel.add(subPanel, BorderLayout.NORTH);
 		
 		JScrollPane jsp = new JScrollPane(mainPanel);
-		Container contentPane = getContentPane();
 		contentPane.add(jsp);
 
 		JPanel panel = new JPanel();
@@ -181,6 +211,7 @@ public class FacadeMarker extends JFrame implements ActionListener {
 		panel.add(markVerticalBtn);
 		endMarkBtn = new JButton("End Mark");
 		endMarkBtn.addActionListener(e -> endMark());
+		endMarkBtn.setToolTipText("Finish marking and copy result to clipboard");
 		panel.add(endMarkBtn);
 		coordsLabel = new JLabel(POINT_LABEL_PREFFIX);
 		coordsLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -193,6 +224,7 @@ public class FacadeMarker extends JFrame implements ActionListener {
 		markHorizontalBtn.setEnabled(mode == Mode.NONE && currentImage != null);
 		markVerticalBtn.setEnabled(mode == Mode.NONE && currentImage != null);
 		endMarkBtn.setEnabled(mode != Mode.NONE);
+		refreshAction.setEnabled(currentImage != null);
 	}
 
 	private void startMarkVertical() {
@@ -309,50 +341,42 @@ public class FacadeMarker extends JFrame implements ActionListener {
 		updateButtonsEnablement();
 	}
 
-	public void actionPerformed(ActionEvent evt) {
-		Object source = evt.getSource();
-		if (source == openItem) {
-			Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-			JFileChooser chooser = new JFileChooser();
-			chooser.setCurrentDirectory(new File(prefs.get(LAST_DIR, ".")));
+	private void doOpen() {
+		Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new File(prefs.get(LAST_DIR, ".")));
 
-			chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
-				public boolean accept(File f) {
-					return f.getName().toLowerCase().endsWith(".png") || f.isDirectory();
-				}
-
-				public String getDescription() {
-					return "PNG Images";
-				}
-			});
-
-			int r = chooser.showOpenDialog(this);
-			if (r == JFileChooser.APPROVE_OPTION) {
-				File selectedFile = chooser.getSelectedFile();
-				ImageIcon icon = new ImageIcon(selectedFile.getAbsolutePath());
-				prefs.put(LAST_DIR, selectedFile.getParentFile().getAbsolutePath());
-				label.setIcon(icon);
-				currentImage = icon.getImage();
-				updateButtonsEnablement();
+		chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+			public boolean accept(File f) {
+				return f.getName().toLowerCase().endsWith(".png") || f.isDirectory();
 			}
-		} else if (source == exitItem)
-			System.exit(0);
+
+			public String getDescription() {
+				return "PNG Images";
+			}
+		});
+
+		int r = chooser.showOpenDialog(this);
+		if (r == JFileChooser.APPROVE_OPTION) {
+			selectedFile = chooser.getSelectedFile();
+			ImageIcon icon = new ImageIcon(selectedFile.getAbsolutePath());
+			prefs.put(LAST_DIR, selectedFile.getParentFile().getAbsolutePath());
+			label.setIcon(icon);
+			currentImage = icon.getImage();
+			updateButtonsEnablement();
+		}	
+	}
+
+	protected void doRefresh() {
+		if (selectedFile != null && selectedFile.isFile()) {
+			ImageIcon icon = new ImageIcon(selectedFile.getAbsolutePath());
+			label.setIcon(icon);
+			currentImage = icon.getImage();
+		}
 	}
 
 	public static void main(String[] args) {
 		JFrame frame = new FacadeMarker();
 		frame.setVisible(true);
 	}
-
-	private JLabel label;
-
-	private JMenuItem openItem;
-
-	private JMenuItem exitItem;
-
-	private JButton markHorizontalBtn;
-
-	private JButton markVerticalBtn;
-
-	private JButton endMarkBtn;
 }

@@ -1,4 +1,4 @@
-package com.onpositive.facadecreator.model;
+package com.onpositive.facadeviewer.model;
 
 import java.util.ArrayList;
 import java.util.List;

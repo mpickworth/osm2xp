@@ -1,4 +1,4 @@
-package com.onpositive.facadecreator.model;
+package com.onpositive.facadeviewer.model;
 
 import java.io.File;
 import java.nio.charset.Charset;
