@@ -45,6 +45,7 @@ import math.geom2d.Point2D;
 
 public class XPlaneTranslatorImpl implements ITranslator{
 
+	private static final int MIN_SPEC_BUILDING_PERIMETER = 30;
 	private static final String BUILDING_TAG = "building";
 	/**
 	 * Residential buildings maximum area.
@@ -473,6 +474,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			}
 			// try to transform those polygons into dsf objects.
 			for (OsmPolygon poly : polygons) {
+				
 				// look for light rules
 				processLightObject(poly);
 	
@@ -572,16 +574,19 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		return result;
 	}
 
-	//Avoid generating a bunch of little garages //TODO rewrite this in more generic way in future
 	protected boolean specialExcluded(OsmPolygon osmPolygon) {
-		if ("garage".equals(osmPolygon.getTagValue(BUILDING_TAG)) && GeomUtils.computePerimeter(osmPolygon.getPolygon()) < 30) {
-			return true;
+		if (getSpecialBuildingType(osmPolygon) != null) {
+			return GeomUtils.computePerimeter(osmPolygon.getPolygon()) < MIN_SPEC_BUILDING_PERIMETER; 	//This check is needed to avoid generating a bunch of little garages, tanks etc.
 		}
 		String val = osmPolygon.getTagValue(Osm2xpConstants.MAN_MADE_TAG);
 		//We don't want to generate facade-based building for most of "man_made"-typed objects, since usually using facade for them is not a good idea.
 		//Exclusions are e.g. storage tanks or works/factories
 		//Please see https://wiki.openstreetmap.org/wiki/Key:man_made for examples
-		if (val != null && val.indexOf("tank") == -1 && !"yes".equals(val) && !"works".equals(val)) {  
+		if (val != null && 
+				val.indexOf("tank") == -1 && 
+				!"yes".equals(val) &&
+				!"gasometer".equals(val) &&
+				!"works".equals(val)) {  
 			return true;
 		}
 		return false;

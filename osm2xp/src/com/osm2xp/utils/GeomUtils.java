@@ -280,10 +280,12 @@ public class GeomUtils {
 	 * @return Double - perimeter value
 	 */
 	public static Double computePerimeter(LinearRing2D polygon) {
-		Double[] vectors = computeExtremeVectors(polygon);
 		double sum = 0;
-		for (Double current : vectors) {
-			sum += current;
+		for (LineSegment2D segment : polygon.getEdges()) {
+			Double distance = latLongDistance(segment.getFirstPoint().y,
+					segment.getFirstPoint().x, segment.getLastPoint().y,
+					segment.getLastPoint().x);
+			sum += distance;
 		}
 		return sum;
 	}
