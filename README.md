@@ -31,23 +31,9 @@ Download program archive from [Google Drive](https://drive.google.com/open?id=1X
 
 For now program is available for Windows only.
 
-## Quick Start Guide
+## Usage
 
-0. Edit/ elaborate area of interest on OSM site - they have pretty good online editor, very convenient for editing lines and polygons
-1. Download OSM data file of interesting area. At this moment (06.2018) [bbbike.org](https://extract.bbbike.org/ "bbbike.org") is a good choice to do this, follow instructions on their site
-2. Launch OSM2XP, choose X-Plane 10 mode using toolbar "Modes" action. On "Scenery" tab in "Scene file" field choose your OSM PBF file using "Browse" button or just paste a path to it. Edit "Scene name" field to change resulting scenery folder name if you want 
-3. If necessary, go to "Buildings" tab and in "Facade sets" section configure used facade sets by selecting either facade set folder or facade set descriptor file. One facade set is provided by default with OSM2XP as an example, but it was composed by me from Alex Krug's work, some other open stuff from the Internet and some my facades, and, of course it would not suit for any area on Earth). If you want to edit facade set and/or preview it's facades, use toolbar action Tools > Facade Set Editor  
-4. If necessary, go to Advanced Options tab and under Generated Items section choose item kinds which will be generated
-5. Click "Generate" on toolbar (hammer icon). Generation process will start
-6. After generation finishes, you can go to folder, in which original PBF file was located. You would see generated scenery folder there
-
-### Some notes on using generated scenery
-
-Generated scenery should be copied into "Custom Scenery" folder of X-Plane installation. In *scenery_packs.ini* file it should be placed "above" all base meshes, but "below" all custom airport scenarios. Read more [here](https://www.x-plane.com/kb/changing-custom-scenery-load-order-in-x-plane-10/ "here")
-
-Of course, generator can't extract and use more data, than OSM map contains, and e.g. choose color of a house   
-Roads, railways, powerlines, fence are just a lines on a map, and generation can't guarantee that they wouldn't overlap, will contain gates where needed, etc.
-After all - it's generation, please don't expect too much from it
+Please refer [Quick Start Guide](https://github.com/32kda/osm2xp/wiki/Quick-Start "Guide") 
 
 ## Nearest plans
 * Generate bridges
