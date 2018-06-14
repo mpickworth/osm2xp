@@ -35,6 +35,11 @@ For now program is available for Windows only.
 
 Please refer [Quick Start Guide](https://github.com/32kda/osm2xp/wiki/Quick-Start "Guide") 
 
+## Samples of generated scenarios
+
+![Screenshot 1](https://32kda.github.io/osm2xp/screenshots/CH750_1.png "Screenshot 1")
+![Screenshot 2](https://32kda.github.io/osm2xp/screenshots/CH750_2.png "Screenshot 2")
+
 ## Nearest plans
 * Generate bridges
 * Pusblish App to site
