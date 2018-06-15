@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.utils.GeomUtils;
@@ -16,6 +18,8 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	private Set<Long> pathNodeIds = new HashSet<Long>();
 	private Set<Long> pathCrossingIds = new HashSet<Long>();
 	private List<OsmPolygon> pathPolys = new ArrayList<OsmPolygon>();
+	
+	private Set<Integer> bridgeNodeIds = new HashSet<Integer>();
 	
 	public XPPathTranslator(IWriter writer) {
 		super(writer);
@@ -44,6 +48,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	private List<XPPathSegment> getSegmentsFor(OsmPolygon poly) {
 		List<XPPathSegment> result = new ArrayList<XPPathSegment>();
 		List<Node> currentSegment = new ArrayList<Node>();
+		boolean bridge = isBridge(poly);
 		List<Node> nodes = poly.getNodes();
 		if (nodes.size() <= 1) {
 			return Collections.emptyList();
@@ -54,10 +59,22 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 //			boolean isTilesBorder = i < nodes.size() - 1 ? isDifferentTiles(node, nodes.get(i+1)) : false;
 			if ((i == nodes.size() - 1) ||
 				(currentSegment.size() > 1 && pathCrossingIds.contains(node.getId()))) {
+				int newStartId = IDRenumbererService.getNewId(currentSegment.get(0).getId());
+				int newEndId = IDRenumbererService.getNewId(node.getId());
+				if (bridge) {
+					bridgeNodeIds.add(newStartId);
+					bridgeNodeIds.add(newEndId);
+				}
 				XPPathSegment segment = new XPPathSegment(getPathType(poly), 
-						IDRenumbererService.getNewId(currentSegment.get(0).getId()), 
-						IDRenumbererService.getNewId(node.getId()),
+						newStartId, 
+						newEndId,
 						GeomUtils.getPointsFromOsmNodes(currentSegment));
+				if (bridge || bridgeNodeIds.contains(newStartId)) {
+					segment.setStartHeight(1);
+				}
+				if (bridge || bridgeNodeIds.contains(newEndId)) {
+					segment.setEndHeight(1);
+				}
 				segment.setComment(getComment(poly));
 				result.add(segment);
 				currentSegment.clear();
@@ -67,6 +84,10 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 			}
 		}		
 		return result;
+	}
+
+	protected boolean isBridge(OsmPolygon poly) {
+		return !StringUtils.isEmpty(poly.getTagValue("bridge"));
 	}
 
 	private boolean isDifferentTiles(Node node, Node nextNode) {

@@ -28,5 +28,8 @@ public class Osm2xpConstants {
 			.getRoot().getLocation()
 			+ File.separator + "resources" + File.separatorChar + "utils";
 	public static final String MAN_MADE_TAG = "man_made";
+	
+	public static final String LAST_PERSP_PROP = "lastPerspective";
+	public static final String LEVEL_HEIGHT_PROP = "levelHeight";
 
 }

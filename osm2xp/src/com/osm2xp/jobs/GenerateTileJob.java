@@ -1,5 +1,6 @@
 package com.osm2xp.jobs;
 
+import java.awt.Point;
 import java.io.File;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class GenerateTileJob extends Job {
 	public GenerateTileJob(String name, File currentFile, Point2D coordinates,
 			String folderPath, List<Relation> relationsList, String familly) {
 		super(name);
+		Osm2xpLogger.info("Starting  generation of " + getCoordinatesStr(coordinates) + ", target folder " + folderPath);
 		this.coordinates = coordinates;
 		this.currentFile = currentFile;
 		this.folderPath = folderPath;
@@ -52,6 +54,7 @@ public class GenerateTileJob extends Job {
 					folderPath, relationsList);
 			parser.process();
 			Osm2xpProjectHelper.removeTile(coordinates);
+			Osm2xpLogger.info("Finished generation of " + getCoordinatesStr(coordinates) + ", target folder " + folderPath);
 		} catch (DataSinkException e) {
 			Osm2xpLogger.error("Data sink exception : ", e);
 		} catch (OsmParsingException e) {
@@ -64,6 +67,14 @@ public class GenerateTileJob extends Job {
 
 	}
 
+	private String getCoordinatesStr(Point2D coords) {
+		if (coords == null) {
+			return "whole file";
+		}
+		Point intPt = coords.getAsInt();
+		return String.format("tile (%d,%d)", intPt.x, intPt.y);
+	}
+	
 	public boolean belongsTo(Object family) {
 		return familly.equals(family);
 	}

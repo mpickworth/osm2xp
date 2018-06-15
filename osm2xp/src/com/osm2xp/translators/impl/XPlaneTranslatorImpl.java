@@ -95,7 +95,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	/**
 	 * Building level height, 3 m by default 
 	 */
-	private double levelHeight = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).getDouble("levelHeight", 3);
+	private double levelHeight = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).getDouble(Osm2xpConstants.LEVEL_HEIGHT_PROP, 3);
 	protected List<IPolyHandler> polyHandlers = new ArrayList<IPolyHandler>();
 
 	public XPlaneTranslatorImpl(GenerationStats stats, IWriter writer,

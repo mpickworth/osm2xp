@@ -258,10 +258,10 @@ public class FacadeSetManager {
 			return new StatusInfo(IStatus.ERROR, "All specified facade sets are invalid.");
 		}
 		if (XplaneOptionsHelper.getOptions().isGenerateBuildings() && buildingFacades.isEmpty()) {
-			return new StatusInfo(IStatus.WARNING, "'Generte buildings' option chosen, but no building facades loaded.");
+			return new StatusInfo(IStatus.WARNING, "'Generate buildings' option chosen, but no building facades loaded.");
 		}
 		if (XplaneOptionsHelper.getOptions().isGenerateFence() && barrierFacades.isEmpty()) {
-			return new StatusInfo(IStatus.WARNING, "'Generte fence' option chosen, but no fence facades loaded.");
+			return new StatusInfo(IStatus.WARNING, "'Generate fence' option chosen, but no fence facades loaded.");
 		}
 		StringBuilder badPaths = new StringBuilder();
 		for (String path : setPaths) {

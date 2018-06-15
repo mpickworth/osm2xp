@@ -5,12 +5,16 @@ import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.WorkbenchException;
 
 import com.osm2xp.constants.Osm2xpConstants;
-import com.osm2xp.constants.Perspectives;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
 /**
@@ -33,10 +37,22 @@ public class MiscUtils {
 			IWorkbench workbench = PlatformUI.getWorkbench();
 			if (workbench != null) {
 				try {
-
+					IWorkbenchWindow win = workbench.getActiveWorkbenchWindow();
+					if (win != null) {
+						IWorkbenchPage page = win.getActivePage();
+						if (page != null) {
+							IPerspectiveDescriptor perspective = page.getPerspective();
+							String lastId = perspective.getId();
+							IEclipsePreferences node = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+							node.put(Osm2xpConstants.LAST_PERSP_PROP, lastId);
+							node.flush();
+						}
+						
+					}
+					
 					workbench.showPerspective(perspectiveID,
-							workbench.getActiveWorkbenchWindow());
-				} catch (WorkbenchException e) {
+							win);
+				} catch (Exception e) {
 					Osm2xpLogger.warning("Error switching perspective", e);
 				}
 			}

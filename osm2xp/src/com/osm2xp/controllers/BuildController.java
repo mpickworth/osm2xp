@@ -31,6 +31,7 @@ import com.osm2xp.parsers.relationsLister.RelationsListerFactory;
 import com.osm2xp.parsers.tilesLister.TilesLister;
 import com.osm2xp.parsers.tilesLister.TilesListerFactory;
 import com.osm2xp.utils.FilesUtils;
+import com.osm2xp.utils.MiscUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.Osm2xpProjectHelper;
 import com.osm2xp.utils.helpers.StatsHelper;
@@ -95,7 +96,7 @@ public class BuildController {
 	public void restartImportedProject() throws Osm2xpBusinessException {
 
 		// switch to build perspective
-		switchToBuildPerspective();
+		MiscUtils.switchPerspective(Perspectives.PERSPECTIVE_BUILD);
 		GuiOptionsHelper.getOptions().setCurrentFilePath(
 				Osm2xpProjectHelper.getOsm2XpProject().getFile());
 		File currentFile = new File(Osm2xpProjectHelper.getOsm2XpProject()
@@ -127,7 +128,7 @@ public class BuildController {
 			FilesUtils.deleteDirectory(new File(folderPath));
 		}
 		// switch to build perspective
-		switchToBuildPerspective();
+		MiscUtils.switchPerspective(Perspectives.PERSPECTIVE_BUILD);
 		// get user setted cordinates
 		Point2D coordinates = GuiOptionsHelper.getSelectedCoordinates();
 		// launch generation
@@ -143,17 +144,6 @@ public class BuildController {
 		}
 
 //		new ParsingExperimentJob(currentFile).schedule(); //Experimental to check new osmosis API
-	}
-
-	private void switchToBuildPerspective() {
-		// switch perspective
-		IWorkbench workbench = PlatformUI.getWorkbench();
-		try {
-			workbench.showPerspective(Perspectives.PERSPECTIVE_BUILD,
-					workbench.getActiveWorkbenchWindow());
-		} catch (WorkbenchException e) {
-			Osm2xpLogger.warning("Error switching perspective", e);
-		}
 	}
 
 	/**

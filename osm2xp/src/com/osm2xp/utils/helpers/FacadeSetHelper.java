@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Display;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
+import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.exceptions.Osm2xpTechnicalException;
 import com.osm2xp.gui.Activator;
@@ -125,7 +126,7 @@ public class FacadeSetHelper {
 			Map<String, String> values = getValuesFromFac(facFile);
 			Facade facade = new Facade();
 			facade.setFile(facFile.getName());
-			boolean fence =  "0".equals(values.get("RING")) || "1".equals(values.get("TWO_SIDED"));
+			boolean fence = "0".equals(values.get("RING")) || "1".equals(values.get("TWO_SIDED"));
 			if (fence) {
 				facade.setBarrierType(BarrierType.FENCE);
 			}
@@ -142,7 +143,7 @@ public class FacadeSetHelper {
 					// Ignore
 				}
 			}
-			double levelHeight = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).getDouble("levelHeight", 3);
+			double levelHeight = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).getDouble(Osm2xpConstants.LEVEL_HEIGHT_PROP, 3);
 			String minHeightStr = values.get("FLOORS_MIN");
 			if (!StringUtils.isEmpty(minHeightStr)) {
 				try {

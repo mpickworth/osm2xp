@@ -9,6 +9,8 @@ public class XPPathSegment {
 	private long startId;
 	private long endId;
 	private Point2D[] points;
+	private double startHeight = 0;
+	private double endHeight = 0;
 	
 	private String comment;
 
@@ -30,13 +32,13 @@ public class XPPathSegment {
 			builder.append(getComment());
 			builder.append(LINE_SEP);
 		}
-		builder.append(String.format("BEGIN_SEGMENT 0 %d %d %3.9f %4.9f 0.000000000", type, startId, points[0].x, points[0].y));
+		builder.append(String.format("BEGIN_SEGMENT 0 %d %d %3.9f %4.9f %5.9f", type, startId, points[0].x, points[0].y, startHeight));
 		builder.append(LINE_SEP);
 		for (int i = 1; i < points.length - 1; i++) {
-			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000",points[i].x, points[i].y));
+			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000",points[i].x, points[i].y)); //TODO calculate it based on start/end height ?
 			builder.append(LINE_SEP);
 		}
-		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f 0.000000000", endId, points[points.length - 1].x, points[points.length - 1].y));
+		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f %4.9f", endId, points[points.length - 1].x, points[points.length - 1].y, startHeight));
 		builder.append(LINE_SEP);
 		return builder.toString();
 	}
@@ -54,6 +56,22 @@ public class XPPathSegment {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public double getStartHeight() {
+		return startHeight;
+	}
+
+	public void setStartHeight(double startHeight) {
+		this.startHeight = startHeight;
+	}
+
+	public double getEndHeight() {
+		return endHeight;
+	}
+
+	public void setEndHeight(double endHeight) {
+		this.endHeight = endHeight;
 	}
 
 }
