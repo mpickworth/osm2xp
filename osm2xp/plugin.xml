@@ -70,13 +70,16 @@
             class="com.osm2xp.gui.views.MainSceneryFileView"
             id="com.osm2xp.viewSceneryTab"
             name="Scenery"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/map-16.png"
+            >
       </view>
       <view
             class="com.osm2xp.gui.views.XplaneBuildingsView"
             id="com.osm2xp.viewBuildingTab"
             name="Buildings"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/home-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.ViewContextualHelp"
@@ -88,43 +91,50 @@
             class="com.osm2xp.gui.views.XplaneForestsView"
             id="com.osm2xp.viewForestsTab"
             name="Forests"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/tree-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.Xplane3DObjectsView"
             id="com.osm2xp.viewObjectsTab"
             name="3D Objects"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/objects-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.LastFilesView"
             id="com.osm2xp.viewLastFiles"
             name="last files"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/recents-16.gif">
       </view>
       <view
             class="com.osm2xp.gui.views.XplaneAdvancedOptionsView"
             id="com.osm2xp.Xplane9AdvancedOptionsView"
             name="Advanced Options"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.WavefrontAdvancedOptionsView"
             id="com.osm2xp.WavefrontAdvancedOptionsView"
             name="Wavefront options"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.Fsx3DObjectsView"
             id="com.osm2xp.viewFsxObjectsTab"
             name="objects"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.XplaneAdvancedOptionsView"
             id="com.osm2xp.Xplane10AdvancedOptionsView"
             name="Advanced Options"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.FsxAdvancedOptionsView"
@@ -136,7 +146,8 @@
             class="com.osm2xp.gui.views.FlyLegacyAdvancedOptionsView"
             id="com.osm2xp.FlyLegacyAdvancedOptionsView"
             name="Fly Legacy options"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.Osm2xpNewsView"
@@ -148,13 +159,15 @@
             class="com.osm2xp.gui.views.FlightGear3DObjectsView"
             id="com.osm2xp.viewFlightGearObjectsTab"
             name="FlightGear 3D Objects"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/objects-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.XplaneLightsView"
             id="com.osm2xp.viewLightsTab"
             name="Lights"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/light-16.png">
       </view>
    </extension>
    <extension
@@ -678,15 +691,15 @@
          </property>
          <property
                name="aboutText"
-               value="Osm2xp 3.0, OpenStreetMap scenery generator for flight Simulators.&#x0A;&#x0A;Copyright (C) 2010-2013  Benjamin Blanchet for Javee software solutions.&#x0A;Copyright (C) 2018  Dmitry Karpenko, OnPositive&#x0A;&#x0A;Contact : osm2xp@gmail.com&#x0A;Project Website : https://github.com/32kda/osm2xp&#x0A;&#x0A;&#x0A;    This program is free software: you can redistribute it and/or modify&#x0A;    it under the terms of the GNU General Public License as published by&#x0A;    the Free Software Foundation, either version 3 of the License, or&#x0A;    (at your option) any later version.&#x0A;&#x0A;    This program is distributed in the hope that it will be useful,&#x0A;    but WITHOUT ANY WARRANTY; without even the implied warranty of&#x0A;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the&#x0A;    GNU General Public License for more details.&#x0A;&#x0A;    You should have received a copy of the GNU General Public License&#x0A;    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.&#x0A;&#x0A;&#x0A;FreeMem plugin by Markus junginger http://www.junginger.biz/eclipse/freemem.html&#x0A;Osm2world by Tobiass Knerr http://osm2world.org/&#x0A;Icons by Open Icon Library http://http://openiconlibrary.sourceforge.net/">
-         </property>
-         <property
-               name="preferenceCustomization"
-               value="plugin_customization.ini">
+               value="Osm2xp 2.1B1, OpenStreetMap scenery generator for flight Simulators.&#x0A;&#x0A;Copyright (C) 2010-2013  Benjamin Blanchet for Javee software solutions.&#x0A;Copyright (C) 2018  Dmitry Karpenko, OnPositive&#x0A;&#x0A;Contact : osm2xp@gmail.com&#x0A;Project Website : https://github.com/32kda/osm2xp&#x0A;&#x0A;&#x0A;    This program is free software: you can redistribute it and/or modify&#x0A;    it under the terms of the GNU General Public License as published by&#x0A;    the Free Software Foundation, either version 3 of the License, or&#x0A;    (at your option) any later version.&#x0A;&#x0A;    This program is distributed in the hope that it will be useful,&#x0A;    but WITHOUT ANY WARRANTY; without even the implied warranty of&#x0A;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the&#x0A;    GNU General Public License for more details.&#x0A;&#x0A;    You should have received a copy of the GNU General Public License&#x0A;    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.&#x0A;&#x0A;&#x0A;FreeMem plugin by Markus junginger http://www.junginger.biz/eclipse/freemem.html&#x0A;Osm2world by Tobiass Knerr http://osm2world.org/&#x0A;Icons by Open Icon Library http://http://openiconlibrary.sourceforge.net/">
          </property>
          <property
                name="windowImages"
                value="images/plane_16.png,images/plane_32.png,images/plane_48.png">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
          </property>
          
       </product>

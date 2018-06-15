@@ -81,7 +81,7 @@ public class MainSceneryFileView extends ViewPart implements IContextProvider {
 		Section sectionSceneryOptions = toolkit.createSection(form.getBody(),
 				Section.TWISTIE | Section.TITLE_BAR);
 		sectionSceneryOptions.setLayoutData(new TableWrapData(
-				TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 1));
+				TableWrapData.FILL, TableWrapData.TOP, 1, 1));
 		sectionSceneryOptions.setText("Scenery options");
 		GeneralOptionsPanel sceneryOptionsPanel = new GeneralOptionsPanel(
 				sectionSceneryOptions, SWT.BORDER);

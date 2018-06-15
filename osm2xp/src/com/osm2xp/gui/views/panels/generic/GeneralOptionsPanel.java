@@ -28,7 +28,7 @@ public class GeneralOptionsPanel extends Osm2xpPanel {
 
 	@Override
 	protected void initLayout() {
-		final GridLayout gridLayout = new GridLayout(4, true);
+		final GridLayout gridLayout = new GridLayout(3, true);
 		gridLayout.verticalSpacing = 15;
 		setLayout(gridLayout);
 		btnDataBaseMode.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false,

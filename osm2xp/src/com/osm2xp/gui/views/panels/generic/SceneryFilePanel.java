@@ -5,8 +5,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import math.geom2d.Point2D;
-
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -30,9 +28,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPartSite;
 
-import com.osm2xp.gui.views.LastFilesView;
 import com.osm2xp.gui.views.panels.Osm2xpPanel;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
+
+import math.geom2d.Point2D;
 
 /**
  * SceneryFilePanel.
@@ -149,15 +148,12 @@ public class SceneryFilePanel extends Osm2xpPanel {
 		// scene name label
 		lblSceneName = new Label(this, SWT.NONE);
 		lblSceneName.setText("Scene name :");
-		lblSceneName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
-				true, 1, 1));
-		// grid for scene name
-		gridInputSceneName = new GridData(SWT.LEFT, SWT.CENTER, true, true, 2,
-				1);
-		gridInputSceneName.widthHint = 300;
+		GridDataFactory.swtDefaults().applyTo(lblSceneName);
+//		gridInputSceneName.widthHint = 300;
 		// scene text edit
 		textInputSceneName = new Text(this, SWT.BORDER);
 		textInputSceneName.setLayoutData(gridInputSceneName);
+		GridDataFactory.fillDefaults().grab(true,false).applyTo(textInputSceneName);
 		
 		
 		SelectionListener tileSettingAdapter = new SelectionAdapter() {
@@ -195,7 +191,7 @@ public class SceneryFilePanel extends Osm2xpPanel {
 		btnGenerateAllTiles.addSelectionListener(tileSettingAdapter);
 		grpCoordinates = new Group(this, SWT.NONE);
 		gridCoordinates = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);
-		gridCoordinates.widthHint = 294;
+//		gridCoordinates.widthHint = 294;
 		grpCoordinates.setLayout(new GridLayout(7, false));
 		grpCoordinates.setLayoutData(gridCoordinates);
 		grpCoordinates.setText("Coordinates");
