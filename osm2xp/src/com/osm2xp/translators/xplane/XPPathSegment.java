@@ -38,7 +38,7 @@ public class XPPathSegment {
 			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000",points[i].x, points[i].y)); //TODO calculate it based on start/end height ?
 			builder.append(LINE_SEP);
 		}
-		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f %4.9f", endId, points[points.length - 1].x, points[points.length - 1].y, startHeight));
+		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f %4.9f", endId, points[points.length - 1].x, points[points.length - 1].y, endHeight));
 		builder.append(LINE_SEP);
 		return builder.toString();
 	}

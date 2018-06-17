@@ -19,8 +19,8 @@ import javax.xml.bind.annotation.XmlType;
 		"residentialMin", "residentialMax", "buildingMin", "buildingMax",
 		"minHouseSegment", "maxHouseSegment", "minHouseArea", "generateObj",
 		"generateFor", "generateBuildings","generatePowerlines","generateRailways","generateRoads","generateFence",
-		"generateTanks","generateChimneys","generateSlopedRoofs", "generateStreetLights", "lightsDensity", "packageFacades",
-		"hardBuildings", "lightObject", "facadeLod", 
+		"generateTanks","generateChimneys","generateBridges","generateSlopedRoofs", "generateStreetLights", 
+		"lightsDensity", "packageFacades","hardBuildings", "lightObject", "facadeLod", 
 		"generateXmlStats", "generatePdfStats", "generateDebugImg", "buildingsExclusions",
 		"forestsRules", "objectsRules", "lightsRules", "facadesRules",
 		"streetLightObjects" })
@@ -54,6 +54,7 @@ public class XplaneOptions {
 	protected boolean generateFence = true;
 	protected boolean generateTanks = true;
 	protected boolean generateChimneys = true;
+	protected boolean generateBridges = true;
 	protected boolean generateStreetLights;
 	protected boolean generateSlopedRoofs;
 	protected int lightsDensity;
@@ -803,6 +804,14 @@ public class XplaneOptions {
 
 	public void setGenerateChimneys(boolean generateChimneys) {
 		this.generateChimneys = generateChimneys;
+	}
+	
+	public boolean isGenerateBriges() {
+		return generateBridges;
+	}
+	
+	public void setGenerateBridges(boolean generateChimneys) {
+		this.generateBridges= generateBridges;
 	}
 
 }

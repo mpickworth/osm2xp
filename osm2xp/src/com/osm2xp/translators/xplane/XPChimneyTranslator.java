@@ -28,7 +28,7 @@ public class XPChimneyTranslator extends XPWritingTranslator {
 	}
 
 	protected DsfObjectsProvider objectsProvider;
-	protected List<ChimneyDef> chimneуDefs = new ArrayList<>(); 
+	protected List<ChimneyDef> chimneyDefs = new ArrayList<>(); 
 	
 	public XPChimneyTranslator(IWriter writer, DsfObjectsProvider objectsProvider) {
 		super(writer);
@@ -43,7 +43,7 @@ public class XPChimneyTranslator extends XPWritingTranslator {
 					int idx2 = currentFile.lastIndexOf('.');
 					if (idx > 0 && idx2 > idx) {
 						int height = Integer.parseInt(currentFile.substring(idx + 1, idx2));
-						chimneуDefs.add(new ChimneyDef(currentFile, height));
+						chimneyDefs.add(new ChimneyDef(currentFile, height));
 					} 
 				}
 			}
@@ -77,7 +77,7 @@ public class XPChimneyTranslator extends XPWritingTranslator {
 	private String getSuitableModelFile(int height) {
 		int minDelta = Integer.MAX_VALUE;
 		ChimneyDef optimal = null;
-		for (ChimneyDef chimneyDef : chimneуDefs) {
+		for (ChimneyDef chimneyDef : chimneyDefs) {
 			int delta = Math.abs(chimneyDef.height - height);
 			if (delta < minDelta) {
 				minDelta = delta;
