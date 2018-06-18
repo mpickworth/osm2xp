@@ -126,7 +126,7 @@ public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl implements ITra
 	 *            osm road polygon
 	 */
 	public void writeStreetLightToDsf(OsmPolygon osmPolygon) {
-		// init d'un entier pour modulo densité street lights
+		// init d'un entier pour modulo densitï¿½ street lights
 		Integer densityIndex = 0;
 		if (XplaneOptionsHelper.getOptions().getLightsDensity() == 0) {
 			densityIndex = 10;
@@ -194,7 +194,7 @@ public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl implements ITra
 				// simplify shape if checked and if necessary
 				if (GuiOptionsHelper.getOptions().isSimplifyShapes()
 						&& !osmPolygon.isSimplePolygon()) {
-					osmPolygon.simplifyPolygon();
+					osmPolygon = osmPolygon.toSimplifiedPoly();
 				}
 	
 				// compute height and facade dsf index

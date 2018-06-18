@@ -2,6 +2,7 @@ package com.osm2xp.model.osm;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -103,13 +104,24 @@ public class OsmPolygon {
 		return result;
 
 	}
-
-	public void simplifyPolygon() {
+	
+	public OsmPolygon toSimplifiedPoly() { //Made this mutable since otherwise shapes was simplified even when it's not necessary - e.g. for forest
 		if (this.polygon != null) {
+			OsmPolygon simplified = new OsmPolygon(id, Collections.unmodifiableList(tags), Collections.unmodifiableList(nodes), partial); 
 			LinearRing2D result = GeomUtils.simplifyPolygon(this.polygon);
-			this.polygon = result;
+			simplified.polygon = result;
+			return simplified;
+		} else {
+			return this;
 		}
 	}
+
+//	public void simplifyPolygon() {
+//		if (this.polygon != null) {
+//			LinearRing2D result = GeomUtils.simplifyPolygon(this.polygon);
+//			this.polygon = result;
+//		}
+//	}
 
 	public Long getId() {
 		return id;

@@ -13,6 +13,7 @@ public class XPPathSegment {
 	private double endHeight = 0;
 	
 	private String comment;
+	private boolean bridge;
 
 	public XPPathSegment(int type, long startId, long endId, Point2D[] points) {
 		if (points.length < 2) {
@@ -35,7 +36,7 @@ public class XPPathSegment {
 		builder.append(String.format("BEGIN_SEGMENT 0 %d %d %3.9f %4.9f %5.9f", type, startId, points[0].x, points[0].y, startHeight));
 		builder.append(LINE_SEP);
 		for (int i = 1; i < points.length - 1; i++) {
-			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000",points[i].x, points[i].y)); //TODO calculate it based on start/end height ?
+			builder.append(String.format("SHAPE_POINT %1.9f %2.9f %3$s",points[i].x, points[i].y, (bridge ? "1.000000000" : "0.000000000"))); //TODO calculate it based on start/end height ?
 			builder.append(LINE_SEP);
 		}
 		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f %4.9f", endId, points[points.length - 1].x, points[points.length - 1].y, endHeight));
@@ -72,6 +73,34 @@ public class XPPathSegment {
 
 	public void setEndHeight(double endHeight) {
 		this.endHeight = endHeight;
+	}
+
+	public void setBridge(boolean bridge) {
+		this.bridge = bridge;
+		if (bridge) {
+			setStartHeight(1);
+			setEndHeight(1);
+		}
+	}
+
+	public boolean isBridge() {
+		return bridge;
+	}
+
+	public long getStartId() {
+		return startId;
+	}
+
+	public void setStartId(long startId) {
+		this.startId = startId;
+	}
+
+	public long getEndId() {
+		return endId;
+	}
+
+	public void setEndId(long endId) {
+		this.endId = endId;
 	}
 
 }

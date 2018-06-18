@@ -503,7 +503,8 @@ public class GeomUtils {
 			Polygon sourcePoly = linearRing2DToPolygon(sourceFootprint);
 
 			// we create a simplified polygon
-			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5);
+//			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5);
+			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5.0 / 111000); //We was ring with lat/lng coordinates, not meters, so conversion is needed
 
 			// we create a linearRing2D from the modified polygon
 			LinearRing2D result = polygonToLinearRing2D(cleanPoly);

@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
 
 public abstract class XPPathTranslator extends XPWritingTranslator {
@@ -40,6 +41,12 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 		for (OsmPolygon poly : pathPolys) {
 			List<XPPathSegment> segments = getSegmentsFor(poly);
 			for (XPPathSegment pathSegment : segments) {
+				if (bridgeNodeIds.contains(new Integer((int) pathSegment.getStartId()))) {
+					pathSegment.setStartHeight(1);
+				}
+				if (bridgeNodeIds.contains(new Integer((int) pathSegment.getEndId()))) {
+					pathSegment.setEndHeight(1);
+				}
 				writer.write(pathSegment.toString(), GeomUtils.cleanCoordinatePoint(pathSegment.getPoint(0)));
 			}
 		}
@@ -69,12 +76,13 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 						newStartId, 
 						newEndId,
 						GeomUtils.getPointsFromOsmNodes(currentSegment));
-				if (bridge || bridgeNodeIds.contains(newStartId)) {
-					segment.setStartHeight(1);
-				}
-				if (bridge || bridgeNodeIds.contains(newEndId)) {
-					segment.setEndHeight(1);
-				}
+				segment.setBridge(bridge);
+//				if (bridge || bridgeNodeIds.contains(newStartId)) {
+//					segment.setStartHeight(1);
+//				}
+//				if (bridge || bridgeNodeIds.contains(newEndId)) {
+//					segment.setEndHeight(1);
+//				}
 				segment.setComment(getComment(poly));
 				result.add(segment);
 				currentSegment.clear();
@@ -87,14 +95,14 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	}
 
 	protected boolean isBridge(OsmPolygon poly) {
-		return !StringUtils.isEmpty(poly.getTagValue("bridge"));
+		return XplaneOptionsHelper.getOptions().isGenerateBriges() && !StringUtils.isEmpty(poly.getTagValue("bridge"));
 	}
 
-	private boolean isDifferentTiles(Node node, Node nextNode) {
-		int latDiff = (int) (Math.floor(node.getLat()) - Math.floor(nextNode.getLat()));
-		int lonDiff = (int) (Math.floor(node.getLon()) - Math.floor(nextNode.getLon()));
-		return latDiff != 0 || lonDiff != 0;
-	}
+//	private boolean isDifferentTiles(Node node, Node nextNode) {
+//		int latDiff = (int) (Math.floor(node.getLat()) - Math.floor(nextNode.getLat()));
+//		int lonDiff = (int) (Math.floor(node.getLon()) - Math.floor(nextNode.getLon()));
+//		return latDiff != 0 || lonDiff != 0;
+//	}
 
 	/**
 	 * Get comment to be written into DSF file for this path/poly

@@ -502,7 +502,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	protected boolean process3dObject(OsmPolygon osmPolygon) {
 		Boolean result = false;
 
-		if (osmPolygon.isPartial()) {
+		if (osmPolygon.isPartial() || !osmPolygon.getPolygon().isClosed()) {
 			return false;
 		}
 		
@@ -510,7 +510,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			// simplify shape if checked and if necessary
 			if (GuiOptionsHelper.getOptions().isSimplifyShapes()
 					&& !osmPolygon.isSimplePolygon()) {
-				osmPolygon.simplifyPolygon();
+				osmPolygon = osmPolygon.toSimplifiedPoly();
 			}
 			XplaneDsfObject object = dsfObjectsProvider
 					.getRandomDsfObject(osmPolygon);
@@ -560,7 +560,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				// simplify shape if checked and if necessary
 				if (GuiOptionsHelper.getOptions().isSimplifyShapes()
 						&& !osmPolygon.isSimplePolygon()) {
-					osmPolygon.simplifyPolygon();
+					osmPolygon = osmPolygon.toSimplifiedPoly();
 				}
 
 				// compute height and facade dsf index
