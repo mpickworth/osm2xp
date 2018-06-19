@@ -74,6 +74,7 @@ public class XplaneOptionsHelper extends OptionsHelper {
 		result.setGenerateRailways(true);
 		result.setGenerateRoads(true);
 		result.setGenerateTanks(true);
+		result.setGenerateBridges(false);
 		result.setGeneratePdfStats(true);
 		result.setGenerateDebugImg(false);
 		result.setGenerateSlopedRoofs(true);

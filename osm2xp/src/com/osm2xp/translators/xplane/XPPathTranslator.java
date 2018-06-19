@@ -95,7 +95,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	}
 
 	protected boolean isBridge(OsmPolygon poly) {
-		return XplaneOptionsHelper.getOptions().isGenerateBriges() && !StringUtils.isEmpty(poly.getTagValue("bridge"));
+		return XplaneOptionsHelper.getOptions().isGenerateBridges() && !StringUtils.isEmpty(poly.getTagValue("bridge"));
 	}
 
 //	private boolean isDifferentTiles(Node node, Node nextNode) {

@@ -330,8 +330,9 @@ public class OsmUtils {
 	}
 
 	public static boolean isBuilding(List<Tag> tags) {
-		return ((isStringInTags("building", tags) && !isTagInTagsList("wall",
-				"no", tags)));
+		return isStringInTags("building", tags) && 
+				!isTagInTagsList("wall","no", tags) && 
+				!isTagInTagsList("building:part","*", tags);
 	}
 
 	public static String getNormalizedTagText(Tag tag) {

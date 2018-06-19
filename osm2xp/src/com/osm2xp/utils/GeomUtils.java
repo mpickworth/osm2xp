@@ -400,7 +400,7 @@ public class GeomUtils {
 	private static Polygon linearRing2DToPolygon(LinearRing2D linearRing2D) {
 		List<Coordinate> coordinates = new ArrayList<Coordinate>();
 		for (Point2D pt : linearRing2D.getVertices()) {
-			Coordinate coordinate = new Coordinate(pt.x, pt.y, 1);
+			Coordinate coordinate = new LatLonCoordinate(pt.x, pt.y, 1);
 			coordinates.add(coordinate);
 		}
 
@@ -504,7 +504,7 @@ public class GeomUtils {
 
 			// we create a simplified polygon
 //			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5);
-			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5.0 / 111000); //We was ring with lat/lng coordinates, not meters, so conversion is needed
+			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5.0); //Min side 5 meters
 
 			// we create a linearRing2D from the modified polygon
 			LinearRing2D result = polygonToLinearRing2D(cleanPoly);

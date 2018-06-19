@@ -29,6 +29,7 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 	private Button btnGenerateFence;
 	private Button btnGenerateTanks;
 	private Button btnGenerateChimneys;
+	private Button btnGenerateBridges;
 
 	public GeneratedItemsPanel(final Composite parent, final int style) {
 		super(parent, style);
@@ -69,6 +70,11 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 		btnGenerateStreetLights = new Button(this, SWT.CHECK);
 		btnGenerateStreetLights.setText("Generate street lights");
 		GridDataFactory.fillDefaults().applyTo(btnGenerateStreetLights);
+		
+		btnGenerateBridges = new Button(this, SWT.CHECK);
+		btnGenerateBridges.setText("Generate bridges (EXPERIMENTAL)");
+		btnGenerateBridges.setToolTipText("Experimental feature! Results can be poor.");
+		GridDataFactory.fillDefaults().applyTo(btnGenerateBridges);
 	
 	}
 
@@ -109,6 +115,8 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 				PojoProperties.value("generateTanks").observe(XplaneOptionsHelper.getOptions()));
 		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateChimneys),		
 				PojoProperties.value("generateChimneys").observe(XplaneOptionsHelper.getOptions()));
+		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateBridges),		
+				PojoProperties.value("generateBridges").observe(XplaneOptionsHelper.getOptions()));
 	}
 
 	@Override
@@ -118,13 +126,11 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 
 	@Override
 	protected void initLayout() {
-
 		GridLayout gridLayout = new GridLayout(2, false);
 		gridLayout.verticalSpacing = 15;
 		gridLayout.horizontalSpacing = 15;
 		gridLayout.marginHeight = 15;
 		setLayout(gridLayout);
-		
 	}
 
 }

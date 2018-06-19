@@ -806,11 +806,11 @@ public class XplaneOptions {
 		this.generateChimneys = generateChimneys;
 	}
 	
-	public boolean isGenerateBriges() {
+	public boolean isGenerateBridges() {
 		return generateBridges;
 	}
 	
-	public void setGenerateBridges(boolean generateChimneys) {
+	public void setGenerateBridges(boolean generateBridges) {
 		this.generateBridges= generateBridges;
 	}
 
