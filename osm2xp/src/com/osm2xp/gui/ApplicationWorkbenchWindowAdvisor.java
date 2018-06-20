@@ -57,7 +57,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		System.setErr(myS); // link error output stream to the console
 
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
-		configurer.setInitialSize(new Point(400, 300));
+		configurer.setInitialSize(new Point(800, 600));
 		configurer.setShowStatusLine(false);
 		configurer.setShowCoolBar(true);
 		configurer.setTitle("Osm2xp");
@@ -101,9 +101,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 	@Override
 	public void postWindowCreate() {
 		super.postWindowCreate();
-		Shell shell = PlatformUI.getWorkbench().getWorkbenchWindows()[0]
-				.getShell();
-		shell.setMaximized(true);
+//		Shell shell = PlatformUI.getWorkbench().getWorkbenchWindows()[0]
+//				.getShell();
+//		shell.setMaximized(true);
 		Osm2xpLogger.displayWelcomeMessage();
 		// reset last used file
 		GuiOptionsHelper.getOptions().setCurrentFilePath(null);

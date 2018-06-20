@@ -37,7 +37,7 @@ Please refer [Quick Start Guide](https://github.com/32kda/osm2xp/wiki/Quick-Star
 
 ## Samples of generated scenarios
 
-![Screenshot 1](https://32kda.github.io/osm2xp/screenshots/CH750_1.png "Screenshot 1")
+![Screenshot 1](https://32kda.github.io/osm2xp/screenshots/CH750_4.png "Screenshot 1")
 
 ![Screenshot 2](https://32kda.github.io/osm2xp/screenshots/CH750_2.png "Screenshot 2")
 
