@@ -42,5 +42,5 @@ Please refer [Quick Start Guide](https://github.com/32kda/osm2xp/wiki/Quick-Star
 ![Screenshot 2](https://32kda.github.io/osm2xp/screenshots/CH750_2.png "Screenshot 2")
 
 ## Nearest plans
-* Generate bridges
-* Pusblish App to site
+* Generate bridges - work in progess
+* Generate cooling towers - using objects, like it's done for chimneys
