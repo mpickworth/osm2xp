@@ -27,7 +27,7 @@ Since initial task is generating X-Plane 10 scenery, most fixes I've done and al
 ## Installation
 You need at least Java 8 JRE or JDK to be installed
 
-Download program archive from [Google Drive](https://drive.google.com/open?id=1Xj2mk3_RjO-kRp4VapPQoWeEVRl1iRti "Google Drive") and unpack to any folder. It's better to use path without spaces. Launch program using osm2xp/osm2xp.exe executable.
+Download program archive from [SourceForge](https://sourceforge.net/projects/osm2xp/ "SourceForge") and unpack to any folder. It's better to use path without spaces. Launch program using osm2xp/osm2xp.exe executable.
 
 For now program is available for Windows only.
 
