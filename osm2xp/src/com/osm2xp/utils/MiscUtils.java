@@ -44,8 +44,10 @@ public class MiscUtils {
 							IPerspectiveDescriptor perspective = page.getPerspective();
 							String lastId = perspective.getId();
 							IEclipsePreferences node = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
-							node.put(Osm2xpConstants.LAST_PERSP_PROP, lastId);
-							node.flush();
+							if (!lastId.equals(node.get(Osm2xpConstants.LAST_PERSP_PROP, ""))) {
+								node.put(Osm2xpConstants.LAST_PERSP_PROP, lastId);
+								node.flush();
+							}
 						}
 						
 					}

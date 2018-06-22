@@ -274,12 +274,27 @@ public class GeomUtils {
 	}
 	
 	/**
+	 * Compute length of line formed by given points array in meters
+	 * 
+	 * @param line - specified by {@link Point2D} coordinates (lat, lon) array
+	 * @return line length in meters
+	 */
+	public static double computeLengthInMeters(Point2D[] line) {
+		double sum = 0;
+		for (int i = 1; i < line.length; i++) {
+			sum += latLongDistance(line[i-1].y,
+					line[i-1].x, line[i].y,line[i].x);
+		}
+		return sum;
+	}
+	
+	/**
 	 * Compute perimeter of the polygon in meters.
 	 * 
-	 * @param polygon
-	 * @return Double - perimeter value
+	 * @param polygon - specified by coordinates (lat, lon) 
+	 * @return Double - perimeter value, meters
 	 */
-	public static Double computePerimeter(LinearRing2D polygon) {
+	public static double computePerimeter(LinearRing2D polygon) {
 		double sum = 0;
 		for (LineSegment2D segment : polygon.getEdges()) {
 			Double distance = latLongDistance(segment.getFirstPoint().y,

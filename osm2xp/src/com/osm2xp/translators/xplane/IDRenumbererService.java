@@ -28,4 +28,9 @@ public class IDRenumbererService {
 		return newId;
 	}
 	
+	public static int getIncrementId() {
+		renumberCounter++;
+		return renumberCounter;
+	}
+	
 }

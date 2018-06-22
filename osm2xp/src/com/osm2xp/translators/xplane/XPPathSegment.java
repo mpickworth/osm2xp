@@ -104,4 +104,12 @@ public class XPPathSegment {
 		this.endId = endId;
 	}
 
+	public Point2D[] getPoints() {
+		return points;
+	}
+
+	public int getType() {
+		return type;
+	}
+
 }

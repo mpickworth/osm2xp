@@ -36,4 +36,9 @@ public class XPPowerlineTranslator extends XPPathTranslator {
 	protected boolean isBridge(OsmPolygon poly) {
 		return false; //Not supported for power lines
 	}
+	
+	@Override
+	protected int getBridgeEntranceLength() {
+		return 0;  //Not supported for power lines
+	}
 }

@@ -32,4 +32,8 @@ public class XPRailTranslator extends XPPathTranslator {
 		return "railway";
 	}
 
+	@Override
+	protected int getBridgeEntranceLength() {
+		return 200;
+	}
 }
