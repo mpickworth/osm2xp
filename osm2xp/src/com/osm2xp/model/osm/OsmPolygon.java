@@ -33,7 +33,6 @@ public class OsmPolygon {
 	protected List<Tag> tags;
 	protected List<Node> nodes;
 	private Double area;
-	private Boolean simplePolygon;
 	private LinearRing2D polygon;
 	private Point2D center;
 	private Integer height;
@@ -55,7 +54,6 @@ public class OsmPolygon {
 
 	private void initPolygon() {
 		polygon = GeomUtils.getPolygonFromOsmNodes(nodes);
-
 	}
 
 	public OsmPolygon() {

@@ -61,9 +61,9 @@ public class XplaneOptionsHelper extends OptionsHelper {
 	private static XplaneOptions createNewXplaneOptionsBean() {
 		XplaneOptions result = new XplaneOptions();
 		result.setBuildingMax(30);
-		result.setBuildingMin(10);
+		result.setBuildingMin(6);
 		result.setResidentialMax(15);
-		result.setResidentialMin(6);
+		result.setResidentialMin(3);
 		result.setExcludeFor(true);
 		result.setExcludeObj(true);
 		result.setFacadeLod(25000);

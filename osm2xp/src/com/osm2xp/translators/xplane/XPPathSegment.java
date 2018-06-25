@@ -3,6 +3,8 @@ package com.osm2xp.translators.xplane;
 import math.geom2d.Point2D;
 import static com.osm2xp.translators.impl.XPlaneTranslatorImpl.LINE_SEP;
 
+import com.osm2xp.utils.helpers.XplaneOptionsHelper;
+
 public class XPPathSegment {
 	
 	private int type;
@@ -28,7 +30,7 @@ public class XPPathSegment {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		if (getComment() != null) {
+		if (XplaneOptionsHelper.getOptions().isGenerateComments() && getComment() != null) {
 			builder.append("#");
 			builder.append(getComment());
 			builder.append(LINE_SEP);
@@ -36,8 +38,7 @@ public class XPPathSegment {
 		builder.append(String.format("BEGIN_SEGMENT 0 %d %d %3.9f %4.9f %5.9f", type, startId, points[0].x, points[0].y, startHeight));
 		builder.append(LINE_SEP);
 		for (int i = 1; i < points.length - 1; i++) {
-//			builder.append(String.format("SHAPE_POINT %1.9f %2.9f %3$s",points[i].x, points[i].y, (bridge ? "1.000000000" : "0.000000000"))); //TODO calculate it based on start/end height ?
-			builder.append(String.format("SHAPE_POINT %1.9f %2.9f %3$s",points[i].x, points[i].y, "0.000000000"));
+			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000",points[i].x, points[i].y));
 			builder.append(LINE_SEP);
 		}
 		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f %4.9f", endId, points[points.length - 1].x, points[points.length - 1].y, endHeight));

@@ -172,9 +172,11 @@ public class XPlaneTranslatorImpl implements ITranslator{
 					.getPolygon()));
 			if (osmPolygon.getPolygon().getArea() * 100000000 > 0.1
 					&& osmPolygon.getPolygon().getVertexNumber() > 3) {
-	
-				sb.append("# " + getBuildingComment(osmPolygon, facade));
-				sb.append(LINE_SEP);
+				
+				if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
+					sb.append("# " + getBuildingComment(osmPolygon, facade));
+					sb.append(LINE_SEP);
+				}
 				sb.append("BEGIN_POLYGON " + facade + " "
 						+ osmPolygon.getHeight() + " 2");
 				sb.append(LINE_SEP);
@@ -264,6 +266,15 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			int height = tryGetHeightByType(polygon);
 			if (height > 0) {
 				return height;
+			}
+			
+			//TODO hacky conditions here, should use smth more intelligent or even Neural Net for this
+			double perimeter = GeomUtils.computePerimeter(polygon.getPolygon());
+			if (perimeter <= 30) {
+				return (int) Math.round(levelHeight);
+			}
+			if (perimeter <= 50) {
+				return (int) Math.round(levelHeight * 2);
 			}
 			
 			if (polygon.getArea() * 10000000 < 0.2) {

@@ -31,8 +31,10 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 			Integer facade = dsfObjectsProvider.getRandomBarrierFacade(getBarrierType(barrierType),osmPolygon);
 			if (facade != null && facade >= 0) {
 				StringBuffer sb = new StringBuffer();
-				sb.append("#Barrier " + barrierType + " facade " + facade);
-				sb.append(LINE_SEP);
+				if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
+					sb.append("#Barrier " + barrierType + " facade " + facade);
+					sb.append(LINE_SEP);
+				}
 				osmPolygon.setPolygon(GeomUtils.setCCW(osmPolygon
 						.getPolygon()));
 				

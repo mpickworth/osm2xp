@@ -114,8 +114,8 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 							double k = newSegLen / curLen;
 							double newX = points[i+1].x + (points[i].x-points[i+1].x)*k;
 							double newY = points[i+1].y + (points[i].y-points[i+1].y)*k;
-							Point2D[] newSegPts = Arrays.copyOf(points, i + 1);
-							newSegPts[i] = new Point2D(newX, newY);
+							Point2D[] newSegPts = Arrays.copyOf(points, i + 2);
+							newSegPts[i+1] = new Point2D(newX, newY);
 							long originalEndId = pathSegment.getEndId();
 							int newPointId = IDRenumbererService.getIncrementId();
 							pathSegment = new XPPathSegment(pathSegment.getType(), pathSegment.getStartId(), newPointId, newSegPts);

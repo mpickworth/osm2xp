@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlType;
 		"generateFor", "generateBuildings","generatePowerlines","generateRailways","generateRoads","generateFence",
 		"generateTanks","generateChimneys","generateBridges","generateSlopedRoofs", "generateStreetLights", 
 		"lightsDensity", "packageFacades","hardBuildings", "lightObject", "facadeLod", 
-		"generateXmlStats", "generatePdfStats", "generateDebugImg", "buildingsExclusions",
+		"generateXmlStats", "generatePdfStats", "generateDebugImg", "generateComments", "buildingsExclusions",
 		"forestsRules", "objectsRules", "lightsRules", "facadesRules",
 		"streetLightObjects" })
 @XmlRootElement(name = "XplaneOptions")
@@ -68,6 +68,7 @@ public class XplaneOptions {
 	protected boolean generateXmlStats;
 	protected boolean generatePdfStats;
 	protected boolean generateDebugImg = false;
+	protected boolean generateComments = false;
 	@XmlElement(name = "BuildingsExclusions", required = true)
 	protected BuildingsExclusionsList buildingsExclusions;
 	@XmlElement(name = "ForestsRules", required = true)
@@ -812,6 +813,14 @@ public class XplaneOptions {
 	
 	public void setGenerateBridges(boolean generateBridges) {
 		this.generateBridges= generateBridges;
+	}
+
+	public boolean isGenerateComments() {
+		return generateComments;
+	}
+
+	public void setGenerateComments(boolean generateComments) {
+		this.generateComments = generateComments;
 	}
 
 }

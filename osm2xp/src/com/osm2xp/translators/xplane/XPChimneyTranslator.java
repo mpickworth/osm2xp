@@ -60,14 +60,16 @@ public class XPChimneyTranslator extends XPWritingTranslator {
 			Point2D center = osmPolygon.getCenter();
 			String objStr =  String.format("OBJECT %1d %2.9f %3.9f 0" + System.getProperty("line.separator"), chimneyObjectIdx, center.x, center.y);
 			Point2D point = GeomUtils.cleanCoordinatePoint(osmPolygon.getCenter());
-			StringBuilder commentBuilder = new StringBuilder("#Chimney");
-			if (osmPolygon.getHeight() != null) {
-				commentBuilder.append(" ");
-				commentBuilder.append(osmPolygon.getHeight());
-				commentBuilder.append("m");
+			if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
+				StringBuilder commentBuilder = new StringBuilder("#Chimney");
+				if (osmPolygon.getHeight() != null) {
+					commentBuilder.append(" ");
+					commentBuilder.append(osmPolygon.getHeight());
+					commentBuilder.append("m");
+				}
+				commentBuilder.append(System.getProperty("line.separator"));
+				writer.write(commentBuilder.toString(), point);
 			}
-			commentBuilder.append(System.getProperty("line.separator"));
-			writer.write(commentBuilder.toString(), point);
 			writer.write(objStr, point);
 			return true;
 		}

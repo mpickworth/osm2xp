@@ -51,6 +51,14 @@ public class StatsOptionsPanel extends Composite {
 				+ "Generated buildings/objects etc. are marked on it using scale 1px = 1m");
 		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateDebugImg),		
 				PojoProperties.value("generateDebugImg").observe(XplaneOptionsHelper.getOptions()));
+		
+		Button btnGenerateComments = new Button(this, SWT.CHECK);
+		btnGenerateComments.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+				false, false, 1, 1));
+		btnGenerateComments.setText("Generate DSF comments");
+		btnGenerateComments.setToolTipText("Generate comments in created DSF files");
+		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateComments),		
+				PojoProperties.value("generateComments").observe(XplaneOptionsHelper.getOptions()));
 	}
 
 }
