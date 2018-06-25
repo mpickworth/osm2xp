@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import com.google.common.io.Files;
@@ -29,7 +30,7 @@ public class ScaleChangeHelper {
 			for (String val : valuesArr) {
 				if (!val.trim().isEmpty()) {
 					builder.append(" ");
-					builder.append(String.format("%1.9f", Double.parseDouble(val) * factor));
+					builder.append(String.format(Locale.ROOT, "%1.9f", Double.parseDouble(val) * factor));
 				}
 			}
 			return builder.toString();

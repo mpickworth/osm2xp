@@ -3,6 +3,7 @@ package com.osm2xp.jobs;
 import java.awt.Point;
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
 import math.geom2d.Point2D;
 
@@ -72,7 +73,7 @@ public class GenerateTileJob extends Job {
 			return "whole file";
 		}
 		Point intPt = coords.getAsInt();
-		return String.format("tile (%d,%d)", intPt.x, intPt.y);
+		return String.format(Locale.ROOT, "tile (%d,%d)", intPt.x, intPt.y);
 	}
 	
 	public boolean belongsTo(Object family) {

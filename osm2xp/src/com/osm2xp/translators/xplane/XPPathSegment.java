@@ -3,6 +3,8 @@ package com.osm2xp.translators.xplane;
 import math.geom2d.Point2D;
 import static com.osm2xp.translators.impl.XPlaneTranslatorImpl.LINE_SEP;
 
+import java.util.Locale;
+
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
 public class XPPathSegment {
@@ -35,13 +37,13 @@ public class XPPathSegment {
 			builder.append(getComment());
 			builder.append(LINE_SEP);
 		}
-		builder.append(String.format("BEGIN_SEGMENT 0 %d %d %3.9f %4.9f %5.9f", type, startId, points[0].x, points[0].y, startHeight));
+		builder.append(String.format(Locale.ROOT, "BEGIN_SEGMENT 0 %d %d %3.9f %4.9f %5.9f", type, startId, points[0].x, points[0].y, startHeight));
 		builder.append(LINE_SEP);
 		for (int i = 1; i < points.length - 1; i++) {
-			builder.append(String.format("SHAPE_POINT %1.9f %2.9f 0.000000000",points[i].x, points[i].y));
+			builder.append(String.format(Locale.ROOT, "SHAPE_POINT %1.9f %2.9f 0.000000000",points[i].x, points[i].y));
 			builder.append(LINE_SEP);
 		}
-		builder.append(String.format("END_SEGMENT %d %2.9f %3.9f %4.9f", endId, points[points.length - 1].x, points[points.length - 1].y, endHeight));
+		builder.append(String.format(Locale.ROOT, "END_SEGMENT %d %2.9f %3.9f %4.9f", endId, points[points.length - 1].x, points[points.length - 1].y, endHeight));
 		builder.append(LINE_SEP);
 		return builder.toString();
 	}

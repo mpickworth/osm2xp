@@ -95,6 +95,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 							newSegPts[i] = new Point2D(newX, newY);
 							int newPointId = IDRenumbererService.getIncrementId();
 							startSegment = new XPPathSegment(pathSegment.getType(), pathSegment.getStartId(), newPointId, newSegPts);
+							startSegment.setStartHeight(1);
 							Point2D[] tailPts = Arrays.copyOfRange(points, i, points.length);
 							tailPts = (Point2D[]) ArrayUtils.add(tailPts, 0, new Point2D(newX, newY));
 							pathSegment = new XPPathSegment(pathSegment.getType(), newPointId, pathSegment.getEndId(), tailPts); //Leave a tail of original segment
@@ -119,9 +120,10 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 							long originalEndId = pathSegment.getEndId();
 							int newPointId = IDRenumbererService.getIncrementId();
 							pathSegment = new XPPathSegment(pathSegment.getType(), pathSegment.getStartId(), newPointId, newSegPts);
-							Point2D[] tailPts = Arrays.copyOfRange(points, i, points.length);
+							Point2D[] tailPts = Arrays.copyOfRange(points, i+1, points.length); //was i 
 							tailPts = (Point2D[]) ArrayUtils.add(tailPts, 0, new Point2D(newX, newY));
 							endSegment = new XPPathSegment(pathSegment.getType(), newPointId, originalEndId, tailPts); //Leave a tail of original segment
+							endSegment.setEndHeight(1);
 							break;
 						}
 						distance += curLen;

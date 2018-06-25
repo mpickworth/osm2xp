@@ -3,6 +3,7 @@ package com.osm2xp.translators.xplane;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
@@ -58,7 +59,7 @@ public class XPChimneyTranslator extends XPWritingTranslator {
 			int height = getChimneyHeight(osmPolygon);
 			Integer chimneyObjectIdx = objectsProvider.getChimneyObject(getSuitableModelFile(height));
 			Point2D center = osmPolygon.getCenter();
-			String objStr =  String.format("OBJECT %1d %2.9f %3.9f 0" + System.getProperty("line.separator"), chimneyObjectIdx, center.x, center.y);
+			String objStr =  String.format(Locale.ROOT, "OBJECT %1d %2.9f %3.9f 0" + System.getProperty("line.separator"), chimneyObjectIdx, center.x, center.y);
 			Point2D point = GeomUtils.cleanCoordinatePoint(osmPolygon.getCenter());
 			if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
 				StringBuilder commentBuilder = new StringBuilder("#Chimney");

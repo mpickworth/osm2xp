@@ -61,6 +61,7 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 		
 		btnGenerateTanks= new Button(this, SWT.CHECK);
 		btnGenerateTanks.setText("Generate Tanks/Gasometers");
+		btnGenerateTanks.setText("Generate Tanks/Gasometers using special facade");
 		GridDataFactory.fillDefaults().applyTo(btnGenerateTanks);
 		
 		btnGenerateChimneys = new Button(this, SWT.CHECK);
@@ -72,8 +73,8 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 		GridDataFactory.fillDefaults().applyTo(btnGenerateStreetLights);
 		
 		btnGenerateBridges = new Button(this, SWT.CHECK);
-		btnGenerateBridges.setText("Generate bridges (EXPERIMENTAL)");
-		btnGenerateBridges.setToolTipText("Experimental feature! Results can be poor.");
+		btnGenerateBridges.setText("Generate bridges");
+		btnGenerateBridges.setToolTipText("Generate bridges for roads and railways.");
 		GridDataFactory.fillDefaults().applyTo(btnGenerateBridges);
 	
 	}

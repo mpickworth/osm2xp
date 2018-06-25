@@ -3,6 +3,7 @@ package com.osm2xp.translators.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -187,7 +188,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				osmPolygon.getPolygon().removePoint(
 						osmPolygon.getPolygon().getLastPoint());
 				for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
-					sb.append(String.format("POLYGON_POINT %1.9f %2.9f",loc.x,loc.y));
+					sb.append(String.format(Locale.ROOT, "POLYGON_POINT %1.9f %2.9f",loc.x,loc.y));
 					sb.append(LINE_SEP);
 				}
 				sb.append("END_WINDING");

@@ -8,11 +8,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
-
-import math.geom2d.Box2D;
-import math.geom2d.Point2D;
 
 import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.constants.Perspectives;
@@ -26,6 +24,9 @@ import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.osm2xp.writers.impl.OsmWriterImpl;
+
+import math.geom2d.Box2D;
+import math.geom2d.Point2D;
 
 /**
  * DsfUtils.
@@ -444,7 +445,7 @@ public class DsfUtils {
 	 * @return formatted string
 	 */
 	public static String formatDsfCoord(double coord) {
-		return String.format("%.9f", coord);
+		return String.format(Locale.ROOT, "%.9f", coord);
 	}
 
 }
