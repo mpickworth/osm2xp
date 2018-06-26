@@ -72,7 +72,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	}
 	
 	private Collection<? extends XPPathSegment> splitIfNecessary(XPPathSegment pathSegment) {
-		int minLength = getBridgeEntranceLength();
+		int minLength = getBridgeRampLength();
 		if (minLength > 0) {
 			Point2D[] points = pathSegment.getPoints();
 			double length = GeomUtils.computeLengthInMeters(points);
@@ -146,7 +146,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	/**
 	 * @return Min bridge *entrance* segment length 
 	 */
-	protected int getBridgeEntranceLength() {
+	protected int getBridgeRampLength() {
 		return 100;
 	}
 

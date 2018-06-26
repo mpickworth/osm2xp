@@ -33,7 +33,7 @@ public class XPRailTranslator extends XPPathTranslator {
 	}
 
 	@Override
-	protected int getBridgeEntranceLength() {
-		return 200;
+	protected int getBridgeRampLength() {
+		return XplaneOptionsHelper.getOptions().getRailBridgeRampLen();
 	}
 }

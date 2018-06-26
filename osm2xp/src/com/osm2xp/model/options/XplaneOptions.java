@@ -21,7 +21,8 @@ import javax.xml.bind.annotation.XmlType;
 		"generateFor", "generateBuildings","generatePowerlines","generateRailways","generateRoads","generateFence",
 		"generateTanks","generateChimneys","generateBridges","generateSlopedRoofs", "generateStreetLights", 
 		"lightsDensity", "packageFacades","hardBuildings", "lightObject", "facadeLod", 
-		"generateXmlStats", "generatePdfStats", "generateDebugImg", "generateComments", "buildingsExclusions",
+		"generateXmlStats", "generatePdfStats", "generateDebugImg", "generateComments", "levelHeight",
+		"roadBridgeRampLen","railBridgeRampLen","buildingsExclusions",
 		"forestsRules", "objectsRules", "lightsRules", "facadesRules",
 		"streetLightObjects" })
 @XmlRootElement(name = "XplaneOptions")
@@ -69,6 +70,9 @@ public class XplaneOptions {
 	protected boolean generatePdfStats;
 	protected boolean generateDebugImg = false;
 	protected boolean generateComments = false;
+	protected double levelHeight = 3;
+	protected int roadBridgeRampLen = 100;
+	protected int railBridgeRampLen = 200;
 	@XmlElement(name = "BuildingsExclusions", required = true)
 	protected BuildingsExclusionsList buildingsExclusions;
 	@XmlElement(name = "ForestsRules", required = true)
@@ -821,6 +825,40 @@ public class XplaneOptions {
 
 	public void setGenerateComments(boolean generateComments) {
 		this.generateComments = generateComments;
+	}
+	/**
+	 * @return Building level height, 3m by default
+	 */
+	public double getLevelHeight() {
+		return levelHeight;
+	}
+	/**
+	 * @param levelHeight building level height, meters
+	 */
+	public void setLevelHeight(double levelHeight) {
+		this.levelHeight = levelHeight;
+	}
+
+	/**
+	 * @return Road bridge ramp max length, 100m by default
+	 */
+	public int getRoadBridgeRampLen() {
+		return roadBridgeRampLen;
+	}
+
+	public void setRoadBridgeRampLen(int roadBridgeRampLen) {
+		this.roadBridgeRampLen = roadBridgeRampLen;
+	}
+
+	/**
+	 * @return Rail bridge ramp max length, 200m by default
+	 */
+	public int getRailBridgeRampLen() {
+		return railBridgeRampLen;
+	}
+
+	public void setRailBridgeRampLen(int railBridgeRampLen) {
+		this.railBridgeRampLen = railBridgeRampLen;
 	}
 
 }

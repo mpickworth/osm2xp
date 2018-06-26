@@ -38,7 +38,7 @@ public class XPPowerlineTranslator extends XPPathTranslator {
 	}
 	
 	@Override
-	protected int getBridgeEntranceLength() {
+	protected int getBridgeRampLength() {
 		return 0;  //Not supported for power lines
 	}
 }

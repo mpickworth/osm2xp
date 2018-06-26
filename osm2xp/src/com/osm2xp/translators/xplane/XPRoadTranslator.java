@@ -72,5 +72,8 @@ public class XPRoadTranslator extends XPPathTranslator {
 		return "road";
 	}
 
-
+	@Override
+	protected int getBridgeRampLength() {
+		return XplaneOptionsHelper.getOptions().getRoadBridgeRampLen();
+	}
 }

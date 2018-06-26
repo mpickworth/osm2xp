@@ -55,6 +55,12 @@ public class BuildingsHeightPanel extends Osm2xpPanel {
 
 	@Override
 	protected void initComponents() {
+//		Group grpCommon = new Group(this, SWT.NONE); //TODO finish this
+//		grpCommon.setText("Common");
+//		GridDataFactory.fillDefaults().span(2,1).applyTo(grpCommon);
+//		Label levelHeightLbl = new Label(grpCommon, SWT.NONE);
+//		levelHeightLbl.setText("Building Level heght, m:");
+		
 		grpRes = new Group(this, SWT.NONE);
 		grpRes.setText("Residential height (meters)");
 		Label labelResMin = new Label(grpRes, SWT.NONE);

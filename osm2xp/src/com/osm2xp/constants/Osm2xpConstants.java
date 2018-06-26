@@ -12,7 +12,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
  */
 public class Osm2xpConstants {
 
-	public static final String OSM2XP_VERSION = "3.0.0";
+	public static final String OSM2XP_VERSION = "3.0.1";
 	public static final String PREFS_PATH = "." + File.separator + "ressources"
 			+ File.separator + "prefs" + File.separator;
 	public static final String FACADES_SETS_PATH = ResourcesPlugin
