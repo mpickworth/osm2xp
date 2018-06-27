@@ -46,4 +46,5 @@ Please refer [Quick Start Guide](https://github.com/32kda/osm2xp/wiki/Quick-Star
 ## Nearest plans
 
 * Generate cooling towers - using objects, like it's done for chimneys
+* Multipolygon support for forests & buildings 
 * More options in the GUI
