@@ -4,18 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import math.geom2d.Angle2D;
-import math.geom2d.Box2D;
-import math.geom2d.Point2D;
-import math.geom2d.line.Line2D;
-import math.geom2d.line.LineSegment2D;
-import math.geom2d.polygon.LinearRing2D;
-import math.geom2d.polygon.Rectangle2D;
-
 import org.opencarto.algo.ShortEdgesDeletion;
-
-import SGImplify.SGImplify;
-import Tuple.Tuple2f;
 
 import com.osm2xp.model.geom.Lod13Location;
 import com.osm2xp.model.osm.Node;
@@ -31,6 +20,16 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
 import com.vividsolutions.jts.geom.util.Angle;
 import com.vividsolutions.jts.geom.util.CGAlgorithms;
+
+import SGImplify.SGImplify;
+import Tuple.Tuple2f;
+import math.geom2d.Angle2D;
+import math.geom2d.Box2D;
+import math.geom2d.Point2D;
+import math.geom2d.line.Line2D;
+import math.geom2d.line.LineSegment2D;
+import math.geom2d.polygon.LinearRing2D;
+import math.geom2d.polygon.Rectangle2D;
 
 /**
  * GeomUtils.
@@ -672,13 +671,11 @@ public class GeomUtils {
 	}
 
 	/**
-	 * check if a linear ring is clockwise.
-	 * 
-	 * @param ring2d
-	 * @return
+	 * Check if a linear ring is counter-clockwise and reverse direction in case it's not CCW
+	 * X-Plane facades outer ring needs to be <b>CCW</b> (see https://developer.x-plane.com/2010/07/facade-tuning-and-tips/)
+	 * @param ring2d {@link LinearRing2D} to check
+	 * @return ring2d itself if it's CCW, reversed direction ring otherwise
 	 */
-	//XXX This method was named 'forceClocwise', but check for CCW is performed instead. Renamed it respectively.  
-	// X-Plane facades needs to be *CCW* (see https://developer.x-plane.com/2010/07/facade-tuning-and-tips/)
 	public static LinearRing2D forceCCW(LinearRing2D ring2d) {
 		LinearRing2D result = null;
 		if (ring2d.getVertices().size() > 4) { //4 because it makes sense only in case we have 3 points. 4th one is equal to 1st one 
@@ -703,6 +700,39 @@ public class GeomUtils {
 			result = ring2d;
 		}
 
+		return result;
+	}
+	
+	/**
+	 * Check if a linear ring is clockwise and reverse direction in case it's not CW
+	 * X-Plane facades inner ring needs to be clockwise
+	 * @param ring2d {@link LinearRing2D} to check
+	 * @return ring2d itself if it's CW, reversed direction ring otherwise
+	 */
+	public static LinearRing2D forceCW(LinearRing2D ring2d) {
+		LinearRing2D result = null;
+		if (ring2d.getVertices().size() > 4) { //4 because it makes sense only in case we have 3 points. 4th one is equal to 1st one 
+			
+			Coordinate[] coords = new Coordinate[ring2d.getVertices().size()];
+			for (int i = 0; i < ring2d.getVertices().size(); i++) {
+				coords[i] = new Coordinate(ring2d.getVertex(i).x,
+						ring2d.getVertex(i).y);
+			}
+			
+			if (CGAlgorithms.isCCW(coords)) {
+				Collection<Point2D> clockwiseVectors = new ArrayList<Point2D>();
+				for (int i = ring2d.getVertices().size() - 1; i > -1; i--) {
+					clockwiseVectors.add(ring2d.getVertex(i));
+				}
+				
+				result = new LinearRing2D(clockwiseVectors);
+			} else {
+				result = ring2d;
+			}
+		} else {
+			result = ring2d;
+		}
+		
 		return result;
 	}
 
@@ -890,5 +920,12 @@ public class GeomUtils {
 		// }
 
 		return false;
+	}
+
+	public static List<Node> removeExtraEnd(List<Node> nodes) {
+		if (nodes.size() > 3 && nodes.get(0).getId() == nodes.get(nodes.size() - 1).getId()) {
+			nodes.remove(nodes.size() - 1);
+		}
+		return nodes;
 	}
 }

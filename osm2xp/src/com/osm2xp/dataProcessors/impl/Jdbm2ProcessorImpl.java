@@ -2,20 +2,18 @@ package com.osm2xp.dataProcessors.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import com.osm2xp.constants.Osm2xpConstants;
+import com.osm2xp.exceptions.DataSinkException;
+import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.Way;
+import com.osm2xp.utils.FilesUtils;
 
 import jdbm.PrimaryTreeMap;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
-
-import com.osm2xp.constants.Osm2xpConstants;
-import com.osm2xp.dataProcessors.IDataSink;
-import com.osm2xp.exceptions.DataSinkException;
-import com.osm2xp.model.osm.Node;
-import com.osm2xp.utils.FilesUtils;
 
 /**
  * Jdbm2 data sink implementation.
@@ -111,6 +109,17 @@ public class Jdbm2ProcessorImpl extends AbstractDataProcessor {
 	@Override
 	public Long getNodesNumber() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public void storeWay(Way way) {
+		// TODO Not supported yet
+	}
+
+	@Override
+	public Way getWay(long wayId) {
+		//TODO not supported yet
 		return null;
 	}
 

@@ -28,6 +28,7 @@ import com.osm2xp.translators.ITranslator;
 import com.osm2xp.translators.xplane.IDRenumbererService;
 import com.osm2xp.translators.xplane.XPBarrierTranslator;
 import com.osm2xp.translators.xplane.XPChimneyTranslator;
+import com.osm2xp.translators.xplane.XPForestTranslator;
 import com.osm2xp.translators.xplane.XPPowerlineTranslator;
 import com.osm2xp.translators.xplane.XPRailTranslator;
 import com.osm2xp.translators.xplane.XPRoadTranslator;
@@ -92,6 +93,9 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	 * dsf object provider.
 	 */
 	protected DsfObjectsProvider dsfObjectsProvider;
+	
+	protected XPForestTranslator forestTranslator;
+	
 	protected ITranslationListener translationListener;
 	/**
 	 * Building level height, 3 m by default 
@@ -116,6 +120,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		polyHandlers.add(new XPRailTranslator(writer));
 		polyHandlers.add(new XPPowerlineTranslator(writer));
 		polyHandlers.add(new XPChimneyTranslator(writer, dsfObjectsProvider));
+		forestTranslator = new XPForestTranslator(writer, dsfObjectsProvider, stats);
 	}
 	
 	@Override
@@ -495,7 +500,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 					// nothing generated? try to generate a facade building.
 					if (!processBuilding(poly)) {
 						// nothing generated? try to generate a forest.
-						if (!processForest(poly)) {
+						if (!forestTranslator.handlePoly(poly)) {
 							processOther(poly);
 						}
 					}
@@ -629,60 +634,6 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				}
 			}
 		}
-	}
-
-	
-
-	/**
-	 * @param way
-	 * @param polygon
-	 * @return
-	 */
-	protected boolean processForest(OsmPolygon osmPolygon) {
-		Boolean result = false;
-		if (XplaneOptionsHelper.getOptions().isGenerateFor()) {
-			Integer[] forestIndexAndDensity = dsfObjectsProvider
-					.getRandomForestIndexAndDensity(osmPolygon.getTags());
-			if (forestIndexAndDensity != null) {
-				if (translationListener != null) {
-					translationListener.processForest(osmPolygon);
-				}
-				writeForestToDsf(osmPolygon, forestIndexAndDensity);
-				result = true;
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * @param polygon
-	 *            the forest polygon
-	 * @param forestIndexAndDensity
-	 *            index and density of the forest rule
-	 */
-	private void writeForestToDsf(OsmPolygon osmPolygon, Integer[] forestIndexAndDensity) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("BEGIN_POLYGON " + forestIndexAndDensity[0] + " "
-				+ forestIndexAndDensity[1] + " 2");
-		sb.append(LINE_SEP);
-		sb.append("BEGIN_WINDING");
-		sb.append(LINE_SEP);
-		for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
-			sb.append("POLYGON_POINT " + loc.x + " " + loc.y);
-			sb.append(LINE_SEP);
-		}
-		sb.append("END_WINDING");
-		sb.append(LINE_SEP);
-		sb.append("END_POLYGON");
-		sb.append(LINE_SEP);
-	
-		// stats
-		StatsHelper.addForestType(
-				dsfObjectsProvider.getPolygonsList().get(
-						forestIndexAndDensity[0]), stats);
-	
-		writer.write(sb.toString(), GeomUtils.cleanCoordinatePoint(osmPolygon
-				.getPolygon().getFirstPoint()));
 	}
 
 	@Override

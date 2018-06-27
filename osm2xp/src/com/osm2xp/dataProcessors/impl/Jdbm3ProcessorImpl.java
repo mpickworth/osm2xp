@@ -1,20 +1,18 @@
 package com.osm2xp.dataProcessors.impl;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import net.kotek.jdbm.DB;
-import net.kotek.jdbm.DBMaker;
-
 import com.osm2xp.constants.Osm2xpConstants;
-import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.Way;
 import com.osm2xp.utils.FilesUtils;
+
+import net.kotek.jdbm.DB;
+import net.kotek.jdbm.DBMaker;
 
 /**
  * Jdbm3 data sink implementation.
@@ -105,5 +103,17 @@ public class Jdbm3ProcessorImpl extends AbstractDataProcessor {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void storeWay(Way way) {
+		// TODO Not supported yet
+	}
+
+	@Override
+	public Way getWay(long wayId) {
+		//TODO not supported yet
+		return null;
+	}
+
 
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.Way;
 
 /**
  * Memory data sink implementation
@@ -18,6 +19,7 @@ import com.osm2xp.model.osm.Node;
 public class MemoryProcessorImpl implements IDataSink {
 
 	private Map<Long, double[]> nodeMap = new HashMap<Long, double[]>();
+	private Map<Long, Way> wayMap = new HashMap<>();
 
 	@Override
 	public void storeNode(final Node node) throws DataSinkException {
@@ -58,6 +60,16 @@ public class MemoryProcessorImpl implements IDataSink {
 	@Override
 	public Long getNodesNumber() {
 		return (long) nodeMap.size();
+	}
+
+	@Override
+	public void storeWay(Way way) {
+		wayMap.put(way.getId(), way);
+	}
+
+	@Override
+	public Way getWay(long wayId) {
+		return wayMap.get(wayId);
 	}
 
 }

@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import math.geom2d.Point2D;
-
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.stats.GenerationStats;
+import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
-import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.StatsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
+
+import math.geom2d.Point2D;
 
 /**
  * Xplane 9 translator implementation. Generates Xplane scenery from osm data.
@@ -73,7 +73,7 @@ public class Xplane9TranslatorImpl extends XPlaneTranslatorImpl {
 	 *            osm road polygon
 	 */
 	public void writeStreetLightToDsf(OsmPolygon osmPolygon) {
-		// init d'un entier pour modulo densité street lights
+		// init d'un entier pour modulo densitï¿½ street lights
 		Integer densityIndex = 0;
 		if (XplaneOptionsHelper.getOptions().getLightsDensity() == 0) {
 			densityIndex = 10;
@@ -136,7 +136,7 @@ public class Xplane9TranslatorImpl extends XPlaneTranslatorImpl {
 					// nothing generated? try to generate a facade building.
 					if (!processBuilding(poly)) {
 						// nothing generated? try to generate a forest.
-						if (!processForest(poly)) {
+						if (!forestTranslator.handlePoly(poly)) {
 							// still nothing? try to generate a streetlight.
 							if (!processStreetLights(poly)) {
 								processOther(poly);

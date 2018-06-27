@@ -5,15 +5,13 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.h2.tools.Server;
 
-import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.Way;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
 /**
@@ -100,6 +98,17 @@ public class H2DBDProcessorImpl extends AbstractDataProcessor {
 	@Override
 	public void complete() throws DataSinkException {
 		server.stop();
+	}
+	
+	@Override
+	public void storeWay(Way way) {
+		// TODO Not supported yet
+	}
+
+	@Override
+	public Way getWay(long wayId) {
+		//TODO not supported yet
+		return null;
 	}
 
 }

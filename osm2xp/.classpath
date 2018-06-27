@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/osmosis-core-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1523535636461/source/osmosis-core-0.46-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/osmosis-pbf-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1523515037489/source/osmosis-pbf-0.46-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/osmosis-core-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1530080284876/source/osmosis-core-0.46-sources-1530083736248.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/osmosis-pbf-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1530080284876/source/osmosis-pbf-0.46-sources-1530082362976.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/osmosis-pbf2-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1523515037489/source/osmosis-pbf2-0.46-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/osmosis-xml-0.46.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -58,7 +58,7 @@
 	<classpathentry kind="lib" path="lib/SGImplify.jar"/>
 	<classpathentry kind="lib" path="lib/Tuple.jar"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="lib/osmosis-osm-binary-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1524651337313/source/osmosis-osm-binary-0.46-sources-1524654107888.jar"/>
+	<classpathentry kind="lib" path="lib/osmosis-osm-binary-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1530080284876/source/osmosis-osm-binary-0.46-sources-1530081846814.jar"/>
 	<classpathentry kind="lib" path="lib/protobuf-java-3.4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
