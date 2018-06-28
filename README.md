@@ -31,7 +31,7 @@ You need at least Java 8 JRE or JDK to be installed
 
 Download program archive from [SourceForge](https://sourceforge.net/projects/osm2xp/ "SourceForge") and unpack to any folder. It's better to use path without spaces. Launch program using osm2xp/osm2xp.exe executable.
 
-For now program is available for Windows only.
+For now program is available for Windows only. If you need it for other OS, please create an issue on GitHub.
 
 ## Usage
 
@@ -46,5 +46,5 @@ Please refer [Quick Start Guide](https://github.com/32kda/osm2xp/wiki/Quick-Star
 ## Nearest plans
 
 * Generate cooling towers - using objects, like it's done for chimneys
-* Multipolygon support for forests & buildings 
+* Multipolygon (e.g. poly with holes) support for forests & buildings 
 * More options in the GUI

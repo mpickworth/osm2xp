@@ -352,6 +352,14 @@ public class GeomUtils {
 		}
 		return result;
 	}
+	
+	public static Point2D cleanCoordinatePoint(double latitude,
+			double longitude) {
+		int longi = (int) Math.floor(longitude);
+		int lati = (int) Math.floor(latitude);
+		Point2D cleanedLoc = new Point2D(longi, lati);
+		return cleanedLoc;
+	}
 
 	public static Point2D cleanCoordinatePoint(Point2D basePoint) {
 		int longi = (int) Math.floor(basePoint.x);

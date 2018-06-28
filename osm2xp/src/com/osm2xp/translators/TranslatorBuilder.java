@@ -215,10 +215,6 @@ public class TranslatorBuilder {
 			Point2D currentTile, String folderPath, List<Relation> relationsList) {
 
 		GenerationStats stats = StatsHelper.initStats(currentFile, currentTile);
-//		String FacadeSetPath = Osm2xpConstants.FACADES_SETS_PATH
-//				+ File.separator
-//				+ XplaneOptionsHelper.getOptions().getFacadeSet();
-//		FacadeSet facadeSet = FacadeSetHelper.getFacadeSet(FacadeSetPath);
 		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"");
 		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath, FacadeSetManager.getManager(facadeSetsStr, new File(folderPath)));
 		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);

@@ -97,6 +97,8 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	protected XPForestTranslator forestTranslator;
 	
 	protected ITranslationListener translationListener;
+	
+	protected XPOutputFormat outputFormat;
 	/**
 	 * Building level height, 3 m by default 
 	 */
@@ -114,13 +116,15 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		this.startTime = new Date();
 		
 		IDRenumbererService.reinit();
+		outputFormat = new XPOutputFormat();
 		
 		polyHandlers.add(new XPBarrierTranslator(dsfObjectsProvider, writer));
 		polyHandlers.add(new XPRoadTranslator(writer));
 		polyHandlers.add(new XPRailTranslator(writer));
 		polyHandlers.add(new XPPowerlineTranslator(writer));
 		polyHandlers.add(new XPChimneyTranslator(writer, dsfObjectsProvider));
-		forestTranslator = new XPForestTranslator(writer, dsfObjectsProvider, stats);
+		forestTranslator = new XPForestTranslator(writer, dsfObjectsProvider, outputFormat, stats);
+		
 	}
 	
 	@Override
@@ -132,13 +136,20 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	
 	@Override
 	public void complete() {
+		writer.complete(null);
+		saveStats();
+		if (translationListener != null) {
+			translationListener.complete();
+		}
+	}
+
+	protected void saveStats() {
 		if (!StatsHelper.isTileEmpty(stats)) {
 			Osm2xpLogger.info("stats : " + stats.getBuildingsNumber()
 					+ " buildings, " + stats.getForestsNumber() + " forests, "
 					+ stats.getStreetlightsNumber() + " street lights, "
 					+ stats.getObjectsNumber() + " objects. (generation took "
 					+ MiscUtils.getTimeDiff(startTime, new Date()) + ")");
-			writer.complete(null);
 
 			// stats
 			try {
@@ -173,33 +184,36 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	 */
 	protected void writeBuildingToDsf(OsmPolygon osmPolygon, Integer facade) {
 		if (facade != null && osmPolygon.getHeight() != null) {
-			StringBuffer sb = new StringBuffer();
 			osmPolygon.setPolygon(GeomUtils.setCCW(osmPolygon
 					.getPolygon()));
 			if (osmPolygon.getPolygon().getArea() * 100000000 > 0.1
 					&& osmPolygon.getPolygon().getVertexNumber() > 3) {
+//				StringBuffer sb = new StringBuffer();
 				
-				if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
-					sb.append("# " + getBuildingComment(osmPolygon, facade));
-					sb.append(LINE_SEP);
-				}
-				sb.append("BEGIN_POLYGON " + facade + " "
-						+ osmPolygon.getHeight() + " 2");
-				sb.append(LINE_SEP);
-				sb.append("BEGIN_WINDING");
-				sb.append(LINE_SEP);
-	
-				// on supprime le dernier point pour ne pas boucler
-				osmPolygon.getPolygon().removePoint(
-						osmPolygon.getPolygon().getLastPoint());
-				for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
-					sb.append(String.format(Locale.ROOT, "POLYGON_POINT %1.9f %2.9f",loc.x,loc.y));
-					sb.append(LINE_SEP);
-				}
-				sb.append("END_WINDING");
-				sb.append(LINE_SEP);
-				sb.append("END_POLYGON");
-				sb.append(LINE_SEP);
+//				if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
+//					sb.append("# " + getBuildingComment(osmPolygon, facade));
+//					sb.append(LINE_SEP);
+//				}
+//				sb.append("BEGIN_POLYGON " + facade + " "
+//						+ osmPolygon.getHeight() + " 2");
+//				sb.append(LINE_SEP);
+//				sb.append("BEGIN_WINDING");
+//				sb.append(LINE_SEP);
+//	
+//				// on supprime le dernier point pour ne pas boucler
+//				osmPolygon.getPolygon().removePoint(
+//						osmPolygon.getPolygon().getLastPoint());
+//				for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
+//					sb.append(String.format(Locale.ROOT, "POLYGON_POINT %1.9f %2.9f",loc.x,loc.y));
+//					sb.append(LINE_SEP);
+//				}
+//				sb.append("END_WINDING");
+//				sb.append(LINE_SEP);
+//				sb.append("END_POLYGON");
+//				sb.append(LINE_SEP);
+				writer.write(outputFormat.getPolygonString(osmPolygon, facade +"", osmPolygon.getHeight() + ""), GeomUtils
+						.cleanCoordinatePoint(osmPolygon.getPolygon()
+								.getFirstPoint()));
 	
 				// stats TODO not working anymore since v2 facades new features.
 				if (dsfObjectsProvider.getPolygonsList().get(facade)
@@ -217,9 +231,6 @@ public class XPlaneTranslatorImpl implements ITranslator{
 						StatsHelper.addBuildingType("Facade rule", stats);
 					}
 				}
-				writer.write(sb.toString(), GeomUtils
-						.cleanCoordinatePoint(osmPolygon.getPolygon()
-								.getFirstPoint()));
 			}
 		}
 	}
@@ -629,8 +640,8 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				object.setPolygon(poly);
 				try {
 					writeObjectToDsf(object);
-	
 				} catch (Osm2xpBusinessException e) {
+					Activator.log(e);
 				}
 			}
 		}

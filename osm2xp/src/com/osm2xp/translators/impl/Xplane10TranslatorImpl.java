@@ -1,33 +1,28 @@
 package com.osm2xp.translators.impl;
 
-import java.util.Date;
 import java.util.Random;
 
-import math.geom2d.Point2D;
-
-import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.translators.IPolyHandler;
-import com.osm2xp.translators.ITranslator;
-import com.osm2xp.utils.GeomUtils;
-import com.osm2xp.utils.MiscUtils;
-import com.osm2xp.utils.OsmUtils;
 import com.osm2xp.utils.DsfObjectsProvider;
+import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.OsmUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.StatsHelper;
 import com.osm2xp.utils.helpers.XplaneExclusionsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
-import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.osm2xp.writers.IWriter;
 
+import math.geom2d.Point2D;
+
 /**
- * Xplane 10 translator implementation. Generates Xplane scenery from osm data.
+ * Xplane 10 translator implementation. Generates XPlane scenery from osm data.
  * 
  * @author Benjamin Blanchet
  * 
  */
-public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl implements ITranslator {
+public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl {
 
 	/**
 	 * Smart exclusions helper.
@@ -72,37 +67,8 @@ public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl implements ITra
 			writer.complete(null);
 		}
 
-		if (currentTile != null && !StatsHelper.isTileEmpty(stats)) {
-			Osm2xpLogger.info("Tile " + (int) currentTile.y + "/"
-					+ (int) currentTile.x + " stats : "
-					+ stats.getBuildingsNumber() + " buildings, "
-					+ stats.getForestsNumber() + " forests, "
-					+ stats.getStreetlightsNumber() + " street lights, "
-					+ stats.getObjectsNumber() + " objects. (generation took "
-					+ MiscUtils.getTimeDiff(startTime, new Date()) + ")");
-
-			// stats
-			try {
-				if (XplaneOptionsHelper.getOptions().isGenerateXmlStats()
-						|| XplaneOptionsHelper.getOptions()
-								.isGeneratePdfStats()) {
-					StatsHelper.getStatsList().add(stats);
-
-				}
-				if (XplaneOptionsHelper.getOptions().isGenerateXmlStats()) {
-					StatsHelper.saveStats(folderPath, currentTile, stats);
-				}
-				if (XplaneOptionsHelper.getOptions().isGeneratePdfStats()) {
-					StatsHelper.generatePdfReport(folderPath, stats);
-				}
-			} catch (Osm2xpBusinessException e) {
-				Osm2xpLogger.error("Error saving stats file for tile "
-						+ currentTile, e);
-			}
-		} else if (!GuiOptionsHelper.getOptions().isSinglePass()) {
-			Osm2xpLogger.info("Tile " + (int) currentTile.y + "/"
-					+ (int) currentTile.x + " is empty, no dsf generated");
-		}
+		saveStats();
+		
 		if (translationListener != null) {
 			translationListener.complete();
 		}

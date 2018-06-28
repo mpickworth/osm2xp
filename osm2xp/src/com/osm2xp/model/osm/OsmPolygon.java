@@ -4,17 +4,15 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-
-import math.geom2d.Point2D;
-import math.geom2d.polygon.LinearRing2D;
 
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
+
+import math.geom2d.Point2D;
+import math.geom2d.polygon.LinearRing2D;
 
 /**
  * OsmPolygon.
@@ -23,11 +21,6 @@ import com.osm2xp.utils.OsmUtils;
  * 
  */
 public class OsmPolygon {
-
-	@Override
-	public String toString() {
-		return "OsmPolygon [id=" + id + ", tag=" + tags + "]";
-	}
 
 	protected Long id;
 	protected List<Tag> tags;
@@ -59,6 +52,19 @@ public class OsmPolygon {
 	public OsmPolygon() {
 
 	}
+	
+	public boolean isOnOneTile() {
+		if (nodes == null || nodes.size() == 0) {
+			return true;
+		}
+		Point2D original = GeomUtils.cleanCoordinatePoint(nodes.get(0).lat, nodes.get(0).lon);
+		for (int i = 1; i < nodes.size(); i++) {
+			if (!original.equals(GeomUtils.cleanCoordinatePoint(nodes.get(i).lat, nodes.get(i).lon))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Split current polygon along tiles
@@ -66,19 +72,11 @@ public class OsmPolygon {
 	 * @return
 	 */
 	public List<OsmPolygon> splitPolygonAroundTiles() {
-		List<OsmPolygon> result = new ArrayList<OsmPolygon>();
-		// first check on how many tiles is this polygon
-		Set<Point2D> tiles = new HashSet<Point2D>();
-		for (Node node : nodes) {
-			Point2D point2d = new Point2D(node.lon, node.lat);
-			point2d = GeomUtils.cleanCoordinatePoint(point2d);
-			tiles.add(point2d);
-		}
-
 		// if the polygon is on only one tile, return the current polygon
-		if (tiles.size() == 1) {
-			result.add(this);
+		if (isOnOneTile()) {
+			return Collections.singletonList(this);
 		} else {
+			List<OsmPolygon> result = new ArrayList<OsmPolygon>();
 			// the polygon is on more than one tile, split it.
 			if (this.polygon == null) {
 				initPolygon();
@@ -98,9 +96,8 @@ public class OsmPolygon {
 			for (Map.Entry<Point2D, OsmPolygon> entry : polygons.entrySet()) {
 				result.add(entry.getValue());
 			}
+			return result;
 		}
-		return result;
-
 	}
 	
 	public OsmPolygon toSimplifiedPoly() { //Made this mutable since otherwise shapes was simplified even when it's not necessary - e.g. for forest
@@ -229,6 +226,11 @@ public class OsmPolygon {
 
 	public void setPartial(boolean partial) {
 		this.partial = partial;
+	}
+
+	@Override
+	public String toString() {
+		return "OsmPolygon [id=" + id + ", tag=" + tags + "]";
 	}
 
 }

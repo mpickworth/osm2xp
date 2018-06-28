@@ -238,16 +238,7 @@ public class BuildController {
 				});
 
 			}
-
-			@Override
-			public void awake(IJobChangeEvent event) {
-
-			}
-
-			@Override
-			public void aboutToRun(IJobChangeEvent event) {
-
-			}
+			
 		});
 
 		job.setRule(rule);

@@ -1,11 +1,8 @@
 package com.osm2xp.dataProcessors.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.Way;
@@ -16,7 +13,7 @@ import com.osm2xp.model.osm.Way;
  * @author Benjamin Blanchet
  * 
  */
-public class MemoryProcessorImpl implements IDataSink {
+public class MemoryProcessorImpl extends AbstractDataProcessor {
 
 	private Map<Long, double[]> nodeMap = new HashMap<Long, double[]>();
 	private Map<Long, Way> wayMap = new HashMap<>();
@@ -40,18 +37,6 @@ public class MemoryProcessorImpl implements IDataSink {
 		return null;
 	}
 
-	@Override
-	public List<Node> getNodes(final List<Long> ids) throws DataSinkException {
-		final List<Node> nodes = new ArrayList<Node>();
-		for (Long nd : ids) {
-			final Node node = getNode(nd);
-			if (node != null) {
-				nodes.add(node);
-			} 
-		}
-		return nodes.size() > 0 ? nodes : null;
-	}
-	
 	@Override
 	public void complete() {
 		nodeMap = null;
