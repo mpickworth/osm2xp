@@ -1,12 +1,7 @@
 package com.osm2xp.model.osm;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
@@ -20,21 +15,10 @@ import math.geom2d.polygon.LinearRing2D;
  * @author Benjamin Blanchet
  * 
  */
-public class OsmPolygon {
+public class OsmPolygon extends OsmCurve {
 
-	protected Long id;
-	protected List<Tag> tags;
-	protected List<Node> nodes;
 	private Double area;
-	private LinearRing2D polygon;
-	private Point2D center;
-	private Integer height;
-	/**
-	 * Whether only part of nodes is present for this.
-	 * Can be OK to use for forest, road or powerline generation, but not OK for buildings
-	 */
-	private boolean partial;
-
+	Point2D center;
 	public OsmPolygon(long id, List<Tag> tags, List<Node> nodes, boolean partial) {
 		super();
 		this.id = id;
@@ -45,72 +29,10 @@ public class OsmPolygon {
 
 	}
 
-	private void initPolygon() {
-		polygon = GeomUtils.getPolygonFromOsmNodes(nodes);
-	}
-
 	public OsmPolygon() {
 
 	}
 	
-	public boolean isOnOneTile() {
-		if (nodes == null || nodes.size() == 0) {
-			return true;
-		}
-		Point2D original = GeomUtils.cleanCoordinatePoint(nodes.get(0).lat, nodes.get(0).lon);
-		for (int i = 1; i < nodes.size(); i++) {
-			if (!original.equals(GeomUtils.cleanCoordinatePoint(nodes.get(i).lat, nodes.get(i).lon))) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Split current polygon along tiles
-	 * 
-	 * @return
-	 */
-	public List<OsmPolygon> splitPolygonAroundTiles() {
-		// if the polygon is on only one tile, return the current polygon
-		if (isOnOneTile()) {
-			return Collections.singletonList(this);
-		} else {
-			List<OsmPolygon> result = new ArrayList<OsmPolygon>();
-			// the polygon is on more than one tile, split it.
-			if (this.polygon == null) {
-				initPolygon();
-			}
-			Map<Point2D, OsmPolygon> polygons = new HashMap<Point2D, OsmPolygon>();
-			for (Point2D point : polygon.getVertices()) {
-				Point2D tilePoint = GeomUtils.cleanCoordinatePoint(point);
-				if (polygons.get(tilePoint) == null) {
-					polygons.put(tilePoint, new OsmPolygon(id, tags,
-							new ArrayList<Node>(), false));
-				}
-				polygons.get(tilePoint).getNodes()
-						.add(new Node(null, point.y, point.x, 1));
-
-			}
-
-			for (Map.Entry<Point2D, OsmPolygon> entry : polygons.entrySet()) {
-				result.add(entry.getValue());
-			}
-			return result;
-		}
-	}
-	
-	public OsmPolygon toSimplifiedPoly() { //Made this mutable since otherwise shapes was simplified even when it's not necessary - e.g. for forest
-		if (this.polygon != null) {
-			OsmPolygon simplified = new OsmPolygon(id, Collections.unmodifiableList(tags), Collections.unmodifiableList(nodes), partial); 
-			LinearRing2D result = GeomUtils.simplifyPolygon(this.polygon);
-			simplified.polygon = result;
-			return simplified;
-		} else {
-			return this;
-		}
-	}
-
 //	public void simplifyPolygon() {
 //		if (this.polygon != null) {
 //			LinearRing2D result = GeomUtils.simplifyPolygon(this.polygon);
@@ -118,119 +40,34 @@ public class OsmPolygon {
 //		}
 //	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public List<Tag> getTags() {
-		return tags;
-	}
-	
-	/**
-	 * Return tag value for given key, of present. Return <code>null</code> otherwise
-	 * @param tagKey tag key
-	 * @return value for given key, of present, <code>null</code> otherwise
-	 */
-	public String getTagValue(String tagKey) {
-		Optional<Tag> first = tags.stream().filter(tag -> tagKey.equals(tag.key)).findFirst();
-		return first.isPresent() ? first.get().getValue() : null;
-	}
-
-	public List<Node> getNodes() {
-		return nodes;
-	}
-
-	public Double getMinVectorSize() {
-		Double result = null;
-		if (this.getPolygon() != null) {
-			Double[] vectors = GeomUtils.computeExtremeVectors(polygon);
-			result = vectors[0];
-		}
-		return result;
-
-	}
-
-	public Double getMaxVectorSize() {
-		Double result = null;
-		if (this.getPolygon() != null) {
-			Double[] vectors = GeomUtils.computeExtremeVectors(polygon);
-			result = vectors[1];
-		}
-		return result;
-	}
-
 	public Double getArea() {
 		if (nodes.size() > 2) {
-			this.area = polygon.getArea();
+			this.area = ((LinearRing2D) curve).getArea();
 		} else {
 			this.area = 0D;
 		}
 		return area;
 	}
 
-	public Boolean isSimplePolygon() {
-		Boolean result = false;
-		if (this.getPolygon() != null) {
-			result = (polygon.getEdges().size() == 4 && GeomUtils
-					.areParallelsSegmentsIdentics(polygon));
-		}
-
-		return result;
-	}
-
 	public LinearRing2D getPolygon() {
-		if (this.polygon == null) {
-			initPolygon();
+		if (this.curve == null) {
+			initCurve();
 		}
-		return polygon;
+		return (LinearRing2D) curve;
 	}
 
 	public void setPolygon(LinearRing2D polygon) {
-		this.polygon = polygon;
-	}
-
-	public Point2D getCenter() {
-		if (this.nodes.size() > 1) {
-			this.center = GeomUtils.getPolygonCenter(polygon);
-		} else {
-			this.center = new Point2D(nodes.get(0).lon, nodes.get(0).lat);
-		}
-		return center;
-	}
-
-	public Integer getHeight() {
-		return height;
+		this.curve = polygon;
 	}
 
 	public Color getRoofColor() {
 		return OsmUtils.getRoofColorFromTags(this.tags);
 	}
 
-	public void setHeight(Integer height) {
-		this.height = height;
-	}
-
-	/**
-	 * Whether all polygon nodes was read from source file
-	 * Can be OK to generate road, railway, powerline or forest piece based on partial data,
-	 * but not OK to generate building
-	 * @return all polygon nodes was read from source file
-	 */
-	public boolean isPartial() {
-		return partial;
-	}
-
-	public void setPartial(boolean partial) {
-		this.partial = partial;
-	}
-
 	@Override
-	public String toString() {
-		return "OsmPolygon [id=" + id + ", tag=" + tags + "]";
+	protected void initCurve() {
+		curve = GeomUtils.getPolygonFromOsmNodes(nodes);
 	}
+
 
 }

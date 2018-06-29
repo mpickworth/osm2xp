@@ -23,6 +23,7 @@ import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.options.XplaneLightTagRule;
 import com.osm2xp.model.options.XplaneObjectTagRule;
+import com.osm2xp.model.osm.OsmCurve;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.xplane.XplaneDsf3DObject;
@@ -74,7 +75,7 @@ public class DsfObjectsProvider {
 		computeObjectsList();
 	}
 
-	public Integer computeSpecialFacadeIndex(SpecialBuildingType specialBuildingType, OsmPolygon polygon) {
+	public Integer computeSpecialFacadeIndex(SpecialBuildingType specialBuildingType, OsmCurve polygon) {
 		return polygonsList.indexOf(facadeSetManager.getSpecialFacadeStr(specialBuildingType));
 	}
 
@@ -103,7 +104,7 @@ public class DsfObjectsProvider {
 		return polygonsList.indexOf(resFacade.getFile());
 	}
 	
-	public Integer getRandomBarrierFacade(BarrierType barrierType, OsmPolygon polygon) {
+	public Integer getRandomBarrierFacade(BarrierType barrierType, OsmCurve polygon) {
 		Facade randomBarrierFacade = facadeSetManager.getRandomBarrierFacade(barrierType);
 		if (randomBarrierFacade != null) {
 			return polygonsList.indexOf(randomBarrierFacade.getFile());

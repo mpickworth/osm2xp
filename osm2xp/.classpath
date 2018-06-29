@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="lib/opencarto-algo-basic.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-buffer.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-bufferaggregation.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-centroid.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-convexhull.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-cusmoo.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-deformation.jar"/>
@@ -43,16 +42,8 @@
 	<classpathentry kind="lib" path="lib/opencarto-algo-squarring.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-ssr.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-triangulation.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-jtsext.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-jtslite.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-util.jar"/>
 	<classpathentry kind="lib" path="lib/openmap.jar"/>
-	<classpathentry kind="lib" path="lib/orient-commons-1.0rc9.jar"/>
-	<classpathentry kind="lib" path="lib/orientdb-client-1.0rc9.jar"/>
-	<classpathentry kind="lib" path="lib/orientdb-core-1.0rc9.jar"/>
-	<classpathentry kind="lib" path="lib/orientdb-enterprise-1.0rc9.jar"/>
-	<classpathentry kind="lib" path="lib/orientdb-server-1.0rc9.jar"/>
-	<classpathentry kind="lib" path="lib/orientdb-tools-1.0rc9.jar"/>
 	<classpathentry kind="lib" path="lib/OSM2World.jar"/>
 	<classpathentry kind="lib" path="lib/persistence-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/SGImplify.jar"/>
@@ -60,5 +51,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="lib/osmosis-osm-binary-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1530178293219/source/osmosis-osm-binary-0.46-sources-1530190192655.jar"/>
 	<classpathentry kind="lib" path="lib/protobuf-java-3.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jts-1.13.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1530253240998/source/jts-1.13-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

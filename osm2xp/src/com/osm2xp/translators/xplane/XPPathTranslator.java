@@ -12,6 +12,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.OsmCurve;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
@@ -207,7 +208,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	 * @param poly
 	 * @return comment string, without "#' mark before. <code>null</code> by default, override if necessary
 	 */
-	protected String getComment(OsmPolygon poly) {
+	protected String getComment(OsmCurve poly) {
 		return null;
 	}
 

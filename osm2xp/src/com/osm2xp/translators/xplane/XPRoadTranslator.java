@@ -3,6 +3,7 @@ package com.osm2xp.translators.xplane;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.osm2xp.model.osm.OsmCurve;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
@@ -68,7 +69,7 @@ public class XPRoadTranslator extends XPPathTranslator {
 	}
 	
 	@Override
-	protected String getComment(OsmPolygon poly) {
+	protected String getComment(OsmCurve poly) {
 		return "road";
 	}
 

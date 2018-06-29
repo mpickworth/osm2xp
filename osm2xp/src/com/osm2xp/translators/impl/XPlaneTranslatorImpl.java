@@ -488,6 +488,10 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			// polygon MUST be in clockwise order
 			osmPolygon.setPolygon(GeomUtils.forceCCW(osmPolygon
 					.getPolygon()));
+			
+//			if (!GeomUtils.isValid(osmPolygon.getPolygon())) {
+//				System.out.println("XPlaneTranslatorImpl.processPolygon()");
+//			}
 			// if we're on a single pass mode
 			// here we must check if the polygon is on more than one tile
 			// if that's the case , we must split it into several polys

@@ -1,5 +1,6 @@
 package com.osm2xp.translators.xplane;
 
+import com.osm2xp.model.osm.OsmCurve;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
@@ -28,7 +29,7 @@ public class XPRailTranslator extends XPPathTranslator {
 	}
 	
 	@Override
-	protected String getComment(OsmPolygon poly) {
+	protected String getComment(OsmCurve poly) {
 		return "railway";
 	}
 
