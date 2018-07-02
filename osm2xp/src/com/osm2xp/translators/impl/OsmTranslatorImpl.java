@@ -7,10 +7,12 @@ import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
 import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
+import math.geom2d.polygon.Polyline2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
@@ -93,18 +95,18 @@ public class OsmTranslatorImpl implements ITranslator {
 	/**
 	 * write a way (polygon) in the osm file.
 	 * 
-	 * @param osmPolygon
+	 * @param osmPolyline
 	 *            osm polygon.
 	 */
-	private void writeWay(OsmPolygon osmPolygon) {
+	private void writeWay(OsmPolyline osmPolyline) {
 		// we create a polygon from the way nodes
-		LinearRing2D poly = GeomUtils.getPolygonFromOsmNodes(osmPolygon
+		Polyline2D poly = GeomUtils.getPolylineFromOsmNodes(osmPolyline
 				.getNodes());
 
 		// simplify shape if checked and if necessary
-		if (GuiOptionsHelper.getOptions().isSimplifyShapes()
-				&& !osmPolygon.isSimplePolygon()) {
-			poly = GeomUtils.simplifyPolygon(poly);
+		if (GuiOptionsHelper.getOptions().isSimplifyShapes() && osmPolyline instanceof OsmPolygon
+				&& !((OsmPolygon) osmPolyline).isSimplePolygon()) {
+			poly = GeomUtils.simplifyPolygon((LinearRing2D) poly);
 		}
 		List<Node> nodeList = new ArrayList<Node>();
 		for (Point2D point : poly.getVertices()) {
@@ -113,14 +115,14 @@ public class OsmTranslatorImpl implements ITranslator {
 			nodeList.add(node);
 			nodeIndex++;
 		}
-		writer.write("<way id=\"" + osmPolygon.getId()
+		writer.write("<way id=\"" + osmPolyline.getId()
 				+ "\" visible=\"true\" version=\"2\" >\n");
 
 		for (Node node : nodeList) {
 			writer.write("<nd ref=\"" + node.getId() + "\"/>\n");
 		}
 
-		for (Tag tag : osmPolygon.getTags()) {
+		for (Tag tag : osmPolyline.getTags()) {
 			String normalizedTag = OsmUtils.getNormalizedTagText(tag);
 			if (normalizedTag != null) {
 				writer.write(normalizedTag);
@@ -143,7 +145,7 @@ public class OsmTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 
 		if (OsmUtils.isBuilding(osmPolygon.getTags())

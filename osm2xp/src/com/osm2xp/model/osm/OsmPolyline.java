@@ -10,25 +10,29 @@ import java.util.Optional;
 import com.osm2xp.utils.GeomUtils;
 
 import math.geom2d.Point2D;
-import math.geom2d.polygon.LinearRing2D;
 import math.geom2d.polygon.Polyline2D;
 
-public abstract class OsmCurve {
+public class OsmPolyline {
 
 	protected Long id;
 	protected List<Tag> tags;
 	protected List<Node> nodes;
 	protected Integer height;
-	protected Polyline2D curve;
+	protected Polyline2D polyline;
+	protected Point2D center;
 	/**
 	 * Whether only part of nodes is present for this.
 	 * Can be OK to use for forest, road or powerline generation, but not OK for buildings
 	 */
 	protected boolean partial;
-	private Boolean valid = null;
+	protected Boolean valid = null;
 
-	public OsmCurve() {
+	public OsmPolyline(long id, List<Tag> tags, List<Node> nodes, boolean partial) {
 		super();
+		this.id = id;
+		this.tags = tags;
+		this.nodes = nodes;
+		this.partial = partial;
 	}
 
 	public boolean isOnOneTile() {
@@ -44,25 +48,27 @@ public abstract class OsmCurve {
 		return true;
 	}
 	
-	protected abstract void initCurve();
+	protected void initCurve() {
+		 this.polyline = GeomUtils.getPolylineFromOsmNodes(nodes);
+	}
 
 	/**
 	 * Split current polygon along tiles
 	 * 
 	 * @return
 	 */
-	public List<OsmCurve> splitPolygonAroundTiles() {
+	public List<OsmPolyline> splitPolygonAroundTiles() {
 		// if the polygon is on only one tile, return the current polygon
 		if (isOnOneTile()) {
 			return Collections.singletonList(this);
 		} else {
-			List<OsmCurve> result = new ArrayList<>();
+			List<OsmPolyline> result = new ArrayList<>();
 			// the polygon is on more than one tile, split it.
-			if (this.curve == null) {
+			if (this.polyline == null) {
 				initCurve();
 			}
 			Map<Point2D, OsmPolygon> polygons = new HashMap<Point2D, OsmPolygon>();
-			for (Point2D point : curve.getVertices()) {
+			for (Point2D point : polyline.getVertices()) {
 				Point2D tilePoint = GeomUtils.cleanCoordinatePoint(point);
 				if (polygons.get(tilePoint) == null) {
 					polygons.put(tilePoint, new OsmPolygon(id, tags,
@@ -80,16 +86,7 @@ public abstract class OsmCurve {
 		}
 	}
 
-	public OsmCurve toSimplifiedPoly() { //Made this mutable since otherwise shapes was simplified even when it's not necessary - e.g. for forest
-		if (this.curve != null) {
-			OsmPolygon simplified = new OsmPolygon(id, Collections.unmodifiableList(tags), Collections.unmodifiableList(nodes), partial); 
-			LinearRing2D result = GeomUtils.simplifyPolygon(this.curve);
-			simplified.polygon = result;
-			return simplified;
-		} else {
-			return this;
-		}
-	}
+	
 
 	public Long getId() {
 		return id;
@@ -119,8 +116,8 @@ public abstract class OsmCurve {
 
 	public Double getMinVectorSize() {
 		Double result = null;
-		if (this.getCurve() != null) {
-			Double[] vectors = GeomUtils.computeExtremeVectors(curve);
+		if (this.getPolyline() != null) {
+			Double[] vectors = GeomUtils.computeExtremeVectors(polyline);
 			result = vectors[0];
 		}
 		return result;
@@ -129,26 +126,16 @@ public abstract class OsmCurve {
 
 	public Double getMaxVectorSize() {
 		Double result = null;
-		if (this.getCurve() != null) {
-			Double[] vectors = GeomUtils.computeExtremeVectors(curve);
+		if (this.getPolyline() != null) {
+			Double[] vectors = GeomUtils.computeExtremeVectors(polyline);
 			result = vectors[1];
 		}
 		return result;
 	}
 
-	public Boolean isSimplePolygon() {
-		Boolean result = false;
-		if (this.getCurve() != null) {
-			result = (curve.getEdges().size() == 4 && GeomUtils
-					.areParallelsSegmentsIdentics(curve));
-		}
-	
-		return result;
-	}
-
 	public Point2D getCenter() {
 		if (this.nodes.size() > 1) {
-			this.center = GeomUtils.getPolygonCenter(curve);
+			this.center = GeomUtils.getPolylineCenter(polyline);
 		} else {
 			this.center = new Point2D(nodes.get(0).lon, nodes.get(0).lat);
 		}
@@ -184,13 +171,16 @@ public abstract class OsmCurve {
 
 	public boolean isValid() {
 		if (valid == null) {
-			valid = GeomUtils.isValid(getCurve());
+			valid = GeomUtils.isValid(getPolyline());
 		}
 		return valid;
 	}
 
-	public Polyline2D getCurve() {
-		return curve;
+	public Polyline2D getPolyline() {
+		if (polyline == null) {
+			initCurve();
+		}
+		return polyline;
 	}
 
 }

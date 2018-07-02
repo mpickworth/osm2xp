@@ -4,7 +4,7 @@ import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Way;
 
@@ -32,7 +32,7 @@ public interface ITranslator {
 	 *            osm polygon
 	 * @throws Osm2xpBusinessException
 	 */
-	public void processPolygon(OsmPolygon polygon)
+	public void processPolyline(OsmPolyline polyline)
 			throws Osm2xpBusinessException;
 
 	/**

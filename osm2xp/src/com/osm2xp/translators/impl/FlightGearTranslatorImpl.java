@@ -15,7 +15,7 @@ import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
@@ -73,7 +73,7 @@ public class FlightGearTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 		if (osmPolygon != null && osmPolygon.getNodes() != null) {
 			// check if the current polygon has some tags this translator wants
@@ -112,7 +112,7 @@ public class FlightGearTranslatorImpl implements ITranslator {
 		if (object != null && StringUtils.isNotBlank(object.getPath())) {
 
 			// compute center point of the polygon.
-			Point2D centerPoint = GeomUtils.getPolygonCenter(simplifiedPolygon);
+			Point2D centerPoint = GeomUtils.getPolylineCenter(simplifiedPolygon);
 			// params : <object-path> <longitude> <latitude>
 			// <elevation-offset-m> <heading-deg> <pitch-deg> <roll-deg>
 			String objectDeclaration = MessageFormat.format(

@@ -16,10 +16,6 @@ public class OsmMultiPolygon extends OsmPolygon {
 	private List<List<Node>> innerPolyNodes;
 	private List<LinearRing2D> innerPolys = null;
 
-	public OsmMultiPolygon() {
-		super();
-	}
-
 	public OsmMultiPolygon(long id, List<Tag> tags, List<Node> nodes, List<List<Node>> innerPolyNodes, boolean partial) {
 		super(id, tags, nodes, partial);
 		this.innerPolyNodes = innerPolyNodes;
@@ -32,7 +28,7 @@ public class OsmMultiPolygon extends OsmPolygon {
 	public List<LinearRing2D> getInnerPolys() {
 		if (innerPolys == null && innerPolyNodes != null) {
 			innerPolys = innerPolyNodes.stream()
-					.map(nodes -> GeomUtils.forceCW(GeomUtils.getPolygonFromOsmNodes(GeomUtils.removeExtraEnd(nodes))))
+					.map(nodes -> GeomUtils.forceCCW(GeomUtils.getPolygonFromOsmNodes(GeomUtils.removeExtraEnd(nodes))))
 					.collect(Collectors.toList());
 		}
 		return innerPolys;

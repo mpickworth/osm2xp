@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 
 import com.osm2xp.gui.Activator;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.translators.IPolyHandler;
 import com.osm2xp.translators.ITranslationListener;
 import com.osm2xp.translators.xplane.XPBarrierTranslator;
@@ -79,8 +80,8 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 		return drawPoly;
 	}
 	
-	protected Path2D calculateDrawPath(OsmPolygon polygon) {
-		Point2D[] pointArray = polygon.getPolygon().getPointArray();
+	protected Path2D calculateDrawPath(OsmPolyline poly) {
+		Point2D[] pointArray = poly.getPolyline().getPointArray();
 		Path2D.Double drawPath = new Path2D.Double();
 		if (pointArray.length > 0) {
 			drawPath.moveTo((int)(longScale * (pointArray[0].x - baseX)), IMGSIZE_Y - (int) (latScale * (pointArray[0].y - baseY)));
@@ -94,9 +95,9 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 		return null;
 	}
 
-	protected void checkSetBase(OsmPolygon polygon) {
+	protected void checkSetBase(OsmPolyline poly) {
 		if (baseX == Double.MIN_VALUE) {
-			Box2D boundingBox = polygon.getPolygon().getBoundingBox();
+			Box2D boundingBox = poly.getPolyline().getBoundingBox();
 			baseX =  boundingBox.getMinX();
 			baseY =  boundingBox.getMinY();
 			longScale = latScale * Math.cos(Math.toRadians(baseY));
@@ -142,7 +143,7 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 	}
 
 	@Override
-	public void polyProcessed(OsmPolygon poly, IPolyHandler handler) {
+	public void polyProcessed(OsmPolyline poly, IPolyHandler handler) {
 		checkSetBase(poly);
 		setDrawingType(handler);
 		Shape drawPath = calculateDrawPath(poly);

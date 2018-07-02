@@ -89,7 +89,7 @@ public class ShapefileParserImpl implements IParser {
 				if (nodes != null) {
 					OsmPolygon polygon = new OsmPolygon(way.getId(),
 							way.getTag(), nodes, nodes.size() < ids.size());
-					translator.processPolygon(polygon);
+					translator.processPolyline(polygon);
 				}
 				esriPolygonRecord = (ESRIPolygonRecord) shapeFile
 						.getNextRecord();

@@ -106,7 +106,7 @@ public class XplaneDsf3DObject extends XplaneDsfObject {
 
 	private XplaneObjGeoRef computeComplexPolygonOriginAndAngle() {
 		XplaneObjGeoRef result = new XplaneObjGeoRef();
-		result.origin = GeomUtils.getPolygonCenter(osmPolygon.getPolygon());
+		result.origin = GeomUtils.getPolylineCenter(osmPolygon.getPolygon());
 		if (rule.isRandomAngle()) {
 			result.angle = Double.valueOf(MiscUtils.getRandomSize(0, 360));
 		} else {

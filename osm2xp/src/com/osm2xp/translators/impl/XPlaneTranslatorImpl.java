@@ -1,9 +1,9 @@
 package com.osm2xp.translators.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -15,6 +15,7 @@ import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.SpecialBuildingType;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
@@ -118,7 +119,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		IDRenumbererService.reinit();
 		outputFormat = new XPOutputFormat();
 		
-		polyHandlers.add(new XPBarrierTranslator(dsfObjectsProvider, writer));
+		polyHandlers.add(new XPBarrierTranslator(writer, dsfObjectsProvider, outputFormat));
 		polyHandlers.add(new XPRoadTranslator(writer));
 		polyHandlers.add(new XPRailTranslator(writer));
 		polyHandlers.add(new XPPowerlineTranslator(writer));
@@ -286,7 +287,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			}
 			
 			//TODO hacky conditions here, should use smth more intelligent or even Neural Net for this
-			double perimeter = GeomUtils.computePerimeter(polygon.getPolygon());
+			double perimeter = GeomUtils.computeEdgesLength(polygon.getPolygon());
 			if (perimeter <= 30) {
 				return (int) Math.round(levelHeight);
 			}
@@ -481,31 +482,13 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon) throws Osm2xpBusinessException {
+	public void processPolyline(OsmPolyline osmPolygon) throws Osm2xpBusinessException {
 	
 		// polygon is null or empty don't process it
 		if (osmPolygon.getNodes() != null && !osmPolygon.getNodes().isEmpty()) {
-			// polygon MUST be in clockwise order
-			osmPolygon.setPolygon(GeomUtils.forceCCW(osmPolygon
-					.getPolygon()));
-			
-//			if (!GeomUtils.isValid(osmPolygon.getPolygon())) {
-//				System.out.println("XPlaneTranslatorImpl.processPolygon()");
-//			}
-			// if we're on a single pass mode
-			// here we must check if the polygon is on more than one tile
-			// if that's the case , we must split it into several polys
-			List<OsmPolygon> polygons = new ArrayList<OsmPolygon>();
-			if (GuiOptionsHelper.getOptions().isSinglePass()) {
-				polygons.addAll(osmPolygon.splitPolygonAroundTiles());
-			}
-			// if not on a single pass mode, add this single polygon to the poly
-			// list
-			else {
-				polygons.add(osmPolygon);
-			}
+			List<OsmPolyline> polylines = preprocess(osmPolygon);
 			// try to transform those polygons into dsf objects.
-			for (OsmPolygon poly : polygons) {
+			for (OsmPolyline poly : polylines) {
 				
 				// look for light rules
 				processLightObject(poly);
@@ -523,6 +506,32 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			}
 		}
 	}
+
+	protected List<OsmPolyline> preprocess(OsmPolyline osmPolyline) {
+		if (osmPolyline instanceof OsmPolygon) {
+			// polygon MUST be in clockwise order
+			((OsmPolygon) osmPolyline).setPolygon(GeomUtils.forceCCW(((OsmPolygon) osmPolyline)
+					.getPolygon()));
+			
+	//			if (!GeomUtils.isValid(osmPolygon.getPolygon())) {
+	//				System.out.println("XPlaneTranslatorImpl.processPolygon()");
+	//			}
+			// if we're on a single pass mode
+			// here we must check if the polygon is on more than one tile
+			// if that's the case , we must split it into several polys
+			List<OsmPolyline> polygons = new ArrayList<>();
+			if (GuiOptionsHelper.getOptions().isSinglePass()) {
+				polygons.addAll(osmPolyline.splitPolygonAroundTiles());
+			}
+			// if not on a single pass mode, add this single polygon to the poly
+			// list
+			else {
+				polygons.add(osmPolyline);
+			}
+			return polygons;
+		}
+		return Collections.singletonList(osmPolyline);
+	}
 	
 	/**
 	 * choose and write a 3D object in the dsf file.
@@ -531,23 +540,23 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	 *            osm polygon.
 	 * @return true if a 3D object has been written in the dsf file.
 	 */
-	protected boolean process3dObject(OsmPolygon osmPolygon) {
+	protected boolean process3dObject(OsmPolyline poly) {
 		Boolean result = false;
 
-		if (osmPolygon.isPartial() || !osmPolygon.getPolygon().isClosed()) {
+		if (!(poly instanceof OsmPolygon) || poly.isPartial() || !((OsmPolygon) poly).getPolygon().isClosed()) {
 			return false;
 		}
 		
 		if (XplaneOptionsHelper.getOptions().isGenerateObj()) {
 			// simplify shape if checked and if necessary
 			if (GuiOptionsHelper.getOptions().isSimplifyShapes()
-					&& !osmPolygon.isSimplePolygon()) {
-				osmPolygon = osmPolygon.toSimplifiedPoly();
+					&& !((OsmPolygon) poly).isSimplePolygon()) {
+				poly = ((OsmPolygon) poly).toSimplifiedPoly();
 			}
 			XplaneDsfObject object = dsfObjectsProvider
-					.getRandomDsfObject(osmPolygon);
+					.getRandomDsfObject((OsmPolygon) poly);
 			if (object != null) {
-				object.setPolygon(osmPolygon);
+				object.setPolygon((OsmPolygon) poly);
 				try {
 					writeObjectToDsf(object);
 					result = true;
@@ -567,14 +576,19 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	 *            osm polygon
 	 * @return true if a building has been gennerated in the dsf file.
 	 */
-	protected boolean processBuilding(OsmPolygon osmPolygon) {
+	protected boolean processBuilding(OsmPolyline polyline) {
 		Boolean result = false;
+		if (!(polyline instanceof OsmPolygon)) {
+			return false;
+		}
+		OsmPolygon osmPolygon = (OsmPolygon) polyline;
 		if (XplaneOptionsHelper.getOptions().isGenerateBuildings()
 				&& OsmUtils.isBuilding(osmPolygon.getTags())
 				&& !OsmUtils.isExcluded(osmPolygon.getTags(),
 						osmPolygon.getId())
 				&& !specialExcluded(osmPolygon)
 				&& !osmPolygon.isPartial()
+				&& osmPolygon.isValid()
 				&& osmPolygon.getPolygon().getVertexNumber() > BUILDING_MIN_VECTORS
 				&& osmPolygon.getPolygon().getVertexNumber() < BUILDING_MAX_VECTORS) {
 
@@ -608,7 +622,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 
 	protected boolean specialExcluded(OsmPolygon osmPolygon) {
 		if (getSpecialBuildingType(osmPolygon) != null) {
-			return GeomUtils.computePerimeter(osmPolygon.getPolygon()) < MIN_SPEC_BUILDING_PERIMETER; 	//This check is needed to avoid generating a bunch of little garages, tanks etc.
+			return GeomUtils.computeEdgesLength(osmPolygon.getPolygon()) < MIN_SPEC_BUILDING_PERIMETER; 	//This check is needed to avoid generating a bunch of little garages, tanks etc.
 		}
 		String val = osmPolygon.getTagValue(Osm2xpConstants.MAN_MADE_TAG);
 		//We don't want to generate facade-based building for most of "man_made"-typed objects, since usually using facade for them is not a good idea.
@@ -624,7 +638,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		return false;
 	}
 
-	protected boolean processOther(OsmPolygon poly) {
+	protected boolean processOther(OsmPolyline poly) {
 		for (IPolyHandler handler : polyHandlers) {
 			if (handler.handlePoly(poly)) {
 				if (translationListener != null) {
@@ -636,12 +650,12 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		return false;
 	}
 
-	private void processLightObject(OsmPolygon poly) {
-		if (XplaneOptionsHelper.getOptions().isGenerateLights()) {
+	private void processLightObject(OsmPolyline poly) {
+		if (poly instanceof OsmPolygon && XplaneOptionsHelper.getOptions().isGenerateLights()) {
 			XplaneDsfObject object = dsfObjectsProvider
-					.getRandomDsfLightObject(poly);
+					.getRandomDsfLightObject((OsmPolygon) poly);
 			if (object != null) {
-				object.setPolygon(poly);
+				object.setPolygon((OsmPolygon) poly);
 				try {
 					writeObjectToDsf(object);
 				} catch (Osm2xpBusinessException e) {

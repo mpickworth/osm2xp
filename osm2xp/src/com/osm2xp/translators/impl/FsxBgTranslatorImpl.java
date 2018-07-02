@@ -9,7 +9,7 @@ import math.geom2d.polygon.LinearRing2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
@@ -96,11 +96,11 @@ public class FsxBgTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 		LinearRing2D polygon = GeomUtils.getPolygonFromOsmNodes(osmPolygon
 				.getNodes());
-		Point2D center = GeomUtils.getPolygonCenter(polygon);
+		Point2D center = GeomUtils.getPolylineCenter(polygon);
 		String guid = BglUtils.getRandomBglGuid(osmPolygon.getTags(),
 				osmPolygon.getId());
 		if (guid != null) {

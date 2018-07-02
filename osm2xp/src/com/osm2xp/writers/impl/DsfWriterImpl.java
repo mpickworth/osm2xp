@@ -49,9 +49,7 @@ public class DsfWriterImpl implements IWriter {
 				if (dsfFiles.get(coordinates) != null) {
 					dsfFile = dsfFiles.get(coordinates);
 				} else {
-
 					dsfFile = checkDsfFile(coordinates);
-
 				}
 				// write into this dsf file
 				dsfWriters.get(coordinates).write((String) data);

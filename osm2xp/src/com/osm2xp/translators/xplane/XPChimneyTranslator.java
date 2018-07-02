@@ -9,6 +9,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 
 import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
@@ -53,7 +54,11 @@ public class XPChimneyTranslator extends XPWritingTranslator {
 	}
 
 	@Override
-	public boolean handlePoly(OsmPolygon osmPolygon) {
+	public boolean handlePoly(OsmPolyline osmPolyline) {
+		if (!(osmPolyline instanceof OsmPolygon)) { //We support only polygon-based chimneys for now. Maybe we should support point-based also
+			return false;
+		}
+		OsmPolygon osmPolygon = (OsmPolygon) osmPolyline;
 		if (XplaneOptionsHelper.getOptions().isGenerateChimneys() &&
 				"chimney".equalsIgnoreCase(osmPolygon.getTagValue(Osm2xpConstants.MAN_MADE_TAG))) {
 			int height = getChimneyHeight(osmPolygon);

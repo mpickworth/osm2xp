@@ -1,6 +1,9 @@
 package com.osm2xp.translators.xplane;
 
+import java.util.List;
+
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.translators.impl.XPOutputFormat;
 import com.osm2xp.utils.DsfObjectsProvider;
@@ -8,6 +11,8 @@ import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.helpers.StatsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
+
+import math.geom2d.polygon.LinearRing2D;
 
 public class XPForestTranslator extends XPWritingTranslator {
 
@@ -23,12 +28,18 @@ public class XPForestTranslator extends XPWritingTranslator {
 	}
 
 	@Override
-	public boolean handlePoly(OsmPolygon osmPolygon) {
-		if (XplaneOptionsHelper.getOptions().isGenerateFor()) {
+	public boolean handlePoly(OsmPolyline osmPolyline) {
+		if (osmPolyline instanceof OsmPolygon && XplaneOptionsHelper.getOptions().isGenerateFor()) {
 			Integer[] forestIndexAndDensity = dsfObjectsProvider
-					.getRandomForestIndexAndDensity(osmPolygon.getTags());
+					.getRandomForestIndexAndDensity(osmPolyline.getTags());
 			if (forestIndexAndDensity != null) {
-				writeForestToDsf(osmPolygon, forestIndexAndDensity);
+				if (!osmPolyline.isValid()) {
+					List<LinearRing2D> fixed = GeomUtils.validate((LinearRing2D)osmPolyline.getPolyline());
+					for (LinearRing2D linearRing2D : fixed) {
+						//TODO
+						writeForestToDsf((OsmPolygon) osmPolyline, forestIndexAndDensity);
+					}
+				}
 				return true;
 			}
 		}

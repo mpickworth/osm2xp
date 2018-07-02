@@ -1,7 +1,6 @@
 package com.osm2xp.translators.xplane;
 
-import com.osm2xp.model.osm.OsmCurve;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
 
@@ -12,29 +11,29 @@ public class XPPowerlineTranslator extends XPPathTranslator {
 	}
 
 	@Override
-	public boolean handlePoly(OsmPolygon osmPolygon) {
+	public boolean handlePoly(OsmPolyline osmPolyline) {
 		if (!XplaneOptionsHelper.getOptions().isGeneratePowerlines()) {
 			return false;
 		}
-		if ("line".equals(osmPolygon.getTagValue("power"))) {
-			addSegmentsFrom(osmPolygon);
+		if ("line".equals(osmPolyline.getTagValue("power"))) {
+			addSegmentsFrom(osmPolyline);
 			return true; 
 		}
 		return false;
 	}
 
 	@Override
-	protected int getPathType(OsmPolygon polygon) {
+	protected int getPathType(OsmPolyline polygon) {
 		return 220; //TODO using only one type for now
 	}
 	
 	@Override
-	protected String getComment(OsmCurve poly) {
+	protected String getComment(OsmPolyline poly) {
 		return "power line";
 	}
 
 	@Override
-	protected boolean isBridge(OsmPolygon poly) {
+	protected boolean isBridge(OsmPolyline poly) {
 		return false; //Not supported for power lines
 	}
 	

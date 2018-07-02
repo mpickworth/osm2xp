@@ -17,6 +17,7 @@ import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.options.XplaneObjectTagRule;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
@@ -92,7 +93,7 @@ public class OsmUtils {
 	 * @return
 	 */
 	public static List<Tag> getMatchingTags(List<Tag> tagsList,
-			OsmPolygon osmPolygon) {
+			OsmPolyline osmPolygon) {
 
 		List<Tag> result = new ArrayList<Tag>();
 		for (Tag userTag : tagsList) {
@@ -146,7 +147,7 @@ public class OsmUtils {
 	 * @return
 	 */
 	public static List<TagsRule> getMatchingRules(
-			List<? extends TagsRule> tagsRulesList, OsmPolygon osmPolygon) {
+			List<? extends TagsRule> tagsRulesList, OsmPolyline osmPolygon) {
 
 		List<TagsRule> result = new ArrayList<TagsRule>();
 		for (TagsRule tagsRules : tagsRulesList) {
@@ -403,7 +404,7 @@ public class OsmUtils {
 					+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
 	
 			// write all nodes
-			for (OsmPolygon osmPolygon : wayList) {
+			for (OsmPolyline osmPolygon : wayList) {
 				for (Node node : osmPolygon.getNodes()) {
 					output.write("<node id=\"" + node.getId() + "\" lat=\""
 							+ node.getLat() + "\" lon=\"" + node.getLon()
@@ -412,7 +413,7 @@ public class OsmUtils {
 	
 			}
 	
-			for (OsmPolygon osmPolygon : wayList) {
+			for (OsmPolyline osmPolygon : wayList) {
 				output.write("<way id=\"" + osmPolygon.getId()
 						+ "\" visible=\"true\" version=\"2\" >\n");
 				for (Node node : osmPolygon.getNodes()) {
@@ -436,7 +437,7 @@ public class OsmUtils {
 		return filePath;
 	}
 
-	public static String CreateTempFile(String folderPath, OsmPolygon osmPolygon)
+	public static String CreateTempFile(String folderPath, OsmPolyline osmPolygon)
 			throws IOException {
 
 		String filePath = folderPath + File.separator + osmPolygon.getId()

@@ -12,8 +12,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmCurve;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
@@ -24,7 +23,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 
 	private Set<Long> pathNodeIds = new HashSet<Long>();
 	private Set<Long> pathCrossingIds = new HashSet<Long>();
-	private List<OsmPolygon> pathPolys = new ArrayList<OsmPolygon>();
+	private List<OsmPolyline> pathPolys = new ArrayList<>();
 	
 	private Set<Integer> bridgeNodeIds = new HashSet<Integer>();
 	
@@ -32,7 +31,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 		super(writer);
 	}
 
-	protected void addSegmentsFrom(OsmPolygon poly) {
+	protected void addSegmentsFrom(OsmPolyline poly) {
 		poly.getNodes().stream().map(node -> node.getId()).forEach(id -> {
 			if (pathNodeIds.contains(id)) {
 				pathCrossingIds.add(id);
@@ -45,7 +44,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	@Override
 	public void translationComplete() {
 		List<XPPathSegment> segmentList = new ArrayList<XPPathSegment>();
-		for (OsmPolygon poly : pathPolys) {
+		for (OsmPolyline poly : pathPolys) {
 			segmentList.addAll(getSegmentsFor(poly));
 		}
 		List <XPPathSegment> resultSegmentList = segmentList;
@@ -151,7 +150,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 		return 100;
 	}
 
-	private List<XPPathSegment> getSegmentsFor(OsmPolygon poly) {
+	private List<XPPathSegment> getSegmentsFor(OsmPolyline poly) {
 		List<XPPathSegment> result = new ArrayList<XPPathSegment>();
 		List<Node> currentSegment = new ArrayList<Node>();
 		boolean bridge = isBridge(poly);
@@ -193,7 +192,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 		return result;
 	}
 
-	protected boolean isBridge(OsmPolygon poly) {
+	protected boolean isBridge(OsmPolyline poly) {
 		return XplaneOptionsHelper.getOptions().isGenerateBridges() && !StringUtils.isEmpty(poly.getTagValue("bridge"));
 	}
 
@@ -208,10 +207,10 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	 * @param poly
 	 * @return comment string, without "#' mark before. <code>null</code> by default, override if necessary
 	 */
-	protected String getComment(OsmCurve poly) {
+	protected String getComment(OsmPolyline poly) {
 		return null;
 	}
 
-	protected abstract int getPathType(OsmPolygon polygon); 
+	protected abstract int getPathType(OsmPolyline polygon); 
 
 }

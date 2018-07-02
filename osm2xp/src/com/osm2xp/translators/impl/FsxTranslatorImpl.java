@@ -15,7 +15,7 @@ import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.fsx.FsxObject;
 import com.osm2xp.model.geom.Lod13Location;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
@@ -115,7 +115,7 @@ public class FsxTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 
 		if (OsmUtils.isForest(osmPolygon.getTags())) {

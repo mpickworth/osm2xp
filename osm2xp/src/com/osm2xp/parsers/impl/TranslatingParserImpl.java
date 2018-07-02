@@ -20,6 +20,8 @@ import com.osm2xp.gui.Activator;
 import com.osm2xp.model.osm.Nd;
 import com.osm2xp.model.osm.OsmMultiPolygon;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
+import com.osm2xp.model.osm.OsmPolylineFactory;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
@@ -108,9 +110,9 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 			List<com.osm2xp.model.osm.Node> nodes = getNodes(ids);
 	
 			if (nodes != null) {
-				OsmPolygon polygon = new OsmPolygon(way.getId(),
+				OsmPolyline polyline = OsmPolylineFactory.createPolylineFrom(way.getId(),
 						way.getTag(), nodes, nodes.size() < ids.size());
-				translator.processPolygon(polygon);
+				translator.processPolyline(polyline);
 			}
 	
 		} catch (Osm2xpBusinessException e) {
@@ -202,7 +204,7 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 								OsmMultiPolygon polygon = new OsmMultiPolygon(pbfRelation.getId(),
 										tagsModel, outerNodes, innerNodes, outerNodes.size() < polygons.get(0).size());
 								if (polygon.isOnOneTile() && !polygon.isPartial()) { //TODO splitting multipolygon can give variety of results and isn't supported yet
-									translator.processPolygon(polygon);
+									translator.processPolyline(polygon);
 								}
 							}
 						} catch (Exception e) {
@@ -219,7 +221,7 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 									List<Tag> tagsModel = tags.keySet().stream().map(key -> new Tag(key, tags.get(key))).collect(Collectors.toList());
 									OsmPolygon polygon = new OsmPolygon(pbfRelation.getId(),
 											tagsModel, nodes, nodes.size() < polyNodeIds.size());
-									translator.processPolygon(polygon);
+									translator.processPolyline(polygon);
 								}
 							} catch (Exception e) {
 								Activator.log(e);

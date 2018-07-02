@@ -2,6 +2,7 @@ package com.osm2xp.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -180,7 +181,7 @@ public class GeomUtils {
 		return result;
 	}
 
-	public static Polygon linearRing2DToJtsPolygon(LinearRing2D ring2d) {
+	public static Polygon linearRing2DToJtsPolygon(Polyline2D ring2d) {
 		List<Coordinate> coords = new ArrayList<Coordinate>();
 		for (Point2D point : ring2d.getVertices()) {
 			coords.add(new Coordinate(point.x, point.y));
@@ -226,7 +227,7 @@ public class GeomUtils {
 	 * @param polygon
 	 * @return double[]
 	 */
-	public static Double[] computeExtremeVectors(LinearRing2D polygon) {
+	public static Double[] computeExtremeVectors(Polyline2D polygon) {
 
 		Double minVector = null;
 		Double maxVector = null;
@@ -294,14 +295,14 @@ public class GeomUtils {
 	}
 	
 	/**
-	 * Compute perimeter of the polygon in meters.
+	 * Compute polyline edge length sum or perimeter of the polygon in meters.
 	 * 
-	 * @param polygon - specified by coordinates (lat, lon) 
+	 * @param polyline - polyline with edges specified by coordinates (lat, lon) 
 	 * @return Double - perimeter value, meters
 	 */
-	public static double computePerimeter(LinearRing2D polygon) {
+	public static double computeEdgesLength(Polyline2D polyline) {
 		double sum = 0;
-		for (LineSegment2D segment : polygon.getEdges()) {
+		for (LineSegment2D segment : polyline.getEdges()) {
 			Double distance = latLongDistance(segment.getFirstPoint().y,
 					segment.getFirstPoint().x, segment.getLastPoint().y,
 					segment.getLastPoint().x);
@@ -590,11 +591,26 @@ public class GeomUtils {
 	}
 
 	/**
-	 * @param nodes
-	 * @return
+	 * @param nodes OSM node list
+	 * @return Polygon consisting of points specified by given nodes
 	 */
 	public static LinearRing2D getPolygonFromOsmNodes(List<Node> nodes) {
 		LinearRing2D result = new LinearRing2D();
+		for (Node node : nodes) {
+			result.addPoint(new Point2D(node.getLon(), node.getLat()));
+		}
+		return result;
+	}
+	
+	/**
+	 * @param nodes OSM node list
+	 * @return Polyline consisting of points specified by given nodes
+	 */
+	public static Polyline2D getPolylineFromOsmNodes(List<Node> nodes) {
+		if (nodes.size() > 2 && nodes.get(0).getId() == nodes.get(nodes.size() - 1).getId()) {
+			return getPolygonFromOsmNodes(nodes);
+		}
+		Polyline2D result = new Polyline2D();
 		for (Node node : nodes) {
 			result.addPoint(new Point2D(node.getLon(), node.getLat()));
 		}
@@ -621,7 +637,7 @@ public class GeomUtils {
 			for (Node node : nodes) {
 				polygon.addPoint(new Point2D(node.getLon(), node.getLat()));
 			}
-			center = getPolygonCenter(polygon);
+			center = getPolylineCenter(polygon);
 		} else {
 			center = new Point2D(nodes.get(0).getLon(), nodes.get(0).getLat());
 		}
@@ -754,7 +770,7 @@ public class GeomUtils {
 	 * @param polygon
 	 * @return
 	 */
-	public static Point2D getPolygonCenter(LinearRing2D polygon) {
+	public static Point2D getPolylineCenter(Polyline2D polygon) {
 		Point2D center = null;
 		if (polygon.getVertices().size() > 3) {
 			CentroidArea centroidArea = new CentroidArea();
@@ -1033,5 +1049,22 @@ public class GeomUtils {
 	            }
 	            return ret;
 	    }
+	}
+
+	public static List<LinearRing2D> validate(LinearRing2D polygon) {
+		Geometry fixed = validate(linearRing2DToJtsPolygon(polygon));
+		if (fixed instanceof Polygon) {
+			return Collections.singletonList(polygonToLinearRing2D(fixed));
+		} else if (fixed instanceof MultiPolygon) {
+			List<LinearRing2D> resList = new ArrayList<LinearRing2D>();
+			for (int i = 0; i < fixed.getNumGeometries(); i++) {
+				Geometry geom = fixed.getGeometryN(i);
+				if (geom instanceof Polygon) {
+					resList.add(polygonToLinearRing2D(geom));
+				}
+			}
+			return resList;
+		}
+		return Collections.singletonList(polygon);
 	}
 }

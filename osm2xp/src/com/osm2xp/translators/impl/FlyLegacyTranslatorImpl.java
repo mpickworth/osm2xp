@@ -11,6 +11,7 @@ import math.geom2d.polygon.LinearRing2D;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
@@ -91,7 +92,7 @@ public class FlyLegacyTranslatorImpl implements ITranslator {
 	public void processNode(Node node) throws Osm2xpBusinessException {
 		LinearRing2D polygon = new LinearRing2D();
 		//dummy polygon as tags placeholder
-		OsmPolygon osmPolygon =new OsmPolygon(node.getId(), node.getTag(), null, false);
+		OsmPolyline osmPolygon =new OsmPolygon(node.getId(), node.getTag(), null, false);
 		// get list of watched tags that are also in the osm polygon
 		List<Tag> matchingTags = OsmUtils.getMatchingTags(
 				FlyLegacyOptionsHelper.getOptions().getWatchedTagsList()
@@ -115,30 +116,30 @@ public class FlyLegacyTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolyline)
 			throws Osm2xpBusinessException {
 		LinearRing2D polygon = new LinearRing2D();
 
 		// if the processor sent back a complete list of nodes
 		// construct a polygon from those nodes
 
-		polygon = GeomUtils.getPolygonFromOsmNodes(osmPolygon.getNodes());
+		polygon = GeomUtils.getPolygonFromOsmNodes(osmPolyline.getNodes());
 		// simplify shape if checked and if necessary
-		if (GuiOptionsHelper.getOptions().isSimplifyShapes()
-				&& !osmPolygon.isSimplePolygon()) {
+		if (GuiOptionsHelper.getOptions().isSimplifyShapes() && osmPolyline instanceof OsmPolygon
+				&& !((OsmPolygon) osmPolyline).isSimplePolygon()) {
 			polygon = GeomUtils.simplifyPolygon(polygon);
 		}
 
 		// get list of watched tags that are also in the osm polygon
 		List<Tag> matchingTags = OsmUtils.getMatchingTags(
 				FlyLegacyOptionsHelper.getOptions().getWatchedTagsList()
-						.getTags(), osmPolygon);
+						.getTags(), osmPolyline);
 		if (matchingTags != null) {
 			StringBuilder stringBuilder = new StringBuilder();
 			// remove last node for fly specification
 			polygon.removePoint(polygon.getLastPoint());
 			stringBuilder.append("Start " + ++cptObjects + " id="
-					+ osmPolygon.getId() + "\n");
+					+ osmPolyline.getId() + "\n");
 			// write all the tags for this polygon
 			for (Tag matchingTag : matchingTags) {
 				stringBuilder.append("tag(" + matchingTag.getKey() + "="

@@ -10,7 +10,7 @@ import math.geom2d.polygon.LinearRing2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
@@ -66,7 +66,7 @@ public class G2xplTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 		LinearRing2D polygon = new LinearRing2D();
 		if (OsmUtils.isBuilding(osmPolygon.getTags())) {

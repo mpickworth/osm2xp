@@ -6,21 +6,22 @@ import java.util.Locale;
 
 import com.osm2xp.model.osm.OsmMultiPolygon;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 
 import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
 public class XPOutputFormat {
 
-	public String getPolygonString (OsmPolygon osmPolygon, String arg1, String arg2) {
+	public String getPolygonString (OsmPolyline osmPolyline, String arg1, String arg2) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("BEGIN_POLYGON " + arg1 + " "
 				+ arg2 + " 2");
 		sb.append(XPlaneTranslatorImpl.LINE_SEP);
-		sb.append(getWindingStr(osmPolygon.getPolygon().getVertices()));
+		sb.append(getWindingStr(osmPolyline.getPolyline().getVertices()));
 		
-		if (osmPolygon instanceof OsmMultiPolygon) {
-			List<LinearRing2D> innerPolys = ((OsmMultiPolygon) osmPolygon).getInnerPolys();
+		if (osmPolyline instanceof OsmMultiPolygon) {
+			List<LinearRing2D> innerPolys = ((OsmMultiPolygon) osmPolyline).getInnerPolys();
 			if (innerPolys != null && !innerPolys.isEmpty()) {
 				for (LinearRing2D linearRing2D : innerPolys) {
 					sb.append(getWindingStr(linearRing2D.getVertices()));

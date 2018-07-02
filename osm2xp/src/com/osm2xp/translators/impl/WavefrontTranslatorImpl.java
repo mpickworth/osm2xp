@@ -23,6 +23,7 @@ import com.osm2xp.model.options.ObjectTagRule;
 import com.osm2xp.model.options.ObjectsRulesList;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
@@ -121,7 +122,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 	 * @param nodeList
 	 * @param way
 	 */
-	private void exportPolygonToObject(final OsmPolygon osmPolygon) {
+	private void exportPolygonToObject(final OsmPolyline osmPolygon) {
 		if (osmPolygon.getNodes().size() > 4
 				|| (OsmUtils.getHeightFromTags(osmPolygon.getTags()) != null && OsmUtils
 						.getHeightFromTags(osmPolygon.getTags()) > 20)) {
@@ -165,8 +166,8 @@ public class WavefrontTranslatorImpl implements ITranslator {
 				objectsTagRules.add(objectTagRule);
 				objectsMap
 						.put(osmPolygon.getId(), GeomUtils
-								.getPolygonCenter(GeomUtils
-										.getPolygonFromOsmNodes(osmPolygon
+								.getPolylineCenter(GeomUtils
+										.getPolylineFromOsmNodes(osmPolygon
 												.getNodes())));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -176,7 +177,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 		if (OsmUtils.isBuilding(osmPolygon.getTags())) {
 
@@ -185,7 +186,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 					|| (OsmUtils.getHeightFromTags(osmPolygon.getTags()) != null && OsmUtils
 							.getHeightFromTags(osmPolygon.getTags()) > WavefrontOptionsHelper
 							.getOptions().getWaveFrontExportHeightFilter())) {
-				globalWayList.add(osmPolygon);
+				globalWayList.add((OsmPolygon) osmPolygon);
 				globalNodeList.addAll(osmPolygon.getNodes());
 
 				if (!singleObjectExport) {
@@ -261,7 +262,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 				+ File.separatorChar + fileName + ".dsf.txt");
 		dsfTextFile.deleteOnExit();
 		List<String> objectsList = new ArrayList<String>();
-		for (OsmPolygon way : globalWayList) {
+		for (OsmPolyline way : globalWayList) {
 			objectsList.add("objects/" + way.getId() + ".obj");
 		}
 		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath);
@@ -269,11 +270,11 @@ public class WavefrontTranslatorImpl implements ITranslator {
 		String dsfHeaderText = DsfUtils.getDsfHeader(currentTile,
 				dsfObjectsProvider);
 		FilesUtils.writeTextToFile(dsfTextFile, dsfHeaderText, false);
-		for (OsmPolygon way : globalWayList) {
+		for (OsmPolyline way : globalWayList) {
 
 			LinearRing2D polygon = GeomUtils.getPolygonFromOsmNodes(way
 					.getNodes());
-			Point2D center = GeomUtils.getPolygonCenter(polygon);
+			Point2D center = GeomUtils.getPolylineCenter(polygon);
 			StringBuffer sb = new StringBuffer();
 			sb.append("OBJECT "
 					+ objectsList.indexOf("/objects files/" + way.getId()
@@ -315,13 +316,13 @@ public class WavefrontTranslatorImpl implements ITranslator {
 		FilesUtils.writeTextToFile(dsfTextFile, dsfHeaderText, false);
 		List<Point2D> areaNodes = new ArrayList<Point2D>();
 		// compute the center of the new large object
-		for (OsmPolygon way : globalWayList) {
+		for (OsmPolyline way : globalWayList) {
 
 			areaNodes.add(GeomUtils.getNodesCenter(way.getNodes()));
 
 		}
 		Point2D center = GeomUtils
-				.getPolygonCenter(new LinearRing2D(areaNodes));
+				.getPolylineCenter(new LinearRing2D(areaNodes));
 		StringBuffer sb = new StringBuffer();
 		sb.append("OBJECT 0" + " " + center.y + " " + center.x + " " + 0);
 		sb.append(System.getProperty("line.separator"));
