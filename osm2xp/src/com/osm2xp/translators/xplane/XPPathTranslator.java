@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolyline;
+import com.osm2xp.translators.impl.XPOutputFormat;
 import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
@@ -26,9 +27,11 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	private List<OsmPolyline> pathPolys = new ArrayList<>();
 	
 	private Set<Integer> bridgeNodeIds = new HashSet<Integer>();
+	private XPOutputFormat outputFormat;
 	
-	public XPPathTranslator(IWriter writer) {
+	public XPPathTranslator(IWriter writer, XPOutputFormat outputFormat) {
 		super(writer);
+		this.outputFormat = outputFormat;
 	}
 
 	protected void addSegmentsFrom(OsmPolyline poly) {
@@ -66,7 +69,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 			}
 		}
 		for (XPPathSegment pathSegment : resultSegmentList) {
-			writer.write(pathSegment.toString(), GeomUtils.cleanCoordinatePoint(pathSegment.getPoint(0)));
+			writer.write(outputFormat.getPathStr(pathSegment), GeomUtils.cleanCoordinatePoint(pathSegment.getPoint(0)));
 		}
 		
 	}
@@ -161,7 +164,6 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 		for (int i = 0; i < nodes.size(); i++) {
 			Node node = nodes.get(i);
 			currentSegment.add(node);
-//			boolean isTilesBorder = i < nodes.size() - 1 ? isDifferentTiles(node, nodes.get(i+1)) : false;
 			if ((i == nodes.size() - 1) ||
 				(currentSegment.size() > 1 && pathCrossingIds.contains(node.getId()))) {
 				int newStartId = IDRenumbererService.getNewId(currentSegment.get(0).getId());
@@ -175,12 +177,6 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 						newEndId,
 						GeomUtils.getPointsFromOsmNodes(currentSegment));
 				segment.setBridge(bridge);
-//				if (bridge || bridgeNodeIds.contains(newStartId)) {
-//					segment.setStartHeight(1);
-//				}
-//				if (bridge || bridgeNodeIds.contains(newEndId)) {
-//					segment.setEndHeight(1);
-//				}
 				segment.setComment(getComment(poly));
 				result.add(segment);
 				currentSegment.clear();

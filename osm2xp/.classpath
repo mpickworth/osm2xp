@@ -21,27 +21,11 @@
 	<classpathentry kind="lib" path="lib/jdbm-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/JDBM-3.0-alpha3.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13.jar"/>
-	<classpathentry kind="lib" path="lib/milStd2525_png.jar"/>
 	<classpathentry kind="lib" path="lib/omcorba.jar"/>
 	<classpathentry kind="lib" path="lib/omj3d.jar"/>
 	<classpathentry kind="lib" path="lib/omsvg.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-basic.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-buffer.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-bufferaggregation.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-convexhull.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-cusmoo.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-deformation.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-displacementdef.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-dprfilter.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-gaussiansmoothing.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-hausdorf.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-interiorpoint.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-orientation.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-algo-shortedgedeletion.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-skeleton.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-squarring.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-ssr.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-triangulation.jar"/>
 	<classpathentry kind="lib" path="lib/opencarto-util.jar"/>
 	<classpathentry kind="lib" path="lib/openmap.jar"/>
 	<classpathentry kind="lib" path="lib/OSM2World.jar"/>

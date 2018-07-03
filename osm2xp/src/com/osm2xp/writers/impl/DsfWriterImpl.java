@@ -107,7 +107,7 @@ public class DsfWriterImpl implements IWriter {
 		File dsfFile = DsfUtils.computeXPlaneDsfFilePath(sceneFolder,
 				coordinates);
 		// if file doesn't exists
-		if (!dsfFile.exists()) {
+//		if (!dsfFile.exists()) {
 			// create the parent folder file
 			File parentFolder = new File(dsfFile.getParent());
 			parentFolder.mkdirs();
@@ -128,7 +128,7 @@ public class DsfWriterImpl implements IWriter {
 			// delete on exist
 			dsfFile.deleteOnExit();
 
-		}
+//		}
 
 		// return the dsf file
 		return dsfFile;

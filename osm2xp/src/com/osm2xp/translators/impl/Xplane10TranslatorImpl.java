@@ -3,6 +3,7 @@ package com.osm2xp.translators.impl;
 import java.util.Random;
 
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.translators.IPolyHandler;
 import com.osm2xp.utils.DsfObjectsProvider;
@@ -135,8 +136,12 @@ public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl {
 	 *            osm polygon
 	 * @return true if a building has been gennerated in the dsf file.
 	 */
-	protected boolean processBuilding(OsmPolygon osmPolygon) {
-		Boolean result = false;
+	protected boolean processBuilding(OsmPolyline polyline) {
+		if (!(polyline instanceof OsmPolygon)) {
+			return false;
+		}
+		OsmPolygon osmPolygon = (OsmPolygon) polyline;
+		boolean result = false;
 		if (XplaneOptionsHelper.getOptions().isGenerateBuildings()
 				&& OsmUtils.isBuilding(osmPolygon.getTags())
 				&& !OsmUtils.isExcluded(osmPolygon.getTags(),

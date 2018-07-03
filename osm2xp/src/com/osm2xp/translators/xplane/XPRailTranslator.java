@@ -1,13 +1,14 @@
 package com.osm2xp.translators.xplane;
 
 import com.osm2xp.model.osm.OsmPolyline;
+import com.osm2xp.translators.impl.XPOutputFormat;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
 
 public class XPRailTranslator extends XPPathTranslator {
 
-	public XPRailTranslator(IWriter writer) {
-		super(writer);
+	public XPRailTranslator(IWriter writer, XPOutputFormat outputFormat) {
+		super(writer, outputFormat);
 	}
 
 	@Override

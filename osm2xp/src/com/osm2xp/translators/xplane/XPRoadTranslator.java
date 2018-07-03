@@ -4,6 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.osm2xp.model.osm.OsmPolyline;
+import com.osm2xp.translators.impl.XPOutputFormat;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
@@ -14,8 +15,8 @@ public class XPRoadTranslator extends XPPathTranslator {
 	private static final String HIGHWAY_TAG = "highway";
 	private String[] allowedHighwayTypes = GuiOptionsHelper.getAllowedHighwayTypes();
 	private String[] allowedHighwaySurfaceTypes = GuiOptionsHelper.getAllowedHighwaySurfaceTypes();
-	public XPRoadTranslator(IWriter writer) {
-		super(writer);
+	public XPRoadTranslator(IWriter writer, XPOutputFormat outputFormat) {
+		super(writer, outputFormat);
 	}
 
 	@Override

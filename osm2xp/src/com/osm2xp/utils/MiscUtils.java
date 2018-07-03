@@ -42,10 +42,13 @@ public class MiscUtils {
 						IWorkbenchPage page = win.getActivePage();
 						if (page != null) {
 							IPerspectiveDescriptor perspective = page.getPerspective();
-							String lastId = perspective.getId();
+							String curId = perspective.getId();
+							if (perspectiveID.equals(curId)) {
+								return; //No need to switch anything
+							}
 							IEclipsePreferences node = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
-							if (!lastId.equals(node.get(Osm2xpConstants.LAST_PERSP_PROP, ""))) {
-								node.put(Osm2xpConstants.LAST_PERSP_PROP, lastId);
+							if (!curId.equals(node.get(Osm2xpConstants.LAST_PERSP_PROP, ""))) {
+								node.put(Osm2xpConstants.LAST_PERSP_PROP, curId);
 								node.flush();
 							}
 						}

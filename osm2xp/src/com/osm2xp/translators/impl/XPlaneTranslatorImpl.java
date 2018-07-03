@@ -120,9 +120,9 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		outputFormat = new XPOutputFormat();
 		
 		polyHandlers.add(new XPBarrierTranslator(writer, dsfObjectsProvider, outputFormat));
-		polyHandlers.add(new XPRoadTranslator(writer));
-		polyHandlers.add(new XPRailTranslator(writer));
-		polyHandlers.add(new XPPowerlineTranslator(writer));
+		polyHandlers.add(new XPRoadTranslator(writer, outputFormat));
+		polyHandlers.add(new XPRailTranslator(writer, outputFormat));
+		polyHandlers.add(new XPPowerlineTranslator(writer, outputFormat));
 		polyHandlers.add(new XPChimneyTranslator(writer, dsfObjectsProvider));
 		forestTranslator = new XPForestTranslator(writer, dsfObjectsProvider, outputFormat, stats);
 		
@@ -189,29 +189,6 @@ public class XPlaneTranslatorImpl implements ITranslator{
 					.getPolygon()));
 			if (osmPolygon.getPolygon().getArea() * 100000000 > 0.1
 					&& osmPolygon.getPolygon().getVertexNumber() > 3) {
-//				StringBuffer sb = new StringBuffer();
-				
-//				if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
-//					sb.append("# " + getBuildingComment(osmPolygon, facade));
-//					sb.append(LINE_SEP);
-//				}
-//				sb.append("BEGIN_POLYGON " + facade + " "
-//						+ osmPolygon.getHeight() + " 2");
-//				sb.append(LINE_SEP);
-//				sb.append("BEGIN_WINDING");
-//				sb.append(LINE_SEP);
-//	
-//				// on supprime le dernier point pour ne pas boucler
-//				osmPolygon.getPolygon().removePoint(
-//						osmPolygon.getPolygon().getLastPoint());
-//				for (Point2D loc : osmPolygon.getPolygon().getVertices()) {
-//					sb.append(String.format(Locale.ROOT, "POLYGON_POINT %1.9f %2.9f",loc.x,loc.y));
-//					sb.append(LINE_SEP);
-//				}
-//				sb.append("END_WINDING");
-//				sb.append(LINE_SEP);
-//				sb.append("END_POLYGON");
-//				sb.append(LINE_SEP);
 				writer.write(outputFormat.getPolygonString(osmPolygon, facade +"", osmPolygon.getHeight() + ""), GeomUtils
 						.cleanCoordinatePoint(osmPolygon.getPolygon()
 								.getFirstPoint()));
@@ -498,7 +475,9 @@ public class XPlaneTranslatorImpl implements ITranslator{
 					// nothing generated? try to generate a facade building.
 					if (!processBuilding(poly)) {
 						// nothing generated? try to generate a forest.
-						if (!forestTranslator.handlePoly(poly)) {
+						if (forestTranslator.handlePoly(poly)) {
+							translationListener.processForest((OsmPolygon) poly);
+						} else {
 							processOther(poly);
 						}
 					}
@@ -612,6 +591,9 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				// compute height and facade dsf index
 				osmPolygon.setHeight(computeBuildingHeight(osmPolygon));
 				Integer facade = computeFacadeIndex(osmPolygon);
+				if (translationListener != null) {
+					translationListener.processBuilding(osmPolygon, facade);
+				}
 				// write building in dsf file
 				writeBuildingToDsf(osmPolygon, facade);
 				result = true;

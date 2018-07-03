@@ -180,8 +180,22 @@ public class GeomUtils {
 		}
 		return result;
 	}
+	
+	public static Geometry polylineToJtsGeom(Polyline2D polyline2d) {
+		if (polyline2d instanceof LinearRing2D) {
+			return linearRing2DToJtsPolygon((LinearRing2D) polyline2d);
+		}
+		List<Coordinate> coords = new ArrayList<Coordinate>();
+		for (Point2D point : polyline2d.getVertices()) {
+			coords.add(new Coordinate(point.x, point.y));
+		}
+		Coordinate[] points = (Coordinate[]) coords
+				.toArray(new Coordinate[coords.size()]);
+		GeometryFactory geometryFactory = new GeometryFactory();
+		return geometryFactory.createLineString(points);
+	}
 
-	public static Polygon linearRing2DToJtsPolygon(Polyline2D ring2d) {
+	public static Polygon linearRing2DToJtsPolygon(LinearRing2D ring2d) {
 		List<Coordinate> coords = new ArrayList<Coordinate>();
 		for (Point2D point : ring2d.getVertices()) {
 			coords.add(new Coordinate(point.x, point.y));
@@ -960,7 +974,7 @@ public class GeomUtils {
 	}
 	
 	public static boolean isValid(Polyline2D polyline2d) {
-		return linearRing2DToJtsPolygon(polyline2d).isValid();
+		return polylineToJtsGeom(polyline2d).isValid();
 	}
 	
 	/**
@@ -970,7 +984,7 @@ public class GeomUtils {
 	 * @param geom
 	 * @return a geometry 
 	 */
-	public static Geometry validate(Geometry geom){
+	public static Geometry fix(Geometry geom){
 	    if(geom instanceof Polygon){
 	        if(geom.isValid()){
 	            geom.normalize(); // validate does not pick up rings in the wrong order - this will fix that
@@ -1051,8 +1065,15 @@ public class GeomUtils {
 	    }
 	}
 
-	public static List<LinearRing2D> validate(LinearRing2D polygon) {
-		Geometry fixed = validate(linearRing2DToJtsPolygon(polygon));
+	/**
+	 * Get / create a valid version of given {@link LinearRing2D}. If the geometry is a polygon or multi polygon, self intersections /
+	 * inconsistencies are fixed. Otherwise polygon itself is returned.
+	 * 
+	 * @param polygon
+	 * @return
+	 */
+	public static List<LinearRing2D> fix(LinearRing2D polygon) {
+		Geometry fixed = fix(linearRing2DToJtsPolygon(polygon));
 		if (fixed instanceof Polygon) {
 			return Collections.singletonList(polygonToLinearRing2D(fixed));
 		} else if (fixed instanceof MultiPolygon) {

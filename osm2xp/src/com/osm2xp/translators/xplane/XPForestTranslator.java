@@ -34,11 +34,13 @@ public class XPForestTranslator extends XPWritingTranslator {
 					.getRandomForestIndexAndDensity(osmPolyline.getTags());
 			if (forestIndexAndDensity != null) {
 				if (!osmPolyline.isValid()) {
-					List<LinearRing2D> fixed = GeomUtils.validate((LinearRing2D)osmPolyline.getPolyline());
+					List<LinearRing2D> fixed = GeomUtils.fix((LinearRing2D)osmPolyline.getPolyline());
 					for (LinearRing2D linearRing2D : fixed) {
-						//TODO
-						writeForestToDsf((OsmPolygon) osmPolyline, forestIndexAndDensity);
+						writer.write(outputFormat.getPolygonString(linearRing2D, forestIndexAndDensity[0] + "", forestIndexAndDensity[1] + ""), GeomUtils.cleanCoordinatePoint(osmPolyline
+								.getPolyline().getFirstPoint()));
 					}
+				} else {
+					writeForestToDsf((OsmPolygon) osmPolyline, forestIndexAndDensity);
 				}
 				return true;
 			}
@@ -58,23 +60,6 @@ public class XPForestTranslator extends XPWritingTranslator {
 	 *            index and density of the forest rule
 	 */
 	private void writeForestToDsf(OsmPolygon osmPolygon, Integer[] forestIndexAndDensity) {
-//		StringBuffer sb = new StringBuffer();
-//		sb.append("BEGIN_POLYGON " + forestIndexAndDensity[0] + " "
-//				+ forestIndexAndDensity[1] + " 2");
-//		sb.append(XPlaneTranslatorImpl.LINE_SEP);
-//		writeWinding(osmPolygon.getPolygon().getVertices(), sb);
-//		
-//		if (osmPolygon instanceof OsmMultiPolygon) {
-//			List<LinearRing2D> innerPolys = ((OsmMultiPolygon) osmPolygon).getInnerPolys();
-//			if (innerPolys != null && !innerPolys.isEmpty()) {
-//				for (LinearRing2D linearRing2D : innerPolys) {
-//					writeWinding(linearRing2D.getVertices(), sb);
-//				}
-//			}
-//		}
-//		
-//		sb.append("END_POLYGON");
-//		sb.append(XPlaneTranslatorImpl.LINE_SEP);
 	
 		writer.write(outputFormat.getPolygonString(osmPolygon, forestIndexAndDensity[0] + "", forestIndexAndDensity[1] + ""), GeomUtils.cleanCoordinatePoint(osmPolygon
 				.getPolygon().getFirstPoint()));
@@ -84,16 +69,5 @@ public class XPForestTranslator extends XPWritingTranslator {
 						forestIndexAndDensity[0]), stats);
 	
 	}
-//
-//	protected void writeWinding(Collection<Point2D> vertices, StringBuffer sb) {
-//		sb.append("BEGIN_WINDING");
-//		sb.append(XPlaneTranslatorImpl.LINE_SEP);
-//		for (Point2D loc : vertices) {
-//			sb.append(String.format(Locale.ROOT, "POLYGON_POINT %1.9f %2.9f", loc.x, loc.y));
-//			sb.append(XPlaneTranslatorImpl.LINE_SEP);
-//		}
-//		sb.append("END_WINDING");
-//		sb.append(XPlaneTranslatorImpl.LINE_SEP);
-//	}
 
 }

@@ -27,9 +27,6 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 
 	@Override
 	public boolean handlePoly(OsmPolyline osmPolyline) {
-		if (osmPolyline.getId() == 226562104) {
- 			System.out.println("XPBarrierTranslator.handlePoly()");
-		}
 		if (!XplaneOptionsHelper.getOptions().isGenerateFence() || osmPolyline.isPartial()) {
 			return false;
 		}
@@ -47,22 +44,7 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 						.getPolyline()));
 				}
 				
-				sb.append(outputFormat.getPolygonString(osmPolyline, facade + "", "2")); //TODO need actual wall height here, using "2" for now
-//				sb.append("BEGIN_POLYGON " + facade + " 2 2"); //TODO need actual wall height here, using "2" for now
-//				sb.append(LINE_SEP);
-//				sb.append("BEGIN_WINDING");
-//				sb.append(LINE_SEP);
-//	
-////				osmPolygon.getPolygon().removePoint(
-////						osmPolygon.getPolygon().getLastPoint());
-//				for (Point2D loc : osmPolyline.getPolyline().getVertices()) {
-//					sb.append("POLYGON_POINT " + loc.x + " " + loc.y);
-//					sb.append(LINE_SEP);
-//				}
-//				sb.append("END_WINDING");
-//				sb.append(LINE_SEP);
-//				sb.append("END_POLYGON");
-//				sb.append(LINE_SEP);
+				sb.append(outputFormat.getPolygonString(osmPolyline.getPolyline(), facade + "", "2")); //TODO need actual wall height here, using "2" for now
 				writer.write(sb.toString(), GeomUtils
 						.cleanCoordinatePoint(osmPolyline.getPolyline()
 								.getFirstPoint()));
