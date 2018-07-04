@@ -9,9 +9,11 @@ import java.util.Locale;
 import com.osm2xp.model.osm.OsmMultiPolygon;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.translators.xplane.XPPathSegment;
+import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
 import math.geom2d.Point2D;
+import math.geom2d.polygon.LinearRing2D;
 import math.geom2d.polygon.Polyline2D;
 
 public class XPOutputFormat {
@@ -29,7 +31,7 @@ public class XPOutputFormat {
 		
 		if (innerPolys != null && !innerPolys.isEmpty()) {
 			for (Polyline2D polyline2d : innerPolys) {
-				sb.append(getWindingStr(polyline2d.getVertices()));
+				sb.append(getWindingStr(GeomUtils.forceCW((LinearRing2D) polyline2d).getVertices()));
 			}
 		}
 		

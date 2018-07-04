@@ -12,8 +12,6 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.dialogs.FacadeSetEditorDialog;
-import com.osm2xp.model.facades.FacadeSet;
-import com.osm2xp.utils.helpers.FacadeSetHelper;
 
 /**
  * CommandFacadeSetEditor.
@@ -38,20 +36,15 @@ public class CommandFacadeSetEditor extends AbstractHandler {
 
 		if (folderPath != null) {
 			try {
-				FacadeSet facadeSet = FacadeSetHelper.getFacadeSet(folderPath);
-				if ((facadeSet.getFacades() == null || facadeSet.getFacades().isEmpty()) &&
-						!MessageDialog.openQuestion(Display.getCurrent().getActiveShell(),"Facade set missing or empty", "Facade set in " + folderPath + " is missing or emtpy. Continue?")) {
-					return null;
+				boolean editorOpened = FacadeSetEditorDialog.editFacadeSet(folderPath);
+				if (editorOpened) {
+					node.put(FACADE_EDITOR_PATH_PROP, folderPath);
+					try {
+						node.flush();
+					} catch (BackingStoreException e) {
+						Activator.log(e);
+					}
 				}
-				node.put(FACADE_EDITOR_PATH_PROP, folderPath);
-				try {
-					node.flush();
-				} catch (BackingStoreException e) {
-					Activator.log(e);
-				}
-				FacadeSetEditorDialog facadeSetEditorDialog = new FacadeSetEditorDialog(
-						Display.getCurrent().getActiveShell(), folderPath, facadeSet);
-				facadeSetEditorDialog.open();
 			} catch (Exception e) {
 				MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error reading facade set", "Error reading facade set from " + folderPath + " :" + e.getMessage());
 				Activator.log(e);

@@ -661,5 +661,26 @@ public class FacadeSetEditorDialog extends Dialog {
 	protected Point getInitialSize() {
 		return new Point(733, 700);
 	}
+	
+	public static boolean editFacadeSet(String path) {
+		try {
+			FacadeSet facadeSet = FacadeSetHelper.getFacadeSet(path);
+			if ((facadeSet.getFacades() == null || facadeSet.getFacades().isEmpty()) &&
+					!MessageDialog.openQuestion(Display.getCurrent().getActiveShell(),"Facade set missing or empty", "Facade set in " + path + " is missing or emtpy. Continue?")) {
+				return false;
+			}
+			if (new File(path).isFile()) {
+				path = new File(path).getParent(); 
+			}
+			FacadeSetEditorDialog facadeSetEditorDialog = new FacadeSetEditorDialog(
+					Display.getCurrent().getActiveShell(), path, facadeSet);
+			facadeSetEditorDialog.open();
+			return true;
+		} catch (Exception e) {
+			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error reading facade set", "Error reading facade set from " + path + " :" + e.getMessage());
+			Activator.log(e);
+		}
+		return false;
+	}
 
 }

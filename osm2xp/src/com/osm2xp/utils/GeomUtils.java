@@ -5,12 +5,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.opencarto.algo.ShortEdgesDeletion;
 
 import com.osm2xp.model.geom.Lod13Location;
 import com.osm2xp.model.osm.Node;
-import com.vividsolutions.jts.algorithm.Angle;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.algorithm.CentroidArea;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -45,70 +45,70 @@ import math.geom2d.polygon.Rectangle2D;
  * 
  */
 public class GeomUtils {
-	public static Double getPolygonAngle2(LinearRing2D polygon) {
-		Double result = null;
-		LineSegment2D resultSegment = null;
+//	public static Double getPolygonAngle2(LinearRing2D polygon) {
+//		Double result = null;
+//		LineSegment2D resultSegment = null;
+//
+//		for (LineSegment2D segment : polygon.getEdges()) {
+//
+//			if (resultSegment == null
+//					|| resultSegment.getLength() > segment.getLength())
+//				resultSegment = segment;
+//
+//		}
+//
+//		result = bearing(resultSegment.getFirstPoint().x,
+//				resultSegment.getFirstPoint().y,
+//				resultSegment.getLastPoint().x, resultSegment.getLastPoint().y);
+//		if (result - 7 > 0) {
+//			result = result - 7;
+//		}
+//		return result;
+//	}
 
-		for (LineSegment2D segment : polygon.getEdges()) {
+//	public static Double getPolygonMaxVectorAngle(LinearRing2D polygon) {
+//		Double result = null;
+//		LineSegment2D resultSegment = null;
+//
+//		for (LineSegment2D segment : polygon.getEdges()) {
+//
+//			if (resultSegment == null
+//					|| resultSegment.getLength() > segment.getLength())
+//				resultSegment = segment;
+//
+//		}
+//		Coordinate c1 = new Coordinate(resultSegment.getFirstPoint().x,
+//				resultSegment.getFirstPoint().y);
+//		Coordinate c2 = new Coordinate(resultSegment.getLastPoint().x,
+//				resultSegment.getLastPoint().y);
+//		result = Math.toDegrees(Angle.angle(c1, c2));
+//		if (result < 0) {
+//			result = Math.toDegrees(Angle.angle(c2, c1));
+//		}
+//		return result;
+//	}
 
-			if (resultSegment == null
-					|| resultSegment.getLength() > segment.getLength())
-				resultSegment = segment;
-
-		}
-
-		result = bearing(resultSegment.getFirstPoint().x,
-				resultSegment.getFirstPoint().y,
-				resultSegment.getLastPoint().x, resultSegment.getLastPoint().y);
-		if (result - 7 > 0) {
-			result = result - 7;
-		}
-		return result;
-	}
-
-	public static Double getPolygonMaxVectorAngle(LinearRing2D polygon) {
-		Double result = null;
-		LineSegment2D resultSegment = null;
-
-		for (LineSegment2D segment : polygon.getEdges()) {
-
-			if (resultSegment == null
-					|| resultSegment.getLength() > segment.getLength())
-				resultSegment = segment;
-
-		}
-		Coordinate c1 = new Coordinate(resultSegment.getFirstPoint().x,
-				resultSegment.getFirstPoint().y);
-		Coordinate c2 = new Coordinate(resultSegment.getLastPoint().x,
-				resultSegment.getLastPoint().y);
-		result = Math.toDegrees(Angle.angle(c1, c2));
-		if (result < 0) {
-			result = Math.toDegrees(Angle.angle(c2, c1));
-		}
-		return result;
-	}
-
-	public static Double getPolygonMinVectorAngle(LinearRing2D polygon) {
-		Double result = null;
-		LineSegment2D resultSegment = null;
-
-		for (LineSegment2D segment : polygon.getEdges()) {
-
-			if (resultSegment == null
-					|| resultSegment.getLength() < segment.getLength())
-				resultSegment = segment;
-
-		}
-		Coordinate c1 = new Coordinate(resultSegment.getFirstPoint().x,
-				resultSegment.getFirstPoint().y);
-		Coordinate c2 = new Coordinate(resultSegment.getLastPoint().x,
-				resultSegment.getLastPoint().y);
-		result = Math.toDegrees(Angle.angle(c1, c2));
-		if (result < 0) {
-			result = Math.toDegrees(Angle.angle(c2, c1));
-		}
-		return result;
-	}
+//	public static Double getPolygonMinVectorAngle(LinearRing2D polygon) {
+//		Double result = null;
+//		LineSegment2D resultSegment = null;
+//
+//		for (LineSegment2D segment : polygon.getEdges()) {
+//
+//			if (resultSegment == null
+//					|| resultSegment.getLength() < segment.getLength())
+//				resultSegment = segment;
+//
+//		}
+//		Coordinate c1 = new Coordinate(resultSegment.getFirstPoint().x,
+//				resultSegment.getFirstPoint().y);
+//		Coordinate c2 = new Coordinate(resultSegment.getLastPoint().x,
+//				resultSegment.getLastPoint().y);
+//		result = Math.toDegrees(Angle.angle(c1, c2));
+//		if (result < 0) {
+//			result = Math.toDegrees(Angle.angle(c2, c1));
+//		}
+//		return result;
+//	}
 
 	public static double bearing(double lat1, double Lng1, double lat2,
 			double Lng2) {
@@ -134,18 +134,18 @@ public class GeomUtils {
 	 * @param lon2
 	 * @return
 	 */
-	private static double latLongDistanceOld(double lat1, double lon1,
-			double lat2, double lon2) {
-		double theta = lon1 - lon2;
-		double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2))
-				+ Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2))
-				* Math.cos(deg2rad(theta));
-		dist = Math.acos(dist);
-		dist = rad2deg(dist);
-		dist = dist * 60 * 1.1515;
-		dist = dist * 1.609344;
-		return dist * 1000;
-	}
+//	private static double latLongDistanceOld(double lat1, double lon1,
+//			double lat2, double lon2) {
+//		double theta = lon1 - lon2;
+//		double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2))
+//				+ Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2))
+//				* Math.cos(deg2rad(theta));
+//		dist = Math.acos(dist);
+//		dist = rad2deg(dist);
+//		dist = dist * 60 * 1.1515;
+//		dist = dist * 1.609344;
+//		return dist * 1000;
+//	}
 
 	/**
 	 * Check if the object fits the polygon.
@@ -227,13 +227,13 @@ public class GeomUtils {
 		return new Double(dist * meterConversion);
 	}
 
-	private static double deg2rad(double deg) {
-		return (deg * Math.PI / 180.0);
-	}
-
-	private static double rad2deg(double rad) {
-		return (rad * 180.0 / Math.PI);
-	}
+//	private static double deg2rad(double deg) {
+//		return (deg * Math.PI / 180.0);
+//	}
+//
+//	private static double rad2deg(double rad) {
+//		return (rad * 180.0 / Math.PI);
+//	}
 
 	/**
 	 * compute min and max vectors for a polygon
@@ -264,23 +264,23 @@ public class GeomUtils {
 	 * @param polygon
 	 * @return double[]
 	 */
-	public static Double[] computeExtremeVectorsBad(LinearRing2D polygon) {
-
-		Double minVector = null;
-		Double maxVector = null;
-
-		for (LineSegment2D segment : polygon.getEdges()) {
-			LineSegment lineSegment = new LineSegment(
-					segment.getFirstPoint().x, segment.getFirstPoint().y,
-					segment.getLastPoint().x, segment.getLastPoint().y);
-			double distance = lineSegment.getLength() * 100000;
-			if (minVector == null || minVector > distance)
-				minVector = new Double(distance);
-			if (maxVector == null || maxVector < distance)
-				maxVector = new Double(distance);
-		}
-		return new Double[] { minVector, maxVector };
-	}
+//	public static Double[] computeExtremeVectorsBad(LinearRing2D polygon) {
+//
+//		Double minVector = null;
+//		Double maxVector = null;
+//
+//		for (LineSegment2D segment : polygon.getEdges()) {
+//			LineSegment lineSegment = new LineSegment(
+//					segment.getFirstPoint().x, segment.getFirstPoint().y,
+//					segment.getLastPoint().x, segment.getLastPoint().y);
+//			double distance = lineSegment.getLength() * 100000;
+//			if (minVector == null || minVector > distance)
+//				minVector = new Double(distance);
+//			if (maxVector == null || maxVector < distance)
+//				maxVector = new Double(distance);
+//		}
+//		return new Double[] { minVector, maxVector };
+//	}
 
 	/**
 	 * Compute the smallest vector of the polygon in meters.
@@ -331,10 +331,10 @@ public class GeomUtils {
 	 * @param polygon
 	 * @return Double
 	 */
-	public static Double computeMaxVector(LinearRing2D polygon) {
-		Double[] vectors = computeExtremeVectors(polygon);
-		return vectors[1];
-	}
+//	public static Double computeMaxVector(LinearRing2D polygon) {
+//		Double[] vectors = computeExtremeVectors(polygon);
+//		return vectors[1];
+//	}
 
 	/**
 	 * @param pointA
@@ -351,28 +351,28 @@ public class GeomUtils {
 	 * @param nodes
 	 * @return
 	 */
-	public static boolean isListOfNodesOnTile(Point2D tile, List<Node> nodes) {
-		for (Node node : nodes) {
-			if (!compareCoordinates(tile, node)) {
-				return false;
-			}
-		}
-		return true;
-	}
+//	public static boolean isListOfNodesOnTile(Point2D tile, List<Node> nodes) {
+//		for (Node node : nodes) {
+//			if (!compareCoordinates(tile, node)) {
+//				return false;
+//			}
+//		}
+//		return true;
+//	}
 
 	/**
 	 * @param linearRing2D
 	 * @return
 	 */
-	public static LineSegment2D getLargestVector(LinearRing2D linearRing2D) {
-		LineSegment2D result = null;
-		for (LineSegment2D loc : linearRing2D.getEdges()) {
-			if (result == null || loc.getLength() > result.getLength()) {
-				result = loc;
-			}
-		}
-		return result;
-	}
+//	public static LineSegment2D getLargestVector(LinearRing2D linearRing2D) {
+//		LineSegment2D result = null;
+//		for (LineSegment2D loc : linearRing2D.getEdges()) {
+//			if (result == null || loc.getLength() > result.getLength()) {
+//				result = loc;
+//			}
+//		}
+//		return result;
+//	}
 	
 	public static Point2D cleanCoordinatePoint(double latitude,
 			double longitude) {
@@ -754,30 +754,23 @@ public class GeomUtils {
 	 * @return ring2d itself if it's CW, reversed direction ring otherwise
 	 */
 	public static LinearRing2D forceCW(LinearRing2D ring2d) {
-		LinearRing2D result = null;
 		if (ring2d.getVertices().size() > 4) { //4 because it makes sense only in case we have 3 points. 4th one is equal to 1st one 
-			
-			Coordinate[] coords = new Coordinate[ring2d.getVertices().size()];
-			for (int i = 0; i < ring2d.getVertices().size(); i++) {
-				coords[i] = new Coordinate(ring2d.getVertex(i).x,
-						ring2d.getVertex(i).y);
-			}
-			
-			if (CGAlgorithms.isCCW(coords)) {
+			List<Coordinate> coords = ring2d.getVertices().stream().map(vertex -> new Coordinate(vertex.x, vertex.y)).collect(Collectors.toList());
+//			Coordinate[] coords = new Coordinate[ring2d.getVertices().size()];
+//			for (int i = 0; i < ring2d.getVertices().size(); i++) {
+//				coords[i] = new Coordinate(ring2d.getVertex(i).x,
+//						ring2d.getVertex(i).y);
+//			}
+			if (CGAlgorithms.isCCW(coords.toArray(new Coordinate[0]))) {
 				Collection<Point2D> clockwiseVectors = new ArrayList<Point2D>();
 				for (int i = ring2d.getVertices().size() - 1; i > -1; i--) {
 					clockwiseVectors.add(ring2d.getVertex(i));
 				}
-				
-				result = new LinearRing2D(clockwiseVectors);
-			} else {
-				result = ring2d;
-			}
-		} else {
-			result = ring2d;
-		}
+				return new LinearRing2D(clockwiseVectors);
+			} 
+		} 
 		
-		return result;
+		return ring2d;
 	}
 
 	/**

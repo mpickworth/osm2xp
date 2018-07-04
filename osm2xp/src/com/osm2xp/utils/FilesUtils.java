@@ -179,6 +179,9 @@ public class FilesUtils {
 	 * @return
 	 */
 	public static String[] listFacadesFiles(String facadeSetFolder) {
+		if (!new File(facadeSetFolder).isDirectory()) {
+			return new String[0];
+		}
 
 		FilenameFilter facFilter = new FilenameFilter() {
 

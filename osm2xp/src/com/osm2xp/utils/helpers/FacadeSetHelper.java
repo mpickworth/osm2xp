@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -82,8 +80,11 @@ public class FacadeSetHelper {
 		}
 	}
 
-	public static FacadeSet getFacadeSet(String facadeSetFolder) {
-		File facadeSetFile = new File(facadeSetFolder + File.separator
+	public static FacadeSet getFacadeSet(String facadeSetPath) {
+		if (new File(facadeSetPath).isFile()) {
+			return loadFacadeSet(facadeSetPath);
+		}
+		File facadeSetFile =  new File(facadeSetPath + File.separator
 				+ FACADE_SET_DESCRIPTOR_FILE_NAME);
 		if (facadeSetFile.exists()) {
 			return loadFacadeSet(facadeSetFile.getPath());
@@ -91,8 +92,8 @@ public class FacadeSetHelper {
 			FacadeSet facadeSet = new FacadeSet();
 
 			for (String facadeFile : FilesUtils
-					.listFacadesFiles(facadeSetFolder)) {
-				Facade facade = FacadeSetHelper.generateDefaultDescriptor(new File(facadeSetFolder, facadeFile));
+					.listFacadesFiles(facadeSetPath)) {
+				Facade facade = FacadeSetHelper.generateDefaultDescriptor(new File(facadeSetPath, facadeFile));
 				if (facade != null) {
 					facade.setFile(facadeFile);
 					facadeSet.getFacades().add(facade);
@@ -213,6 +214,9 @@ public class FacadeSetHelper {
 		Image img = imageRegistry.get(facadeFile.getAbsolutePath());
 		if (img != null) {
 			return img;
+		}
+		if (!facadeFile.isFile()) {
+			return null;
 		}
 		FacadeDefinition definition = FacadeDefinitionParser.parse(facadeFile);
 		

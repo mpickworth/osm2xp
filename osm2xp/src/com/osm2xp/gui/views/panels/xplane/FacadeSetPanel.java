@@ -33,6 +33,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.osm2xp.gui.Activator;
+import com.osm2xp.gui.dialogs.FacadeSetEditorDialog;
 import com.osm2xp.gui.views.panels.Osm2xpPanel;
 import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
@@ -78,7 +79,7 @@ public class FacadeSetPanel extends Osm2xpPanel {
 	protected void initComponents() {
 		facadeListViewer = new ListViewer(this, SWT.BORDER);
 		PixelConverter converter = new PixelConverter(facadeListViewer.getControl());
-		GridDataFactory.fillDefaults().hint(converter.convertWidthInCharsToPixels(100),SWT.DEFAULT).span(1,3).applyTo(facadeListViewer.getControl());
+		GridDataFactory.fillDefaults().hint(converter.convertWidthInCharsToPixels(100),SWT.DEFAULT).span(1,4).applyTo(facadeListViewer.getControl());
 		facadeListViewer.setContentProvider(new ArrayContentProvider());
 		facadeListViewer.setLabelProvider(new LabelProvider());
 		
@@ -100,6 +101,16 @@ public class FacadeSetPanel extends Osm2xpPanel {
 				doAddFacadeFolder();
 			}
 		});
+		Button editButton = new Button(this, SWT.PUSH);
+		editButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/edit.gif").createImage());
+		editButton.setToolTipText("Edit facade set");
+		editButton.setEnabled(false);
+		editButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				doEditFacadeSet();
+			}
+		});
 		Button removeButton = new Button(this, SWT.PUSH);
 		removeButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/remove.gif").createImage());
 		removeButton.setToolTipText("Remove selected facade set");
@@ -111,7 +122,9 @@ public class FacadeSetPanel extends Osm2xpPanel {
 			}
 		});
 		facadeListViewer.addSelectionChangedListener(event -> {
-			removeButton.setEnabled(!event.getSelection().isEmpty());
+			boolean hasSelection = !event.getSelection().isEmpty();
+			removeButton.setEnabled(hasSelection);
+			editButton.setEnabled(hasSelection);
 		});
 		
 //		lblFacadeSet = new Label(this, SWT.NONE);
@@ -161,6 +174,14 @@ public class FacadeSetPanel extends Osm2xpPanel {
 			facadeSets.remove(firstElement);
 			persistFacadeSets();
 			refreshViewer();
+		}
+	}
+	
+	protected void doEditFacadeSet() {
+		ISelection selection = facadeListViewer.getSelection();
+		if (!selection.isEmpty()) {
+			Object firstElement = ((StructuredSelection) selection).getFirstElement();
+			FacadeSetEditorDialog.editFacadeSet(firstElement.toString());
 		}
 	}
 
