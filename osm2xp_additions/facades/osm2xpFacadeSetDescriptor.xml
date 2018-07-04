@@ -298,6 +298,20 @@
         <maxHeight>12</maxHeight>
     </facades>
     <facades>
+        <file>industrial1.fac</file>
+        <roofColor></roofColor>
+        <wallColor></wallColor>
+        <industrial>true</industrial>
+        <commercial>true</commercial>
+        <residential>false</residential>
+        <sloped>false</sloped>
+        <minVectorLength>0.0</minVectorLength>
+        <maxVectorLength>0.0</maxVectorLength>
+        <simpleBuildingOnly>false</simpleBuildingOnly>
+        <minHeight>0</minHeight>
+        <maxHeight>100</maxHeight>
+    </facades>
+    <facades>
         <file>buildingGeneric1.fac</file>
         <roofColor></roofColor>
         <wallColor></wallColor>
