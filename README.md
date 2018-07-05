@@ -25,6 +25,7 @@ Since initial task is generating X-Plane 10 scenery, most fixes I've done and al
 * Improved facade set editor - added facade preview, ability to delete facade and specify facades for fence or wall 
 * Generating smaller area, then 1 tile - just as much as OSM PBF file defines. OSM PBF file can be obtained e.g. using [bbbike.org](https://extract.bbbike.org/ "bbbike.org")
 * Migration to Java 8, using some newer libraries and some UI fixes
+* Basic OSM multipolygon support
 
 ## Installation
 You need at least Java 8 JRE or JDK to be installed
