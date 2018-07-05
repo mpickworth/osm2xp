@@ -15,6 +15,7 @@ import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.dialogs.utils.Osm2xpDialogsHelper;
 import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.utils.StatusInfo;
+import com.osm2xp.utils.helpers.FacadeSetHelper;
 import com.osm2xp.utils.helpers.FsxOptionsHelper;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
@@ -31,9 +32,12 @@ public class CommandBuildScene extends AbstractHandler{
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		IStatus status = getConfigurationErrors();
-		if (status.isOK() ||
-			(status.getSeverity() == IStatus.WARNING && Osm2xpDialogsHelper.displayQuestionDialog("Configuration problems detected", status.getMessage() + "\nContinue?"))) {
+		if (status.isOK()) {
 			doLaunchBuild();
+		} else if (status.getSeverity() == IStatus.WARNING ) {
+			if (Osm2xpDialogsHelper.displayQuestionDialog("Configuration problems detected", status.getMessage() + "\nContinue?")) {
+				doLaunchBuild();	
+			}
 		} else {
 			Osm2xpDialogsHelper
 					.displayErrorDialog("Bad configuration", "Please check following errors:\n"
@@ -65,6 +69,12 @@ public class CommandBuildScene extends AbstractHandler{
 				|| GuiOptionsHelper.getOptions().getOutputFormat()
 						.equals(Perspectives.PERSPECTIVE_XPLANE9)) {
 			String facadeSetsStr= InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"");
+			if (facadeSetsStr.isEmpty()) {
+				warnings.append(" - ");
+				warnings.append("No facade sets was configured. Proceed using built-in facades?");
+				warnings.append('\n');
+				facadeSetsStr = FacadeSetHelper.getDefaultFacadePath();
+			}
 			FacadeSetManager manager = FacadeSetManager.getManager(facadeSetsStr, null);
 			IStatus facadeSetStatus = manager.getFacadeSetStatus();
 			if (facadeSetStatus.getSeverity() == IStatus.ERROR) {
@@ -89,7 +99,7 @@ public class CommandBuildScene extends AbstractHandler{
 			return new StatusInfo(IStatus.ERROR, errors.toString());
 		}
 		if (warnings.length() > 0) {
-			return new StatusInfo(IStatus.WARNING, errors.toString());
+			return new StatusInfo(IStatus.WARNING, warnings.toString());
 		}
 		return Status.OK_STATUS;
 	}

@@ -9,27 +9,8 @@ import javax.xml.bind.annotation.XmlType;
 public enum BarrierType {
 	
 	@XmlEnumValue("wall")
-	WALL("wall"),
+	WALL,
 	@XmlEnumValue("fence")
-	FENCE("fence");
-	
-	private final String value;
-	
-	BarrierType(String v) {
-        value = v;
-    }
-
-    public String value() {
-        return value;
-    }
-
-    public static BarrierType fromValue(String v) {
-        for (BarrierType c: BarrierType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+	FENCE;
 
 }

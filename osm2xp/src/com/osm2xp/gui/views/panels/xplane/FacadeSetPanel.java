@@ -36,6 +36,7 @@ import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.dialogs.FacadeSetEditorDialog;
 import com.osm2xp.gui.views.panels.Osm2xpPanel;
 import com.osm2xp.model.facades.FacadeSetManager;
+import com.osm2xp.utils.helpers.FacadeSetHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
 /**
@@ -204,8 +205,7 @@ public class FacadeSetPanel extends Osm2xpPanel {
 		String[] facades = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"").split(File.pathSeparator);
 		facadeSets = new ArrayList<>();
 		if (facades.length == 0 || facades[0].trim().isEmpty()) {
-			File installFolder = FileUtils.toFile(Platform.getInstallLocation().getURL());
-			facadeSets.add(new File(installFolder, "facades").getAbsolutePath());
+			facadeSets.add(FacadeSetHelper.getDefaultFacadePath());
 			persistFacadeSets();
 		} else {
 			facadeSets.addAll(Arrays.asList(facades).stream().filter(str -> !str.trim().isEmpty()).collect(Collectors.toList()));

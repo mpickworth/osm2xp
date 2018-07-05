@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPartSite;
 
+import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.gui.views.panels.Osm2xpPanel;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 
@@ -41,8 +42,6 @@ import math.geom2d.Point2D;
  */
 public class SceneryFilePanel extends Osm2xpPanel {
 
-	private static final String[] FILTER_NAMES = { "OSM files (*.osm,*.pbf;*.shp)" };
-	private static final String[] FILTER_EXTS = { "*.osm;*.pbf;*.shp" };
 	private Text textInputSceneName;
 	private Button btnGenerateAllTiles;
 	private Spinner spinnerLatitude;
@@ -238,8 +237,8 @@ public class SceneryFilePanel extends Osm2xpPanel {
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dlg = new FileDialog(getParent().getShell(),
 						SWT.OPEN);
-				dlg.setFilterNames(FILTER_NAMES);
-				dlg.setFilterExtensions(FILTER_EXTS);
+				dlg.setFilterNames(Osm2xpConstants.OSM_FILE_FILTER_NAMES);
+				dlg.setFilterExtensions(Osm2xpConstants.OSM_FILE_FILTER_EXTS);
 				String fileName = dlg.open();
 				if (fileName != null) {
 					filenameText.setText(fileName);

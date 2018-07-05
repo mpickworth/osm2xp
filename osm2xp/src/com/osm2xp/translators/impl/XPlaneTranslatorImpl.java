@@ -12,7 +12,7 @@ import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
-import com.osm2xp.model.facades.SpecialBuildingType;
+import com.osm2xp.model.facades.SpecialFacadeType;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.OsmPolyline;
@@ -352,9 +352,9 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	 */
 	public Integer computeFacadeIndex(OsmPolygon polygon) {
 		Integer result = null;
-		SpecialBuildingType specialBuildingType = getSpecialBuildingType(polygon);
-		if (specialBuildingType != null) {
-			return dsfObjectsProvider.computeSpecialFacadeIndex(specialBuildingType, polygon);
+		SpecialFacadeType specialFacadeType = getSpecialBuildingType(polygon);
+		if (specialFacadeType != null) {
+			return dsfObjectsProvider.computeSpecialFacadeIndex(specialFacadeType, polygon);
 		}
 		// we check if we can use a sloped roof if the user wants them
 		BuildingType buildingType = getBuildingType(polygon);
@@ -387,15 +387,15 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	 * @param polygon Polygon to check 
 	 * @return resulting type or <code>null</code> if this polygon soes not present special building
 	 */
-	private SpecialBuildingType getSpecialBuildingType(OsmPolygon polygon) {
+	private SpecialFacadeType getSpecialBuildingType(OsmPolygon polygon) {
 		if (XplaneOptionsHelper.getOptions().isGenerateTanks()) { 
 			String manMade = polygon.getTagValue(Osm2xpConstants.MAN_MADE_TAG);
 			if ("storage_tank".equals(manMade) || "fuel_storage_tank".equals(manMade) || "gasometer".equals(manMade)) {
-				return SpecialBuildingType.TANK;
+				return SpecialFacadeType.TANK;
 			}
 		}
 		if ("garages".equals(polygon.getTagValue(BUILDING_TAG)) || "garage".equals(polygon.getTagValue(BUILDING_TAG))) { //For now - we always generate garages if we generate buildings 
-			return SpecialBuildingType.GARAGE;
+			return SpecialFacadeType.GARAGE;
 		}
 		return null;
 	}

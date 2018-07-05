@@ -40,7 +40,7 @@ public class FacadeSetManager {
 	
 	protected Multimap<BarrierType, Facade> barrierFacades = HashMultimap.create();
 	
-	protected Map<SpecialBuildingType, String> specialFacades = new HashMap<>();
+	protected Map<SpecialFacadeType, String> specialFacades = new HashMap<>();
 
 	private String[] setPaths;
 	
@@ -74,8 +74,8 @@ public class FacadeSetManager {
 		}
 		list.stream().flatMap(set -> set.getFacades().stream()).forEach(facade -> addFacade(facade));
 		
-		specialFacades.put(SpecialBuildingType.TANK, "tank.fac"); //TODO set this up statically for now
-		specialFacades.put(SpecialBuildingType.GARAGE, "garages.fac"); 
+		specialFacades.put(SpecialFacadeType.TANK, "tank.fac"); //TODO set this up statically for now
+		specialFacades.put(SpecialFacadeType.GARAGE, "garages.fac"); 
 	}
 	
 	protected void checkCopyFacades(File targetFolder) {
@@ -90,7 +90,7 @@ public class FacadeSetManager {
 					copyFacades(folder, targetFolder);
 				}
 			}
-			if (XplaneOptionsHelper.getOptions().isGenerateTanks()) {
+			if (XplaneOptionsHelper.getOptions().isGenerateBuildings() || XplaneOptionsHelper.getOptions().isGenerateTanks()) {
 				File specFacadesFolder = new File(
 						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specfacades");
 				if (specFacadesFolder.isDirectory()) {
@@ -278,8 +278,8 @@ public class FacadeSetManager {
 		return Status.OK_STATUS;
 	}
 
-	public String getSpecialFacadeStr(SpecialBuildingType specialBuildingType) {
-		return specialFacades.get(specialBuildingType);
+	public String getSpecialFacadeStr(SpecialFacadeType specialFacadeType) {
+		return specialFacades.get(specialFacadeType);
 	}
 
 

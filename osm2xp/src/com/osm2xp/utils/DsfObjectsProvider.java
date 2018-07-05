@@ -16,7 +16,7 @@ import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSetManager;
-import com.osm2xp.model.facades.SpecialBuildingType;
+import com.osm2xp.model.facades.SpecialFacadeType;
 import com.osm2xp.model.options.FacadeTagRule;
 import com.osm2xp.model.options.ForestTagRule;
 import com.osm2xp.model.options.ObjectFile;
@@ -76,8 +76,8 @@ public class DsfObjectsProvider {
 		computeObjectsList();
 	}
 
-	public Integer computeSpecialFacadeIndex(SpecialBuildingType specialBuildingType, OsmPolyline polygon) {
-		return polygonsList.indexOf(facadeSetManager.getSpecialFacadeStr(specialBuildingType));
+	public Integer computeSpecialFacadeIndex(SpecialFacadeType specialFacadeType, OsmPolyline polygon) {
+		return polygonsList.indexOf(facadeSetManager.getSpecialFacadeStr(specialFacadeType));
 	}
 
 	/**

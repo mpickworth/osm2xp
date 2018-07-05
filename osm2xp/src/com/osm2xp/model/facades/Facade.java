@@ -12,9 +12,8 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Facade", propOrder = { "file", "roofColor", "wallColor",
-		"barrierType", "industrial", "commercial", "residential", "sloped", "minVectorLength",
-		"maxVectorLength", "simpleBuildingOnly", "minHeight", "maxHeight" })
+@XmlType(name = "Facade", propOrder = { "file", "roofColor", "wallColor", "specialType", "barrierType", "industrial", "commercial",
+		"residential", "sloped", "minVectorLength", "maxVectorLength", "simpleBuildingOnly", "minHeight", "maxHeight" })
 public class Facade {
 
 	@XmlElement(required = true)
@@ -23,8 +22,10 @@ public class Facade {
 	protected String roofColor;
 	@XmlElement(required = true)
 	protected String wallColor;
-	@XmlElement(name="barrier")
+	@XmlElement(name = "barrier")
 	protected BarrierType barrierType;
+	@XmlElement(name = "specialType")
+	protected SpecialFacadeType specialType;
 	protected boolean industrial;
 	protected boolean commercial;
 	protected boolean residential;
@@ -248,6 +249,22 @@ public class Facade {
 
 	public void setBarrierType(BarrierType barrierType) {
 		this.barrierType = barrierType;
+	}
+
+	public SpecialFacadeType getSpecialType() {
+		if (specialType == null) {
+			switch (barrierType) {
+			case FENCE:
+				return SpecialFacadeType.FENCE;
+			case WALL:
+				return SpecialFacadeType.WALL;
+			}
+		}
+		return specialType;
+	}
+
+	public void setSpecialType(SpecialFacadeType specialType) {
+		this.specialType = specialType;
 	}
 
 }

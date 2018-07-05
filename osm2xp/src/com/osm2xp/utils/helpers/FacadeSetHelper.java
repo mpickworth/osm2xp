@@ -17,7 +17,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.SWT;
@@ -279,6 +281,11 @@ public class FacadeSetHelper {
 		}
 		return null;
 		
+	}
+	
+	public static String getDefaultFacadePath() {
+		File installFolder = FileUtils.toFile(Platform.getInstallLocation().getURL());
+		return new File(installFolder, "facades").getAbsolutePath();
 	}
 
 }

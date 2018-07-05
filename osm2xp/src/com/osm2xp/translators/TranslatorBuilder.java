@@ -24,6 +24,7 @@ import com.osm2xp.translators.impl.Xplane10TranslatorImpl;
 import com.osm2xp.translators.impl.Xplane9TranslatorImpl;
 import com.osm2xp.translators.impl.FlyLegacyTranslatorImpl;
 import com.osm2xp.utils.DsfObjectsProvider;
+import com.osm2xp.utils.helpers.FacadeSetHelper;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.StatsHelper;
 import com.osm2xp.utils.helpers.WavefrontOptionsHelper;
@@ -191,7 +192,7 @@ public class TranslatorBuilder {
 			Point2D currentTile, String folderPath) {
 
 		GenerationStats stats = StatsHelper.initStats(currentFile, currentTile);
-		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"");
+		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,FacadeSetHelper.getDefaultFacadePath());
 		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath, FacadeSetManager.getManager(facadeSetsStr, new File(folderPath)));
 		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
 		Xplane10TranslatorImpl translatorImpl = new Xplane10TranslatorImpl(stats, writer, currentTile,
@@ -215,7 +216,7 @@ public class TranslatorBuilder {
 			Point2D currentTile, String folderPath, List<Relation> relationsList) {
 
 		GenerationStats stats = StatsHelper.initStats(currentFile, currentTile);
-		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"");
+		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,FacadeSetHelper.getDefaultFacadePath());
 		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath, FacadeSetManager.getManager(facadeSetsStr, new File(folderPath)));
 		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
 		Xplane9TranslatorImpl xplane9TranslatorImpl = new Xplane9TranslatorImpl(stats, writer, currentTile,
