@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.1.0]
+
+### Added
+
+- Basic multipolygon support (works for forest, but not for buildings yet - buildings still don't have "holes")
+
+### Fixed
+- Polygon simplification logics - it still gave bad results in some cases before 
+- Some UI issues
+
+### Changed 
+- Removed some old and unused libraries from build
+
 ## [3.0.1]
 
 ### Added
