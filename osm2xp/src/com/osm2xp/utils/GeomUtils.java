@@ -541,13 +541,13 @@ public class GeomUtils {
 	 */
 	public static LinearRing2D ShortEdgesDeletion(LinearRing2D sourceFootprint) {
 		try {
-
+			//test on way 51812313
 			// we create a jts polygon from the linear ring
 			Polygon sourcePoly = linearRing2DToPolygon(sourceFootprint);
 
 			// we create a simplified polygon
 //			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5);
-			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5.0); //Min side 5 meters
+			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5.0 / 111000); //Min side 5 meters
 
 			// we create a linearRing2D from the modified polygon
 			LinearRing2D result = polygonToLinearRing2D(cleanPoly);

@@ -475,7 +475,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 					// nothing generated? try to generate a facade building.
 					if (!processBuilding(poly)) {
 						// nothing generated? try to generate a forest.
-						if (forestTranslator.handlePoly(poly)) {
+						if (forestTranslator.handlePoly(poly) && translationListener != null) {
 							translationListener.processForest((OsmPolygon) poly);
 						} else {
 							processOther(poly);
