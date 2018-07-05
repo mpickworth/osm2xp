@@ -1,4 +1,4 @@
-package com.osm2xp.utils;
+package com.osm2xp.utils.geometry;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -11,6 +11,10 @@ public class LatLonCoordinate extends Coordinate {
 	
 	public LatLonCoordinate(double x, double y, double z) {
 		super(x,y,z);
+	}
+
+	public LatLonCoordinate(double x, double y) {
+		super(x,y);
 	}
 
 	@Override

@@ -30,6 +30,7 @@ import com.osm2xp.model.xplane.XplaneDsf3DObject;
 import com.osm2xp.model.xplane.XplaneDsfLightObject;
 import com.osm2xp.model.xplane.XplaneDsfObject;
 import com.osm2xp.translators.BuildingType;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
 import math.geom2d.Box2D;

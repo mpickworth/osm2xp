@@ -7,7 +7,7 @@ import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.translators.impl.XPOutputFormat;
 import com.osm2xp.utils.DsfObjectsProvider;
-import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
 

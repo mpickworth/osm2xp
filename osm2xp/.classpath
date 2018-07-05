@@ -24,9 +24,6 @@
 	<classpathentry kind="lib" path="lib/omcorba.jar"/>
 	<classpathentry kind="lib" path="lib/omj3d.jar"/>
 	<classpathentry kind="lib" path="lib/omsvg.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-basic.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-algo-shortedgedeletion.jar"/>
-	<classpathentry kind="lib" path="lib/opencarto-util.jar"/>
 	<classpathentry kind="lib" path="lib/openmap.jar"/>
 	<classpathentry kind="lib" path="lib/OSM2World.jar"/>
 	<classpathentry kind="lib" path="lib/persistence-api-1.0.jar"/>

@@ -20,6 +20,7 @@ import com.osm2xp.exceptions.Osm2xpTechnicalException;
 import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.xplane.XplaneDsfObject;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;

@@ -15,7 +15,7 @@ import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.BglUtils;
-import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.writers.IWriter;
 

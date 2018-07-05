@@ -1,4 +1,4 @@
-package com.osm2xp.utils;
+package com.osm2xp.utils.geometry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.opencarto.algo.ShortEdgesDeletion;
 
 import com.osm2xp.model.geom.Lod13Location;
 import com.osm2xp.model.osm.Node;
@@ -546,8 +544,8 @@ public class GeomUtils {
 			Polygon sourcePoly = linearRing2DToPolygon(sourceFootprint);
 
 			// we create a simplified polygon
-//			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5);
-			Geometry cleanPoly = ShortEdgesDeletion.get(sourcePoly, 5.0 / 111000); //Min side 5 meters
+//			Geometry cleanPoly = LatLonShortEdgesDeletion.get(sourcePoly, 5);
+			Geometry cleanPoly = LatLonShortEdgesDeletion.get(sourcePoly, 5.0); //Min side 5 meters
 
 			// we create a linearRing2D from the modified polygon
 			LinearRing2D result = polygonToLinearRing2D(cleanPoly);

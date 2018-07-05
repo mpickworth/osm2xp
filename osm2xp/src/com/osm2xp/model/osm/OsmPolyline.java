@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 
 import math.geom2d.Point2D;
 import math.geom2d.polygon.Polyline2D;

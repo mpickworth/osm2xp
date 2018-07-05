@@ -9,7 +9,7 @@ import java.util.Locale;
 import com.osm2xp.model.osm.OsmMultiPolygon;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.translators.xplane.XPPathSegment;
-import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
 import math.geom2d.Point2D;

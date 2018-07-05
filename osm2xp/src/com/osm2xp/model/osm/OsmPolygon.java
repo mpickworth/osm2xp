@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.util.Collections;
 import java.util.List;
 
-import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 
 import math.geom2d.polygon.LinearRing2D;
 

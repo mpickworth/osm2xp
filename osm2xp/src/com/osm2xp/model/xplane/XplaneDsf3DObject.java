@@ -6,8 +6,8 @@ import math.geom2d.polygon.LinearRing2D;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.options.XplaneObjectTagRule;
 import com.osm2xp.model.osm.OsmPolygon;
-import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.MiscUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 
 /**
  * XplaneDsfObject.

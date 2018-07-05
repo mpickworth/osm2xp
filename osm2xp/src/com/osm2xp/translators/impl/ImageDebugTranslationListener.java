@@ -38,16 +38,28 @@ public class ImageDebugTranslationListener implements ITranslationListener {
 	
 	private static final int IMGSIZE_X = 2048;
 	private static final int IMGSIZE_Y = 2048;
-	BufferedImage image = new BufferedImage(IMGSIZE_X,IMGSIZE_Y, BufferedImage.TYPE_INT_ARGB);
-	Graphics2D g2d = (Graphics2D) image.getGraphics();
-	double baseX = Double.MIN_VALUE;
-	double baseY = Double.MIN_VALUE;
-	double latScale = 111000; //1 degree ~ 111km, but need recals for lat/long
-	double longScale = latScale;
+	private BufferedImage image = new BufferedImage(IMGSIZE_X,IMGSIZE_Y, BufferedImage.TYPE_INT_ARGB);
+	private Graphics2D g2d = (Graphics2D) image.getGraphics();
+	private double baseX = Double.MIN_VALUE;
+	private double baseY = Double.MIN_VALUE;
+	private double latScale = 111000; //1 degree ~ 111km, but need recals for lat/long
+	private double longScale = latScale;
 	
 	public ImageDebugTranslationListener() {
 		g2d.setColor(Color.WHITE);
 		g2d.fillRect(0,0,IMGSIZE_X, IMGSIZE_Y);
+	}
+	
+	/**
+	 * Create debug image generator with specified bottomleft corner
+	 * @param baseX X coord of bottomleft corner, longtitude
+	 * @param baseY Y coord of bottomleft corner, longtitude
+	 * TODO plug this into the UI
+	 */
+	public ImageDebugTranslationListener(double baseX, double baseY) {
+		this();
+		this.baseX = baseX;
+		this.baseY = baseY;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
 import com.osm2xp.model.osm.OsmPolygon;
-import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
 public class XplaneExclusionsHelper extends Thread {

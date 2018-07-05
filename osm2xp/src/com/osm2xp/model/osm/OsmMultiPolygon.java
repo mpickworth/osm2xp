@@ -3,7 +3,7 @@ package com.osm2xp.model.osm;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 
 import math.geom2d.polygon.LinearRing2D;
 
