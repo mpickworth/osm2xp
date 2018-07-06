@@ -2,7 +2,7 @@ package com.osm2xp.translators.xplane;
 
 import static com.osm2xp.translators.impl.XPlaneTranslatorImpl.LINE_SEP;
 
-import com.osm2xp.model.facades.BarrierType;
+import com.osm2xp.model.facades.SpecialFacadeType;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.translators.impl.XPOutputFormat;
@@ -32,7 +32,7 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 		}
 		String barrierType = osmPolyline.getTagValue("barrier");
 		if (barrierType != null && GeomUtils.computeEdgesLength(osmPolyline.getPolyline()) > MIN_BARRIER_PERIMETER && osmPolyline.isValid()) {
-			Integer facade = dsfObjectsProvider.getRandomBarrierFacade(getBarrierType(barrierType),osmPolyline);
+			Integer facade = dsfObjectsProvider.computeSpecialFacadeDsfIndex(getBarrierType(barrierType),osmPolyline);
 			if (facade != null && facade >= 0) {
 				StringBuffer sb = new StringBuffer();
 				if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
@@ -54,11 +54,11 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 		return false;
 	}
 
-	private BarrierType getBarrierType(String barrierTypeStr) {
+	private SpecialFacadeType getBarrierType(String barrierTypeStr) {
 		if ("wall".equalsIgnoreCase(barrierTypeStr)) {
-			return BarrierType.WALL;
+			return SpecialFacadeType.WALL;
 		}
-		return BarrierType.FENCE;
+		return SpecialFacadeType.FENCE;
 	}
 
 	@Override

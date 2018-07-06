@@ -354,7 +354,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		Integer result = null;
 		SpecialFacadeType specialFacadeType = getSpecialBuildingType(polygon);
 		if (specialFacadeType != null) {
-			return dsfObjectsProvider.computeSpecialFacadeIndex(specialFacadeType, polygon);
+			return dsfObjectsProvider.computeSpecialFacadeDsfIndex(specialFacadeType, polygon);
 		}
 		// we check if we can use a sloped roof if the user wants them
 		BuildingType buildingType = getBuildingType(polygon);

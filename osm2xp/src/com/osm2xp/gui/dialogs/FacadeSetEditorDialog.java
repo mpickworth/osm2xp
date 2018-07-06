@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -38,6 +39,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.ColorDialog;
@@ -58,9 +60,9 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.dialogs.utils.Osm2xpDialogsHelper;
-import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSet;
+import com.osm2xp.model.facades.SpecialFacadeType;
 import com.osm2xp.utils.helpers.FacadeSetHelper;
 import com.osm2xp.utils.helpers.ScaleChangeHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
@@ -93,6 +95,8 @@ public class FacadeSetEditorDialog extends Dialog {
 	private Button buildingButton;
 	private Button fenceButton;
 	private Button wallButton;
+	private Button tankButton;
+	private Button garageButton;
 	private Composite buildingParamsComposite;
 	private Button adjustScaleButton;
 	private TabFolder filePropsFolder;
@@ -237,7 +241,7 @@ public class FacadeSetEditorDialog extends Dialog {
 		
 		Composite filePropsComposite = new Composite(filePropsFolder, SWT.NONE);
 		filePropsComposite.setVisible(false);
-		filePropsComposite.setLayout(new GridLayout(3, false));
+		filePropsComposite.setLayout(new GridLayout(5, false));
 		filePropsComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
 				true, 1, 1));
 //		fileProps.setText("Facade file");
@@ -249,10 +253,14 @@ public class FacadeSetEditorDialog extends Dialog {
 		fenceButton.setText("Fence");
 		wallButton = new Button(filePropsComposite, SWT.RADIO);
 		wallButton.setText("Wall");
+		tankButton = new Button(filePropsComposite, SWT.RADIO);
+		tankButton.setText("Tank");
+		garageButton = new Button(filePropsComposite, SWT.RADIO);
+		garageButton.setText("Garage");
 		
 		buildingParamsComposite = new Composite(filePropsComposite, SWT.NONE);
 		buildingParamsComposite.setLayout(new GridLayout(2, false));
-		GridDataFactory.fillDefaults().grab(true, true).span(3,1).applyTo(buildingParamsComposite);
+		GridDataFactory.fillDefaults().grab(true, true).span(5,1).applyTo(buildingParamsComposite);
 		
 		SelectionAdapter facadeTypeAdapter = new SelectionAdapter() {
 			@Override
@@ -263,16 +271,24 @@ public class FacadeSetEditorDialog extends Dialog {
 					currentFacade.setBarrierType(null);
 				}
 				if (fenceButton.getSelection()) {
-					currentFacade.setBarrierType(BarrierType.FENCE);
+					currentFacade.setSpecialType(SpecialFacadeType.FENCE);
 				}
 				if (wallButton.getSelection()) {
-					currentFacade.setBarrierType(BarrierType.WALL);
+					currentFacade.setSpecialType(SpecialFacadeType.WALL);
+				}
+				if (tankButton.getSelection()) {
+					currentFacade.setSpecialType(SpecialFacadeType.TANK);
+				}
+				if (garageButton.getSelection()) {
+					currentFacade.setSpecialType(SpecialFacadeType.GARAGE);
 				}
 			}
 		};
 		buildingButton.addSelectionListener(facadeTypeAdapter);
 		fenceButton.addSelectionListener(facadeTypeAdapter);
 		wallButton.addSelectionListener(facadeTypeAdapter);
+		tankButton.addSelectionListener(facadeTypeAdapter);
+		garageButton.addSelectionListener(facadeTypeAdapter);
 
 		Label labelRoofColor = new Label(buildingParamsComposite, SWT.NONE);
 		labelRoofColor.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
@@ -446,7 +462,21 @@ public class FacadeSetEditorDialog extends Dialog {
 
 			}
 		});
-		Button deleteButton = new Button(buildingParamsComposite, SWT.PUSH);
+		
+		Composite buttonComposite = new Composite(grpFacadeSetProperties, SWT.NONE);
+		GridDataFactory.swtDefaults().span(2,1).applyTo(buttonComposite);
+		buttonComposite.setLayout(new RowLayout());
+		
+		Button addButton = new Button(buttonComposite, SWT.PUSH);
+		addButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/add.png").createImage());
+		addButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				doAddFacade();
+			}
+		});
+		
+		Button deleteButton = new Button(buttonComposite, SWT.PUSH);
 		deleteButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/remove.gif").createImage());
 		deleteButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -480,19 +510,19 @@ public class FacadeSetEditorDialog extends Dialog {
 			}
 		});
 
-		adjustScaleButton = new Button(grpFacadeSetProperties, SWT.PUSH);
+		adjustScaleButton = new Button(buttonComposite, SWT.PUSH);
 		adjustScaleButton.setText("Adjust facade scale");
-		GridDataFactory.swtDefaults().applyTo(adjustScaleButton);
+//		GridDataFactory.swtDefaults().applyTo(adjustScaleButton);
 		adjustScaleButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				doAdjustFacadeScale();
 			}
 		});
-		Button generateDefaultsButton = new Button(grpFacadeSetProperties, SWT.PUSH);
+		Button generateDefaultsButton = new Button(buttonComposite, SWT.PUSH);
 		generateDefaultsButton.setText("Generate stubs");
 		generateDefaultsButton.setToolTipText("Generate descriptors for .fac files present in folder, but missing from XML facades descriptor");
-		GridDataFactory.swtDefaults().applyTo(generateDefaultsButton);
+//		GridDataFactory.swtDefaults().applyTo(generateDefaultsButton);
 		generateDefaultsButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -513,6 +543,10 @@ public class FacadeSetEditorDialog extends Dialog {
 		});
 	    
 		return container;
+	}
+
+	protected void doAddFacade() {
+		
 	}
 
 	protected void doAdjustFacadeScale() {
@@ -575,13 +609,13 @@ public class FacadeSetEditorDialog extends Dialog {
 		if (currentFacade == null) {
 			return;
 		}
-		if (currentFacade.getRoofColor() != null) {
+		if (StringUtils.isNotBlank(currentFacade.getRoofColor())) {
 			textRoofColor.setText(currentFacade.getRoofColor());
 		} else {
 			textRoofColor.setText("");
 		}
 
-		if (currentFacade.getWallColor() != null) {
+		if (StringUtils.isNotBlank(currentFacade.getWallColor())) {
 			textWallColor.setText(currentFacade.getWallColor());
 		} else {
 			textWallColor.setText("");
@@ -617,12 +651,12 @@ public class FacadeSetEditorDialog extends Dialog {
 			spinnerMinHeight.setSelection(0);
 		}
 		
-		BarrierType barrierType = currentFacade.getBarrierType();
-		buildingParamsComposite.setEnabled(barrierType == null);
-		buildingParamsComposite.setVisible(barrierType == null);
-		buildingButton.setSelection(barrierType == null);
-		fenceButton.setSelection(barrierType == BarrierType.FENCE);
-		wallButton.setSelection(barrierType == BarrierType.WALL);
+		SpecialFacadeType specialType = currentFacade.getSpecialType();
+		buildingParamsComposite.setEnabled(specialType == null);
+		buildingParamsComposite.setVisible(specialType == null);
+		buildingButton.setSelection(specialType == null);
+		fenceButton.setSelection(specialType == SpecialFacadeType.FENCE);
+		wallButton.setSelection(specialType == SpecialFacadeType.WALL);
 		File facadeFile = new File(facadeSetFolder, currentFacade.getFile());
 		previewImage = FacadeSetHelper.getPreviewImage(facadeFile);
 		if (previewImage == null) {

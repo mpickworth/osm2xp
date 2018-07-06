@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.IStatus;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
-import com.osm2xp.model.facades.BarrierType;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.facades.SpecialFacadeType;
@@ -23,8 +22,8 @@ import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.options.XplaneLightTagRule;
 import com.osm2xp.model.options.XplaneObjectTagRule;
-import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.xplane.XplaneDsf3DObject;
 import com.osm2xp.model.xplane.XplaneDsfLightObject;
@@ -76,10 +75,6 @@ public class DsfObjectsProvider {
 		computeObjectsList();
 	}
 
-	public Integer computeSpecialFacadeIndex(SpecialFacadeType specialFacadeType, OsmPolyline polygon) {
-		return polygonsList.indexOf(facadeSetManager.getSpecialFacadeStr(specialFacadeType));
-	}
-
 	/**
 	 * Return the dsf index of the computed facade file
 	 * 
@@ -105,8 +100,8 @@ public class DsfObjectsProvider {
 		return polygonsList.indexOf(resFacade.getFile());
 	}
 	
-	public Integer getRandomBarrierFacade(BarrierType barrierType, OsmPolyline polygon) {
-		Facade randomBarrierFacade = facadeSetManager.getRandomBarrierFacade(barrierType);
+	public Integer computeSpecialFacadeDsfIndex(SpecialFacadeType specialFacadeType, OsmPolyline polygon) {
+		Facade randomBarrierFacade = facadeSetManager.getRandomSpecialFacade(specialFacadeType);
 		if (randomBarrierFacade != null) {
 			return polygonsList.indexOf(randomBarrierFacade.getFile());
 		}

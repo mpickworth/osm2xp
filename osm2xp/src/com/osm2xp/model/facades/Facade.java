@@ -18,9 +18,7 @@ public class Facade {
 
 	@XmlElement(required = true)
 	protected String file;
-	@XmlElement(required = true)
 	protected String roofColor;
-	@XmlElement(required = true)
 	protected String wallColor;
 	@XmlElement(name = "barrier")
 	protected BarrierType barrierType;
@@ -252,7 +250,7 @@ public class Facade {
 	}
 
 	public SpecialFacadeType getSpecialType() {
-		if (specialType == null) {
+		if (specialType == null && barrierType != null) {
 			switch (barrierType) {
 			case FENCE:
 				return SpecialFacadeType.FENCE;

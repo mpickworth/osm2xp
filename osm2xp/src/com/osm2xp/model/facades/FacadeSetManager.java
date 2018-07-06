@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -38,9 +36,7 @@ public class FacadeSetManager {
 	
 	protected Multimap<BuildingType, Facade> buildingFacades = HashMultimap.create();
 	
-	protected Multimap<BarrierType, Facade> barrierFacades = HashMultimap.create();
-	
-	protected Map<SpecialFacadeType, String> specialFacades = new HashMap<>();
+	protected Multimap<SpecialFacadeType, Facade> specialFacades = HashMultimap.create();
 
 	private String[] setPaths;
 	
@@ -51,48 +47,74 @@ public class FacadeSetManager {
 	 * @return {@link FacadeSetManager} instance
 	 */
 	public static FacadeSetManager getManager(String facadeSetsStr, File targetFolder) {
-		FacadeSetManager facadeSetManager = new FacadeSetManager(facadeSetsStr);
-		facadeSetManager.checkCopyFacades(targetFolder);
-		
+		FacadeSetManager facadeSetManager = new FacadeSetManager(facadeSetsStr, targetFolder);
 		return facadeSetManager;
 	}
 
-	private FacadeSetManager(String facadeSetsStr) {
+	private FacadeSetManager(String facadeSetsStr, File targetFolder) {
 		List<FacadeSet> list = new ArrayList<FacadeSet>();
 		setPaths = facadeSetsStr.split(File.pathSeparator);
 		for (String pathStr : setPaths) {
 			if (pathStr.trim().isEmpty()) {
 				continue;
 			}
-			File folder = new File(pathStr);
-			if (pathStr.endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
-				folder = folder.getParentFile();
-			}
-			if (folder.isDirectory()) {
-				list.add(FacadeSetHelper.getFacadeSet(folder.getAbsolutePath()));
+			FacadeSet set = loadFacadeSet(pathStr);
+			if (set != null) {
+				list.add(set);
 			}
 		}
 		list.stream().flatMap(set -> set.getFacades().stream()).forEach(facade -> addFacade(facade));
-		
-		specialFacades.put(SpecialFacadeType.TANK, "tank.fac"); //TODO set this up statically for now
-		specialFacades.put(SpecialFacadeType.GARAGE, "garages.fac"); 
+		String problems = getSpecialFacadeProblems();
+		if (!StringUtils.isBlank(problems)) {
+			Activator.log(IStatus.WARNING, problems);
+			File specFacadesFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specfacades");
+			FacadeSet set = loadFacadeSet(specFacadesFolder);
+			if (set != null) {
+				list.add(set);
+			}
+		}
+		checkCopyFacades(targetFolder, true);
+	}
+	private FacadeSet loadFacadeSet(String pathStr) {
+		File folder = new File(pathStr);
+		return loadFacadeSet(folder);
 	}
 	
-	protected void checkCopyFacades(File targetFolder) {
-		if (targetFolder != null && XplaneOptionsHelper.getOptions().isPackageFacades()) {
+	private FacadeSet loadFacadeSet(File folder) {
+		if (folder.getName().endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
+			folder = folder.getParentFile();
+		}
+		if (folder.isDirectory()) {
+			return FacadeSetHelper.getFacadeSet(folder.getAbsolutePath());
+		}
+		return null;
+	}
+
+	private String getSpecialFacadeProblems() {
+		StringBuilder builder = new StringBuilder();
+		if (XplaneOptionsHelper.getOptions().isGenerateFence() && (!specialFacades.containsKey(SpecialFacadeType.FENCE) || !specialFacades.containsKey(SpecialFacadeType.WALL))) {
+			builder.append(" - 'Generate barriers option choosen, but no fence and/or wall facades are present in specified facade sets");
+			builder.append('\n');
+		}
+		if (XplaneOptionsHelper.getOptions().isGenerateTanks() && !specialFacades.containsKey(SpecialFacadeType.TANK)) {
+			builder.append(" - 'Generate tanks/gasometers option choosen, but no 'tank' facades are present in specified facade sets");
+			builder.append('\n');
+		}
+		if (XplaneOptionsHelper.getOptions().isGenerateBuildings() && !specialFacades.containsKey(SpecialFacadeType.GARAGE)) {
+			builder.append(" - 'Generate buildings option choosen, but no special facades for garages are present in specified facade sets");
+			builder.append('\n');
+		}
+		if (builder.length() > 0) {
+			builder.append("Will use built-in default facades");
+		}
+		return builder.toString();
+	}
+	
+	protected void checkCopyFacades(File targetFolder, boolean copySpecFacades) {
+		if (targetFolder != null) { // && XplaneOptionsHelper.getOptions().isPackageFacades() TODO this option is ignored for now, we always copy facades
 			
-			if (XplaneOptionsHelper.getOptions().isGenerateBuildings() || XplaneOptionsHelper.getOptions().isGenerateFence()) {
-				for (String pathStr : setPaths) {
-					File folder = new File(pathStr);
-					if (pathStr.endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
-						folder = folder.getParentFile();
-					}
-					copyFacades(folder, targetFolder);
-				}
-			}
-			if (XplaneOptionsHelper.getOptions().isGenerateBuildings() || XplaneOptionsHelper.getOptions().isGenerateTanks()) {
-				File specFacadesFolder = new File(
-						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specfacades");
+			if (copySpecFacades) {
+				File specFacadesFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specfacades");
 				if (specFacadesFolder.isDirectory()) {
 					try {
 						FilesUtils.copyDirectory(specFacadesFolder, new File(targetFolder, FACADES_TARGET_FOLDER_NAME),
@@ -102,7 +124,18 @@ public class FacadeSetManager {
 					}
 				} else {
 					Activator.log(IStatus.ERROR, "Special facades folder not present in resources dir");
-				} 
+				}
+			}
+			if (XplaneOptionsHelper.getOptions().isGenerateBuildings() 
+					|| XplaneOptionsHelper.getOptions().isGenerateFence()
+					|| XplaneOptionsHelper.getOptions().isGenerateTanks()) {
+				for (String pathStr : setPaths) {
+					File folder = new File(pathStr);
+					if (pathStr.endsWith(FacadeSetHelper.FACADE_SET_DESCRIPTOR_FILE_NAME)) {
+						folder = folder.getParentFile();
+					}
+					copyFacades(folder, targetFolder);
+				}
 			}
 		}
 		
@@ -116,7 +149,7 @@ public class FacadeSetManager {
 		facadesFolder.mkdirs();
 
 		try {
-			FilesUtils.copyDirectory(srcFolder, facadesFolder, false);
+			FilesUtils.copyDirectory(srcFolder, facadesFolder, true);
 			DsfUtils.applyFacadeLod(targetFolder);
 			if (!XplaneOptionsHelper.getOptions().isHardBuildings()) {
 				DsfUtils.removeConcreteRoofsAndWalls(targetFolder);
@@ -129,9 +162,9 @@ public class FacadeSetManager {
 	}
 
 	protected void addFacade(Facade facade) {
-		BarrierType barrierType = facade.getBarrierType(); //If barrier
-		if (barrierType != null) {
-			barrierFacades.put(barrierType, facade);
+		SpecialFacadeType specialFacadeType = facade.getSpecialType(); //If barrier
+		if (specialFacadeType != null) {
+			specialFacades.put(specialFacadeType, facade);
 			return;
 		}
 		if (facade.isResidential()) {
@@ -171,19 +204,18 @@ public class FacadeSetManager {
 	}
 	
 	public List<String> getAllFacadeStrings() {
-		List<String> facadeStrings = barrierFacades.values().stream().distinct().map(facade -> facade.getFile()).sorted().collect(Collectors.toList());
+		List<String> facadeStrings = specialFacades.values().stream().distinct().map(facade -> facade.getFile()).sorted().collect(Collectors.toList());
 		facadeStrings.addAll(buildingFacades.values().stream().distinct().map(facade -> facade.getFile()).sorted().collect(Collectors.toList()));
-		facadeStrings.addAll(specialFacades.values());
 		return facadeStrings;
 	}
 	
-	public Facade getRandomBarrierFacade(BarrierType barrierType) {
-		if (barrierFacades.isEmpty()) {
+	public Facade getRandomSpecialFacade(SpecialFacadeType specialType) {
+		if (specialFacades.isEmpty()) {
 			return null;
 		}
-		Collection<Facade> facades = barrierFacades.get(barrierType);
+		Collection<Facade> facades = specialFacades.get(specialType);
 		if (facades.isEmpty()) {
-			facades = barrierFacades.values();
+			facades = specialFacades.values();
 		}
 		Facade[] facadeArray = facades.toArray(new Facade[0]);
 		return (facadeArray[new Random().nextInt(facades.size())]);
@@ -206,17 +238,6 @@ public class FacadeSetManager {
 		if (buildingColor == null && resList.size() > 0) {
 			return resList.get(0);
 		}
-//		if (this.facadeSetManager != null) {
-//			List<Facade> slopedFacades = this.getSlopedHousesList();
-//			Collections.shuffle(slopedFacades);
-//			for (Facade facade : slopedFacades) {
-//				if ((facade.getMinVectorLength() <= minVector && facade
-//						.getMaxVectorLength() >= minVector)) {
-//					goodFacades.add(facade);
-//				}
-//			}
-//		}
-
 		// now pick the one with the roof color closest the building one
 
 		Facade facadeResult = null;
@@ -254,13 +275,13 @@ public class FacadeSetManager {
 		if (setPaths == null || setPaths.length == 0 || (setPaths.length == 1 && setPaths[0].trim().isEmpty())) {
 			return new StatusInfo(IStatus.ERROR, "No facade sets configured. Please add at least one facade set.");
 		}
-		if (buildingFacades.isEmpty() && barrierFacades.isEmpty()) {
+		if (buildingFacades.isEmpty() && specialFacades.isEmpty()) {
 			return new StatusInfo(IStatus.ERROR, "All specified facade sets are invalid.");
 		}
 		if (XplaneOptionsHelper.getOptions().isGenerateBuildings() && buildingFacades.isEmpty()) {
 			return new StatusInfo(IStatus.WARNING, "'Generate buildings' option chosen, but no building facades loaded.");
 		}
-		if (XplaneOptionsHelper.getOptions().isGenerateFence() && barrierFacades.isEmpty()) {
+		if (XplaneOptionsHelper.getOptions().isGenerateFence() && specialFacades.isEmpty()) {
 			return new StatusInfo(IStatus.WARNING, "'Generate fence' option chosen, but no fence facades loaded.");
 		}
 		StringBuilder badPaths = new StringBuilder();
@@ -277,10 +298,5 @@ public class FacadeSetManager {
 		}
 		return Status.OK_STATUS;
 	}
-
-	public String getSpecialFacadeStr(SpecialFacadeType specialFacadeType) {
-		return specialFacades.get(specialFacadeType);
-	}
-
 
 }
