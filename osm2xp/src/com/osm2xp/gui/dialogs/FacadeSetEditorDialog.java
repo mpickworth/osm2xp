@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -63,6 +64,7 @@ import com.osm2xp.gui.dialogs.utils.Osm2xpDialogsHelper;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSet;
 import com.osm2xp.model.facades.SpecialFacadeType;
+import com.osm2xp.utils.FilesUtils;
 import com.osm2xp.utils.helpers.FacadeSetHelper;
 import com.osm2xp.utils.helpers.ScaleChangeHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
@@ -546,7 +548,37 @@ public class FacadeSetEditorDialog extends Dialog {
 	}
 
 	protected void doAddFacade() {
-		
+		FileDialog fd = new FileDialog(getShell(), SWT.OPEN);
+        fd.setText("Choose facade file");
+        fd.setFilterPath(facadeSetFolder);
+        String[] filterExt = { "*.fac" };
+        fd.setFilterNames(new String[]{"Facade file"});
+        fd.setFilterExtensions(filterExt);
+        String selected = fd.open();
+        if (selected != null) {
+        	File file = new File(selected);
+        	File facadeFolder = new File(facadeSetFolder);
+			if (!file.getParentFile().equals(facadeFolder)) {
+        		boolean doCopy = MessageDialog.openQuestion(getShell(),"Relative paths are not supported", 
+        				"Relative paths are not yet supported in facade sets. Do you want to copy " + 
+        				selected + " to " + facadeSetFolder + "? Existng file wit same name will be overwritten");
+        		if (doCopy) {
+        			try {
+						FilesUtils.copyDirectory(file, facadeFolder, true);
+						file = new File(facadeFolder, file.getName());
+					} catch (IOException e) {
+						MessageDialog.openError(getShell(), "Error copying file", "Error copying" + 
+								        				selected + " to " + facadeSetFolder + "");
+						return;
+					}
+        		}
+        	}
+        	currentFacade = FacadeSetHelper.generateDefaultDescriptor(file);
+			facadeSet.getFacades().add(currentFacade);
+        	viewer.setInput(facadeSet.getFacades());
+        	viewer.setSelection(new StructuredSelection(currentFacade));
+			updateProperties();
+        }
 	}
 
 	protected void doAdjustFacadeScale() {

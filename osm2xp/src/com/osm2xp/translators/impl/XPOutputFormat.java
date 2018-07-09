@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.eclipse.core.runtime.IStatus;
+
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.osm.OsmMultiPolygon;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.translators.xplane.XPPathSegment;
@@ -18,6 +21,12 @@ import math.geom2d.polygon.Polyline2D;
 
 public class XPOutputFormat {
 	
+	/**
+	 * Please see <a href="https://forums.x-plane.org/index.php?/forums/topic/151582-osm2xp-30/&do=findComment&comment=1447720">thi thread for details</a>
+	 * For now no cutting into parts, we just allow max 255 windings - 1 outer and up to 254 inner
+	 */
+	private static final int MAX_INNER_POLYS = 254;
+
 	public String getPolygonString (Polyline2D poly, String arg1, String arg2) {
 		return getPolygonString(poly, null, arg1, arg2);
 	}
@@ -30,6 +39,10 @@ public class XPOutputFormat {
 		sb.append(getWindingStr(poly.getVertices()));
 		
 		if (innerPolys != null && !innerPolys.isEmpty()) {
+			if (innerPolys.size() > MAX_INNER_POLYS) { 
+				Activator.log(IStatus.WARNING, "255 windings at most supported for polygon, current polygon has " + innerPolys.size() + ". Only first 255 would be used.");
+				innerPolys = innerPolys.subList(0, MAX_INNER_POLYS);
+			}
 			for (Polyline2D polyline2d : innerPolys) {
 				sb.append(getWindingStr(GeomUtils.forceCW((LinearRing2D) polyline2d).getVertices()));
 			}

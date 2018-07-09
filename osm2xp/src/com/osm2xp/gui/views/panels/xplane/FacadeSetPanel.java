@@ -127,6 +127,13 @@ public class FacadeSetPanel extends Osm2xpPanel {
 			removeButton.setEnabled(hasSelection);
 			editButton.setEnabled(hasSelection);
 		});
+		facadeListViewer.addDoubleClickListener(e -> {
+			if (facadeListViewer.getSelection().isEmpty()) {
+				doAddFacade();
+			} else {
+				doEditFacadeSet();
+			}
+		});
 		
 //		lblFacadeSet = new Label(this, SWT.NONE);
 //		lblFacadeSet.setText("Facade set : ");
