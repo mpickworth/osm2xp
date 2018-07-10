@@ -64,7 +64,6 @@ import com.osm2xp.gui.dialogs.utils.Osm2xpDialogsHelper;
 import com.osm2xp.model.facades.Facade;
 import com.osm2xp.model.facades.FacadeSet;
 import com.osm2xp.model.facades.SpecialFacadeType;
-import com.osm2xp.utils.FilesUtils;
 import com.osm2xp.utils.helpers.FacadeSetHelper;
 import com.osm2xp.utils.helpers.ScaleChangeHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
@@ -559,19 +558,22 @@ public class FacadeSetEditorDialog extends Dialog {
         	File file = new File(selected);
         	File facadeFolder = new File(facadeSetFolder);
 			if (!file.getParentFile().equals(facadeFolder)) {
-        		boolean doCopy = MessageDialog.openQuestion(getShell(),"Relative paths are not supported", 
-        				"Relative paths are not yet supported in facade sets. Do you want to copy " + 
-        				selected + " to " + facadeSetFolder + "? Existng file wit same name will be overwritten");
-        		if (doCopy) {
-        			try {
-						FilesUtils.copyDirectory(file, facadeFolder, true);
-						file = new File(facadeFolder, file.getName());
-					} catch (IOException e) {
-						MessageDialog.openError(getShell(), "Error copying file", "Error copying" + 
-								        				selected + " to " + facadeSetFolder + "");
-						return;
-					}
-        		}
+				MessageDialog.openError(getShell(),"Relative paths are not supported", "Relative paths are not supported for now. Please copy facade and image files to facade "
+						+ "set folder (" + facadeSetFolder + ") and choose them");
+				return;
+//        		boolean doCopy = MessageDialog.openQuestion(getShell(),"Relative paths are not supported", 
+//        				"Relative paths are not yet supported in facade sets. Do you want to copy " + 
+//        				selected + " to " + facadeSetFolder + "? Existng file wit same name will be overwritten");
+//        		if (doCopy) {
+//        			try {
+//						FilesUtils.copyDirectory(file, facadeFolder, true);
+//						file = new File(facadeFolder, file.getName());
+//					} catch (IOException e) {
+//						MessageDialog.openError(getShell(), "Error copying file", "Error copying" + 
+//								        				selected + " to " + facadeSetFolder + "");
+//						return;
+//					}
+//        		}
         	}
         	currentFacade = FacadeSetHelper.generateDefaultDescriptor(file);
 			facadeSet.getFacades().add(currentFacade);
@@ -689,6 +691,8 @@ public class FacadeSetEditorDialog extends Dialog {
 		buildingButton.setSelection(specialType == null);
 		fenceButton.setSelection(specialType == SpecialFacadeType.FENCE);
 		wallButton.setSelection(specialType == SpecialFacadeType.WALL);
+		tankButton.setSelection(specialType == SpecialFacadeType.TANK);
+		garageButton.setSelection(specialType == SpecialFacadeType.GARAGE);
 		File facadeFile = new File(facadeSetFolder, currentFacade.getFile());
 		previewImage = FacadeSetHelper.getPreviewImage(facadeFile);
 		if (previewImage == null) {

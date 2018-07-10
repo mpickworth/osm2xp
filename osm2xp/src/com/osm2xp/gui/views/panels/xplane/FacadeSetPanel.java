@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -182,6 +180,11 @@ public class FacadeSetPanel extends Osm2xpPanel {
 			facadeSets.remove(firstElement);
 			persistFacadeSets();
 			refreshViewer();
+			if (!facadeSets.isEmpty()) {
+				facadeListViewer.setSelection(new StructuredSelection(facadeSets.get(0)));
+			} else {
+				facadeListViewer.setSelection(new StructuredSelection());
+			}
 		}
 	}
 	

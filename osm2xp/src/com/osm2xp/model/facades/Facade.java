@@ -264,5 +264,13 @@ public class Facade {
 	public void setSpecialType(SpecialFacadeType specialType) {
 		this.specialType = specialType;
 	}
+	
+	@Override
+	public String toString() {
+		if (specialType != null) {
+			return specialType.name() + " " + file;
+		}
+		return file;
+	}
 
 }
