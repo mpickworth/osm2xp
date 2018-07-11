@@ -44,6 +44,7 @@ import math.geom2d.polygon.LinearRing2D;
 public class DsfObjectsProvider {
 
 	public static final String OBJECTS_TARGET_FOLDER_NAME = "objects";
+	public static final String SPECIAL_OBJECTS_TARGET_FOLDER_NAME = "specobjects";
 	public static final String FORESTS_TARGET_FOLDER_NAME = "forests";
 	private List<String> objectsList = new ArrayList<String>();
 	private List<String> singlesFacadesList = new ArrayList<String>();
@@ -204,23 +205,34 @@ public class DsfObjectsProvider {
 
 	private void add3DObjects() {
 		if (XplaneOptionsHelper.getOptions().isGenerateChimneys() || XplaneOptionsHelper.getOptions().isGenerateObj() ) {
+				File objectsFolder = new File(
+						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/objects");
+				if (objectsFolder.isDirectory()) {
+					registerAndCopyObjectsFolder(objectsFolder, OBJECTS_TARGET_FOLDER_NAME);
+				} else {
+					Activator.log(IStatus.ERROR, "Special facades folder not present in resources dir");
+				} 
 				File specObjectsFolder = new File(
 						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specobjects");
 				if (specObjectsFolder.isDirectory()) {
-					try {
-						FilesUtils.copyDirectory(specObjectsFolder, new File(targetFolderPath, OBJECTS_TARGET_FOLDER_NAME),
-								false);
-					} catch (IOException e) {
-						Activator.log(e);
-					}
-					File[] objFiles = specObjectsFolder.listFiles((parent, name) -> name.toLowerCase().endsWith(".obj"));
-					for (File file : objFiles) {
-						objectsList.add(OBJECTS_TARGET_FOLDER_NAME + "/" + file.getName());
-					}
+					registerAndCopyObjectsFolder(specObjectsFolder, SPECIAL_OBJECTS_TARGET_FOLDER_NAME);
 				} else {
 					Activator.log(IStatus.ERROR, "Special facades folder not present in resources dir");
 				} 
 			}
+	}
+
+	protected void registerAndCopyObjectsFolder(File objectsFolder, String targetSubfolder) {
+		try {
+			FilesUtils.copyDirectory(objectsFolder, new File(targetFolderPath, targetSubfolder),
+					false);
+		} catch (IOException e) {
+			Activator.log(e);
+		}
+		File[] objFiles = objectsFolder.listFiles((parent, name) -> name.toLowerCase().endsWith(".obj"));
+		for (File file : objFiles) {
+			objectsList.add(targetSubfolder + "/" + file.getName());
+		}
 	}
 
 	/**
@@ -487,7 +499,7 @@ public class DsfObjectsProvider {
 	}
 
 	public Integer getChimneyObject(String chimneyModelFile) {
-		return objectsList.indexOf(OBJECTS_TARGET_FOLDER_NAME + "/" + chimneyModelFile);
+		return objectsList.indexOf(SPECIAL_OBJECTS_TARGET_FOLDER_NAME + "/" + chimneyModelFile);
 	}
 
 }
