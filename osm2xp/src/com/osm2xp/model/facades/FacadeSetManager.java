@@ -112,13 +112,16 @@ public class FacadeSetManager {
 	
 	protected void checkCopyFacades(File targetFolder, boolean copySpecFacades) {
 		//Check for non-empty folder was added to avoid copying facades second time for second tile being generated
-		if (targetFolder != null && (!targetFolder.isDirectory() || targetFolder.list().length == 0)) { // && XplaneOptionsHelper.getOptions().isPackageFacades() TODO this option is ignored for now, we always copy facades
-			
+		if (targetFolder != null) { // && XplaneOptionsHelper.getOptions().isPackageFacades() TODO this option is ignored for now, we always copy facades
+			File targetFacadesFolder = new File(targetFolder, FACADES_TARGET_FOLDER_NAME);
+			if (targetFacadesFolder.isDirectory() && targetFacadesFolder.list().length > 0) {
+				return; //Don't copy facades second time
+			}
 			if (copySpecFacades) {
 				File specFacadesFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specfacades");
 				if (specFacadesFolder.isDirectory()) {
 					try {
-						FilesUtils.copyDirectory(specFacadesFolder, new File(targetFolder, FACADES_TARGET_FOLDER_NAME),
+						FilesUtils.copyDirectory(specFacadesFolder, targetFacadesFolder,
 								false);
 					} catch (IOException e) {
 						Activator.log(e);
