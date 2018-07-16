@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -63,7 +64,6 @@ public class FacadeSetManager {
 				list.add(set);
 			}
 		}
-		list.stream().flatMap(set -> set.getFacades().stream()).forEach(facade -> addFacade(facade));
 		String problems = getSpecialFacadeProblems();
 		if (!StringUtils.isBlank(problems)) {
 			Activator.log(IStatus.WARNING, problems);
@@ -73,7 +73,8 @@ public class FacadeSetManager {
 				list.add(set);
 			}
 		}
-		checkCopyFacades(targetFolder, true);
+		list.stream().flatMap(set -> set.getFacades().stream()).forEach(facade -> addFacade(facade));
+		checkCopyFacades(targetFolder, !StringUtils.isBlank(problems));
 	}
 	private FacadeSet loadFacadeSet(String pathStr) {
 		File folder = new File(pathStr);
@@ -219,7 +220,8 @@ public class FacadeSetManager {
 		}
 		Collection<Facade> facades = specialFacades.get(specialType);
 		if (facades.isEmpty()) {
-			facades = specialFacades.values();
+			LogFactory.getLog(getClass()).error("No facade registered for type " + specialType);
+			return null;
 		}
 		Facade[] facadeArray = facades.toArray(new Facade[0]);
 		return (facadeArray[new Random().nextInt(facades.size())]);
@@ -284,9 +286,6 @@ public class FacadeSetManager {
 		}
 		if (XplaneOptionsHelper.getOptions().isGenerateBuildings() && buildingFacades.isEmpty()) {
 			return new StatusInfo(IStatus.WARNING, "'Generate buildings' option chosen, but no building facades loaded.");
-		}
-		if (XplaneOptionsHelper.getOptions().isGenerateFence() && specialFacades.isEmpty()) {
-			return new StatusInfo(IStatus.WARNING, "'Generate fence' option chosen, but no fence facades loaded.");
 		}
 		StringBuilder badPaths = new StringBuilder();
 		for (String path : setPaths) {
