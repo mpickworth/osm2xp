@@ -29,6 +29,7 @@ import com.osm2xp.translators.ITranslator;
 import com.osm2xp.translators.xplane.IDRenumbererService;
 import com.osm2xp.translators.xplane.XPBarrierTranslator;
 import com.osm2xp.translators.xplane.XPChimneyTranslator;
+import com.osm2xp.translators.xplane.XPCoolingTowerTranslator;
 import com.osm2xp.translators.xplane.XPForestTranslator;
 import com.osm2xp.translators.xplane.XPPowerlineTranslator;
 import com.osm2xp.translators.xplane.XPRailTranslator;
@@ -123,6 +124,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		polyHandlers.add(new XPRoadTranslator(writer, outputFormat));
 		polyHandlers.add(new XPRailTranslator(writer, outputFormat));
 		polyHandlers.add(new XPPowerlineTranslator(writer, outputFormat));
+		polyHandlers.add(new XPCoolingTowerTranslator(writer, dsfObjectsProvider));
 		polyHandlers.add(new XPChimneyTranslator(writer, dsfObjectsProvider));
 		forestTranslator = new XPForestTranslator(writer, dsfObjectsProvider, outputFormat, stats);
 		
@@ -295,8 +297,16 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	 * @return
 	 */
 	protected int tryGetHeightByType(OsmPolygon polygon) {
-		if ("garages".equals(polygon.getTagValue(BUILDING_TAG)) || "garage".equals(polygon.getTagValue(BUILDING_TAG))) { //1 level high by default
+		SpecialFacadeType specialType = getSpecialBuildingType(polygon);
+		if (specialType == SpecialFacadeType.GARAGE) { //Garages are 1 level high by default
 			return (int) Math.round(levelHeight);
+		} else if (specialType == SpecialFacadeType.TANK) { //Tanks height == diameter, if not specified, 2 * diameter for gasometers			
+			double length = GeomUtils.computeEdgesLength(polygon.getPolyline());
+			int diameter = (int) Math.round(length / Math.PI);
+			if ("gasometer".equalsIgnoreCase(polygon.getTagValue(Osm2xpConstants.MAN_MADE_TAG))) {
+				return diameter * 2;
+			}
+			return diameter;
 		}
 		return 0;
 	}
@@ -469,16 +479,17 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				
 				// look for light rules
 				processLightObject(poly);
-	
-				// try to generate a 3D object
-				if (!process3dObject(poly)) {
-					// nothing generated? try to generate a facade building.
-					if (!processBuilding(poly)) {
-						// nothing generated? try to generate a forest.
-						if (forestTranslator.handlePoly(poly) && translationListener != null) {
-							translationListener.processForest((OsmPolygon) poly);
-						} else {
-							processOther(poly);
+				//Try processing by registered handlers first - they ususally have more concrete rules
+				if (!processByHandlers(poly))
+				{	
+					// try to generate a 3D object
+					if (!process3dObject(poly)) {
+						// nothing generated? try to generate a facade building.
+						if (!processBuilding(poly)) {
+							// nothing generated? try to generate a forest.
+							if (forestTranslator.handlePoly(poly) && translationListener != null) {
+								translationListener.processForest((OsmPolygon) poly);
+							} 
 						}
 					}
 				}
@@ -620,7 +631,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		return false;
 	}
 
-	protected boolean processOther(OsmPolyline poly) {
+	protected boolean processByHandlers(OsmPolyline poly) {
 		for (IPolyHandler handler : polyHandlers) {
 			if (handler.handlePoly(poly)) {
 				if (translationListener != null) {

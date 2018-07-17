@@ -123,7 +123,7 @@ public class Xplane9TranslatorImpl extends XPlaneTranslatorImpl {
 						if (!forestTranslator.handlePoly(poly)) {
 							// still nothing? try to generate a streetlight.
 							if (!processStreetLights(poly)) {
-								processOther(poly);
+								processByHandlers(poly);
 							}
 						}
 					}

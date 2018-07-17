@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlType;
 		"residentialMin", "residentialMax", "buildingMin", "buildingMax",
 		"minHouseSegment", "maxHouseSegment", "minHouseArea", "generateObj",
 		"generateFor", "generateBuildings","generatePowerlines","generateRailways","generateRoads","generateFence",
-		"generateTanks","generateChimneys","generateBridges","generateSlopedRoofs", "generateStreetLights", 
+		"generateTanks","generateChimneys","generateCoolingTowers","generateBridges","generateSlopedRoofs", "generateStreetLights", 
 		"lightsDensity", "packageFacades","hardBuildings", "lightObject", "facadeLod", 
 		"generateXmlStats", "generatePdfStats", "generateDebugImg", "generateComments", "levelHeight",
 		"roadBridgeRampLen","railBridgeRampLen","buildingsExclusions",
@@ -55,6 +55,7 @@ public class XplaneOptions {
 	protected boolean generateFence = true;
 	protected boolean generateTanks = true;
 	protected boolean generateChimneys = true;
+	protected boolean generateCoolingTowers= true;
 	protected boolean generateBridges = true;
 	protected boolean generateStreetLights;
 	protected boolean generateSlopedRoofs;
@@ -859,6 +860,14 @@ public class XplaneOptions {
 
 	public void setRailBridgeRampLen(int railBridgeRampLen) {
 		this.railBridgeRampLen = railBridgeRampLen;
+	}
+
+	public boolean isGenerateCoolingTowers() {
+		return generateCoolingTowers;
+	}
+
+	public void setGenerateCoolingTowers(boolean generateCoolingTowers) {
+		this.generateCoolingTowers = generateCoolingTowers;
 	}
 
 }

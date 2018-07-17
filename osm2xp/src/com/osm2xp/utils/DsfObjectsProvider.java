@@ -256,14 +256,6 @@ public class DsfObjectsProvider {
 	}
 	
 	/**
-	 * @param height 
-	 * @return chimney object idx
-	 */
-	public Integer getChimneyObject(int height) {
-		return objectsList.indexOf(OBJECTS_TARGET_FOLDER_NAME + "/" + "chimney-200.obj"); //TODO add actual logics here
-	}
-
-	/**
 	 * @return
 	 */
 	@Deprecated
@@ -498,8 +490,8 @@ public class DsfObjectsProvider {
 		return exclusionBox;
 	}
 
-	public Integer getChimneyObject(String chimneyModelFile) {
-		return objectsList.indexOf(SPECIAL_OBJECTS_TARGET_FOLDER_NAME + "/" + chimneyModelFile);
+	public Integer getSpecialObject(String specialObjectFile) {
+		return objectsList.indexOf(SPECIAL_OBJECTS_TARGET_FOLDER_NAME + "/" + specialObjectFile);
 	}
 
 }
