@@ -216,7 +216,7 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 			            	try {
 								List<com.osm2xp.model.osm.Node> nodes = getNodes(polyNodeIds);
 								
-								if (nodes != null) {
+								if (nodes != null && nodes.size() > 3) {
 									
 									List<Tag> tagsModel = tags.keySet().stream().map(key -> new Tag(key, tags.get(key))).collect(Collectors.toList());
 									OsmPolygon polygon = new OsmPolygon(pbfRelation.getId(),

@@ -198,6 +198,9 @@ public class GeomUtils {
 		for (Point2D point : ring2d.getVertices()) {
 			coords.add(new Coordinate(point.x, point.y));
 		}
+		if (coords.size() > 1 && !coords.get(coords.size() - 1).equals(coords.get(0))) {
+			coords.add(coords.get(0));
+		}
 		Coordinate[] points = (Coordinate[]) coords
 				.toArray(new Coordinate[coords.size()]);
 		CoordinateSequence coordSeq = CoordinateArraySequenceFactory.instance()
