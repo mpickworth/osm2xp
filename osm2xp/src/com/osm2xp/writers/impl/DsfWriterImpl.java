@@ -44,13 +44,8 @@ public class DsfWriterImpl implements IWriter {
 	public void write(Object data, Point2D coordinates) {
 		try {
 			if (data != null) {
-				File dsfFile = null;
 				// look if we have a dsf file for this coordinate point
-				if (dsfFiles.get(coordinates) != null) {
-					dsfFile = dsfFiles.get(coordinates);
-				} else {
-					dsfFile = checkDsfFile(coordinates);
-				}
+				checkDsfFile(coordinates);
 				// write into this dsf file
 				dsfWriters.get(coordinates).write((String) data);
 			}
@@ -103,8 +98,12 @@ public class DsfWriterImpl implements IWriter {
 	}
 
 	public File checkDsfFile(Point2D coordinates) throws IOException {
+		File dsfFile = dsfFiles.get(coordinates); 
+		if (dsfFile != null) {
+			return dsfFile;
+		}
 		// compute the dsf file path
-		File dsfFile = DsfUtils.computeXPlaneDsfFilePath(sceneFolder,
+		dsfFile = DsfUtils.computeXPlaneDsfFilePath(sceneFolder,
 				coordinates);
 		// if file doesn't exists
 //		if (!dsfFile.exists()) {
