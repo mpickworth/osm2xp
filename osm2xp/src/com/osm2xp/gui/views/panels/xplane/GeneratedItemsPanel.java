@@ -29,6 +29,7 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 	private Button btnGenerateFence;
 	private Button btnGenerateTanks;
 	private Button btnGenerateChimneys;
+	private Button btnGenerateCoolingTowers;
 	private Button btnGenerateBridges;
 
 	public GeneratedItemsPanel(final Composite parent, final int style) {
@@ -61,12 +62,18 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 		
 		btnGenerateTanks= new Button(this, SWT.CHECK);
 		btnGenerateTanks.setText("Generate Tanks/Gasometers");
-		btnGenerateTanks.setText("Generate Tanks/Gasometers using special facade");
+		btnGenerateTanks.setToolTipText("Generate Tanks/Gasometers using special facade");
 		GridDataFactory.fillDefaults().applyTo(btnGenerateTanks);
 		
 		btnGenerateChimneys = new Button(this, SWT.CHECK);
 		btnGenerateChimneys.setText("Generate Chimneys");
+		btnGenerateChimneys.setToolTipText("Generate Chimneys by selecting best-fit model");
 		GridDataFactory.fillDefaults().applyTo(btnGenerateChimneys);
+		
+		btnGenerateCoolingTowers = new Button(this, SWT.CHECK);
+		btnGenerateCoolingTowers.setText("Generate Cooling Towers");
+		btnGenerateCoolingTowers.setToolTipText("Generate Cooling Towers by selecting best-fit model");
+		GridDataFactory.fillDefaults().applyTo(btnGenerateCoolingTowers);
 		
 		btnGenerateStreetLights = new Button(this, SWT.CHECK);
 		btnGenerateStreetLights.setText("Generate street lights");
@@ -116,6 +123,8 @@ public class GeneratedItemsPanel extends Osm2xpPanel {
 				PojoProperties.value("generateTanks").observe(XplaneOptionsHelper.getOptions()));
 		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateChimneys),		
 				PojoProperties.value("generateChimneys").observe(XplaneOptionsHelper.getOptions()));
+		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateCoolingTowers),		
+				PojoProperties.value("generateCoolingTowers").observe(XplaneOptionsHelper.getOptions()));
 		bindingContext.bindValue(WidgetProperties.selection().observe(btnGenerateBridges),		
 				PojoProperties.value("generateBridges").observe(XplaneOptionsHelper.getOptions()));
 	}

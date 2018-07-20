@@ -49,7 +49,6 @@ You can help with coding, if you know Java/Eclipse, with creating better default
 
 ## Nearest plans
 
-* Generate cooling towers - using objects, like it's done for chimneys
-* Multipolygon (e.g. poly with holes) support for forests & buildings - partially done
+* Multipolygon (e.g. poly with holes) support for forests & buildings - partially done, but dont support cutting multipolys and complex cases
 * More options in the GUI
-* Make more facade categories - add garage and tank/gasometer facade types
+* Better default facade set

@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.2.0]
+
+### Added
+
+- Generation of cooling towers by selecting most suitable model (by diameter) from predefined model set
+- Ability to configure custom facades, e.g. for tanks/gasometers and garages
+
+### Fixed
+- Small fixes for multipoly handling
+
+### Changed 
+- Extended facade set editor
+
+
 ## [3.1.0]
 
 ### Added
