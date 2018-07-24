@@ -302,7 +302,7 @@
         <roofColor></roofColor>
         <wallColor></wallColor>
         <industrial>true</industrial>
-        <commercial>true</commercial>
+        <commercial>false</commercial>
         <residential>false</residential>
         <sloped>false</sloped>
         <minVectorLength>0.0</minVectorLength>
