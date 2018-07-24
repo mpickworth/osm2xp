@@ -212,6 +212,11 @@ public class FacadeSetHelper {
 		return result;
 	}
 	
+	public static void reloadImgs() {
+		imageRegistry.dispose();
+		imageRegistry = new ImageRegistry();
+	}
+	
 	public static Image getPreviewImage(File facadeFile) {
 		Image img = imageRegistry.get(facadeFile.getAbsolutePath());
 		if (img != null) {

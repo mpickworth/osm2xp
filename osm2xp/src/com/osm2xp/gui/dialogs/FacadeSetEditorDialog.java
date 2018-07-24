@@ -470,6 +470,7 @@ public class FacadeSetEditorDialog extends Dialog {
 		
 		Button addButton = new Button(buttonComposite, SWT.PUSH);
 		addButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/add.png").createImage());
+		addButton.setToolTipText("Add new facade file descriptor");
 		addButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -479,6 +480,7 @@ public class FacadeSetEditorDialog extends Dialog {
 		
 		Button deleteButton = new Button(buttonComposite, SWT.PUSH);
 		deleteButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/remove.gif").createImage());
+		deleteButton.setToolTipText("Remove selected facade from facade set");
 		deleteButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -508,6 +510,17 @@ public class FacadeSetEditorDialog extends Dialog {
 						updateProperties();
 					}
 				}
+			}
+		});
+		
+		Button reloadButton = new Button(buttonComposite, SWT.PUSH);
+		reloadButton.setImage(AbstractUIPlugin.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/refresh.gif").createImage());
+		reloadButton.setToolTipText("Reload facade preview images");
+		reloadButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FacadeSetHelper.reloadImgs();
+				updateProperties();
 			}
 		});
 
