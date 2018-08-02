@@ -452,8 +452,13 @@ public class WavefrontTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
+	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
 	}
 
 	@Override

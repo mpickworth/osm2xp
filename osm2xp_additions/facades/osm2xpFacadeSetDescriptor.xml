@@ -583,4 +583,16 @@
         <minHeight>0</minHeight>
         <maxHeight>0</maxHeight>
     </facades>
+    <facades>
+        <file>simplehouse1.fac</file>
+        <industrial>false</industrial>
+        <commercial>false</commercial>
+        <residential>true</residential>
+        <sloped>false</sloped>
+        <minVectorLength>0.0</minVectorLength>
+        <maxVectorLength>0.0</maxVectorLength>
+        <simpleBuildingOnly>false</simpleBuildingOnly>
+        <minHeight>12</minHeight>
+        <maxHeight>26</maxHeight>
+    </facades>
 </FacadeSet>

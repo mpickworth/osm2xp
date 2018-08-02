@@ -62,7 +62,7 @@ public class ParserBuilder {
 			if (GuiOptionsHelper.getOptions().isSinglePass()) {
 				parser = new PbfWholeFileParserImpl();
 			} else {
-				parser = new PbfSingleTileParserImpl();
+				parser = new PbfSingleTileParserImpl(currentTile);
 			}
 
 		}

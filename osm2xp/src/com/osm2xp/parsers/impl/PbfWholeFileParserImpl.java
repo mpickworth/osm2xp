@@ -157,7 +157,7 @@ public class PbfWholeFileParserImpl extends TranslatingParserImpl implements IPa
 				for (Nd nd : way.getNd()) {
 					ids.add(nd.getRef());
 				}
-				if (translator.mustStoreWay(way)) {
+				if (translator.mustProcessWay(way)) {
 					for (Nd nd : way.getNd()) {
 						com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
 						node.setId(nd.getRef());

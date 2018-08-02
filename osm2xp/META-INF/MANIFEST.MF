@@ -52,7 +52,11 @@ Bundle-ClassPath: .,
  lib/osmosis-xml-0.46.jar,
  lib/osmosis-osm-binary-0.46.jar,
  lib/protobuf-java-3.4.0.jar,
- lib/jts-1.13.jar
+ lib/jts-1.13.jar,
+ lib/gt-api-19.2.jar,
+ lib/gt-main-19.2.jar,
+ lib/gt-opengis-19.2.jar,
+ lib/gt-referencing-19.2.jar
 Bundle-Activator: com.osm2xp.gui.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

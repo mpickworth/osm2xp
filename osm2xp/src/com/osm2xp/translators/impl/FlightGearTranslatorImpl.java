@@ -17,6 +17,7 @@ import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
+import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.FilesUtils;
@@ -151,9 +152,15 @@ public class FlightGearTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
 	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
+	}
+
 	
 	@Override
 	public void processBoundingBox(HeaderBBox bbox) {

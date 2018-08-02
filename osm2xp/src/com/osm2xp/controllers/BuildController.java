@@ -3,7 +3,6 @@ package com.osm2xp.controllers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import math.geom2d.Point2D;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -14,10 +13,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.WorkbenchException;
+
 import com.osm2xp.constants.Perspectives;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
@@ -36,6 +34,8 @@ import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.Osm2xpProjectHelper;
 import com.osm2xp.utils.helpers.StatsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
+
+import math.geom2d.Point2D;
 
 /**
  * Build controller.

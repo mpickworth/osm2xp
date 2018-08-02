@@ -163,7 +163,7 @@ public class ConsoleTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
 	}
 	
@@ -172,5 +172,10 @@ public class ConsoleTranslatorImpl implements ITranslator {
 		if (bbox != null) {
 			Osm2xpLogger.info("Bounding box: " + bbox.getLeft() + "," + bbox.getTop() + "," + bbox.getRight() + "," + bbox.getBottom());
 		}
+	}
+
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
 	}
 }

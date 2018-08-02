@@ -182,7 +182,7 @@ public class SaxParserImpl implements ContentHandler, IParser {
 
 	private void checkWaysForUsefullNodes(Way way)
 			throws Osm2xpBusinessException, DataSinkException {
-		if (translator.mustStoreWay(way)) {
+		if (translator.mustProcessWay(way)) {
 			for (Nd nd : way.getNd()) {
 				com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
 				node.setId(nd.getRef());

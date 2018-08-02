@@ -174,12 +174,17 @@ public class OsmTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
 	}
 	
 	@Override
 	public void processBoundingBox(HeaderBBox bbox) {
 		// Do nothing
+	}
+
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
 	}
 }

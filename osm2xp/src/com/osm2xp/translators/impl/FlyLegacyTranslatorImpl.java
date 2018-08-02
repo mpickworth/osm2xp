@@ -182,9 +182,15 @@ public class FlyLegacyTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
 	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
+	}
+
 	
 	@Override
 	public void processBoundingBox(HeaderBBox bbox) {

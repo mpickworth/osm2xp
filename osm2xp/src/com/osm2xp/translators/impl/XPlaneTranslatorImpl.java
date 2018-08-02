@@ -509,16 +509,16 @@ public class XPlaneTranslatorImpl implements ITranslator{
 			// if we're on a single pass mode
 			// here we must check if the polygon is on more than one tile
 			// if that's the case , we must split it into several polys
-			List<OsmPolyline> polygons = new ArrayList<>();
-			if (GuiOptionsHelper.getOptions().isSinglePass()) {
-				polygons.addAll(osmPolyline.splitPolygonAroundTiles());
-			}
+//			List<OsmPolyline> polygons = new ArrayList<>(); //TODO we shoudn't need to split it here anymore. Translator should get "clean" polygons - already splitted & clipped to tile size 
+//			if (GuiOptionsHelper.getOptions().isSinglePass()) {
+//				polygons.addAll(osmPolyline.splitPolygonAroundTiles());
+//			}
 			// if not on a single pass mode, add this single polygon to the poly
 			// list
-			else {
-				polygons.add(osmPolyline);
-			}
-			return polygons;
+//			else {
+//				polygons.add(osmPolyline);
+//			}
+//			return polygons;
 		}
 		return Collections.singletonList(osmPolyline);
 	}
@@ -665,15 +665,20 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	@Override
 	public Boolean mustStoreNode(Node node) {
 		Boolean result = true;
-		if (!GuiOptionsHelper.getOptions().isSinglePass()) {
-			result = GeomUtils.compareCoordinates(currentTile, node);
-		}
+//		if (!GuiOptionsHelper.getOptions().isSinglePass()) { //XXX debug
+//			result = GeomUtils.compareCoordinates(currentTile, node);
+//		}
 		return result;
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		List<Tag> tags = way.getTag();
+		return mustProcessPolyline(tags);
+	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
 		return (OsmUtils.isBuilding(tags) || OsmUtils.isForest(tags) || OsmUtils
 				.isObject(tags) || OsmUtils.isRailway(tags) || OsmUtils.isRoad(tags) || OsmUtils.isPowerline(tags) || OsmUtils.isFence(tags));
 	}

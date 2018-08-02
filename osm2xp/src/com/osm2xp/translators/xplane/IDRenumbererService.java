@@ -11,26 +11,30 @@ import java.util.Map;
 public class IDRenumbererService {
 	
 	private static Map<Long, Integer> crossingRenumberMap = new HashMap<Long, Integer>();
-	private static int renumberCounter = 1; 
+	private static int renumberCounter = -1; //We use negative values for "fake" nodes here because of https://wiki.openstreetmap.org/wiki/Node, "Editors may temporarily save node ids as negative to denote ids that haven't yet been saved to the server."
 	
 	public static void reinit() {
 		crossingRenumberMap.clear();
-		renumberCounter = 1;
+		renumberCounter = -1;
 	}
 	
 	public static int getNewId(long id) {
 		Integer newId = crossingRenumberMap.get(id);
 		if (newId == null) {
 			newId = renumberCounter;
-			renumberCounter++;
+			renumberCounter--;
 			crossingRenumberMap.put(id,newId);
 		}
 		return newId;
 	}
 	
+	/**
+	 * Return new id, actually not increment, but decrement starting at -1, see reason above 
+	 * @return
+	 */
 	public static int getIncrementId() {
 		int newId = renumberCounter;
-		renumberCounter++;
+		renumberCounter--;
 		return newId;
 	}
 	

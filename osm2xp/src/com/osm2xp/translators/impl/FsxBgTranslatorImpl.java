@@ -1,6 +1,7 @@
 package com.osm2xp.translators.impl;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
@@ -11,6 +12,7 @@ import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
+import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.translators.ITranslator;
@@ -137,9 +139,15 @@ public class FsxBgTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
 	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
+	}
+
 	
 	@Override
 	public void processBoundingBox(HeaderBBox bbox) {

@@ -110,10 +110,16 @@ public class G2xplTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		List<Tag> tags = way.getTag();
 		return (OsmUtils.isBuilding(tags));
 	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return (OsmUtils.isBuilding(tags));
+	}
+
 	
 	@Override
 	public void processBoundingBox(HeaderBBox bbox) {

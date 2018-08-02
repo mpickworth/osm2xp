@@ -14,6 +14,7 @@ import com.vividsolutions.jts.algorithm.CentroidArea;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
 import com.vividsolutions.jts.geom.LineString;
@@ -21,7 +22,7 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 
@@ -205,7 +206,7 @@ public class GeomUtils {
 				.toArray(new Coordinate[coords.size()]);
 		CoordinateSequence coordSeq = CoordinateArraySequenceFactory.instance()
 				.create(points);
-		GeometryFactory geometryFactory = new GeometryFactory();
+		GeometryFactory geometryFactory = new GeometryFactory(getDefaultPrecisionModel());
 		LinearRing linearRing = geometryFactory.createLinearRing(coordSeq);
 		Polygon jtsPolygon = geometryFactory.createPolygon(linearRing, null);
 		return jtsPolygon;
@@ -451,12 +452,12 @@ public class GeomUtils {
 		Coordinate[] coordinatesTab = (Coordinate[]) coordinates
 				.toArray(new Coordinate[coordinates.size()]);
 
-		CoordinateArraySequence coordinateArraySequence = new CoordinateArraySequence(
-				coordinatesTab);
-		LinearRing linearRing = new LinearRing(coordinateArraySequence,
-				new GeometryFactory());
-		Polygon jtsPoly = new Polygon(linearRing, null, new GeometryFactory());
-		return jtsPoly;
+		GeometryFactory factory = new GeometryFactory(getDefaultPrecisionModel());
+		return factory.createPolygon(coordinatesTab);
+	}
+
+	public static PrecisionModel getDefaultPrecisionModel() {
+		return new PrecisionModel(1000000);
 	}
 
 	/**
@@ -466,8 +467,8 @@ public class GeomUtils {
 	private static LinearRing2D polygonToLinearRing2D(Geometry polygon) {
 
 		List<Point2D> points = new ArrayList<Point2D>();
-
-		for (Coordinate coordinate : polygon.getCoordinates()) {
+		Coordinate[] coordinates = polygon instanceof Polygon ? ((Polygon) polygon).getExteriorRing().getCoordinates() : polygon.getCoordinates();
+		for (Coordinate coordinate : coordinates) {
 			Point2D point2d = new Point2D(coordinate.x, coordinate.y);
 			points.add(point2d);
 		}
@@ -981,7 +982,7 @@ public class GeomUtils {
 	public static Geometry fix(Geometry geom){
 	    if(geom instanceof Polygon){
 	        if(geom.isValid()){
-	            geom.normalize(); // validate does not pick up rings in the wrong order - this will fix that
+//	            geom.normalize(); // validate does not pick up rings in the wrong order - this will fix that //TODO not sure it's needed for our task
 	            return geom; // If the polygon is valid just return it
 	        }
 	        Polygonizer polygonizer = new Polygonizer();
@@ -1053,10 +1054,48 @@ public class GeomUtils {
 	            Iterator<Polygon> iter = polygons.iterator();
 	            Geometry ret = iter.next();
 	            while(iter.hasNext()){
+	            	if (ret instanceof GeometryCollection) {
+	            		List<Polygon> polys = flatMapToPoly(ret);
+	            		if (!polys.isEmpty()) {
+	            			ret = polys.get(0);
+	            		} else {
+	            			return null;
+	            		}
+	            	}
 	                ret = ret.symDifference(iter.next());
 	            }
 	            return ret;
 	    }
+	}
+	
+	public static List<Geometry> flatMap(Geometry  geometry) {
+		List<Geometry> resList = new ArrayList<Geometry>();
+		if (geometry instanceof GeometryCollection) {
+			for (int i = 0; i < geometry.getNumGeometries(); i++) {
+				Geometry curGeom = geometry.getGeometryN(i);
+				if (curGeom != null) {
+					resList.addAll(flatMap(curGeom));
+				}
+			}
+		} else if (geometry != null){
+			resList.add(geometry);
+		}
+		return resList;		
+	}
+	
+	public static List<Polygon> flatMapToPoly(Geometry geometry) {
+		List<Polygon> resList = new ArrayList<Polygon>();
+		if (geometry instanceof GeometryCollection) {
+			for (int i = 0; i < geometry.getNumGeometries(); i++) {
+				Geometry curGeom = geometry.getGeometryN(i);
+				if (curGeom != null) {
+					resList.addAll(flatMapToPoly(curGeom));
+				}
+			}
+		} else if (geometry instanceof Polygon){
+			resList.add((Polygon) geometry);
+		}
+		return resList;		
 	}
 
 	/**
