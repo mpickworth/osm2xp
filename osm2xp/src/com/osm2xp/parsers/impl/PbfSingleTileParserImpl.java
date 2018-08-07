@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.logging.LogFactory;
 import org.geotools.geometry.jts.GeometryClipper;
 import org.openstreetmap.osmosis.osmbinary.Osmformat;
 import org.openstreetmap.osmosis.osmbinary.Osmformat.DenseInfo;
@@ -36,7 +35,6 @@ import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
 import math.geom2d.Point2D;
@@ -212,25 +210,12 @@ public class PbfSingleTileParserImpl extends TranslatingParserImpl implements IP
 	}
 
 	protected List<Geometry> clipToTileSize(List<? extends Geometry> geometries) {
-		List<Geometry> resPolygonsList = new ArrayList<>();
+		List<Geometry> resGeomList = new ArrayList<>();
 		for (Geometry geometry : geometries) {
 			Geometry clipResult = tileClipper.clip(geometry, true);
-			if (clipResult instanceof Polygon) {
-				resPolygonsList.add((Polygon) clipResult);
-			} else if (clipResult instanceof MultiPolygon) {
-				for (int i = 0; i < clipResult.getNumGeometries(); i++) {
-					Geometry curGeom = clipResult.getGeometryN(i);
-					if (curGeom instanceof Polygon) {
-						resPolygonsList.add((Polygon) curGeom);
-					} else if (curGeom != null) {
-						LogFactory.getLog(getClass()).warn("Non-polygon clipping result " + curGeom);
-					}
-				}
-			} else if (clipResult != null) {
-				LogFactory.getLog(getClass()).warn("Non-polygon clipping result " + clipResult);
-			}
+			resGeomList.addAll(GeomUtils.flatMap(clipResult));
 		}
-		return resPolygonsList;
+		return resGeomList;
 	}
 
 }

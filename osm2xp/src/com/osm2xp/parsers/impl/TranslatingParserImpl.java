@@ -25,6 +25,7 @@ import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.geometry.GeomUtils;
+import com.osm2xp.utils.geometry.NodeCoordinate;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -297,7 +298,7 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 			return getPolygon(nodeIds);
 		}
 		Coordinate[] points = getCoords(nodeIds);
-		if (points != null) {
+		if (points != null && points.length >= 2) {
 			GeometryFactory factory = new GeometryFactory(GeomUtils.getDefaultPrecisionModel());
 			return factory.createLineString(points);
 		}
@@ -306,7 +307,7 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 
 	protected Polygon getPolygon(List<Long> polyNodeIds) {
 		Coordinate[] points = getCoords(polyNodeIds);
-		if (points != null) {
+		if (points != null && points.length >= 4) {
 			GeometryFactory factory = new GeometryFactory(GeomUtils.getDefaultPrecisionModel());
 			return factory.createPolygon(points);
 		}
@@ -315,7 +316,7 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 
 	protected LinearRing getRing(List<Long> nodeIds) {
 		Coordinate[] points = getCoords(nodeIds);
-		if (points != null) {
+		if (points != null && points.length >= 4) {
 			GeometryFactory factory = new GeometryFactory(GeomUtils.getDefaultPrecisionModel());
 			return factory.createLinearRing(points);
 		}
@@ -323,13 +324,10 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 	}
 
 	protected Coordinate[] getCoords(List<Long> nodeIds) {
-		if (!isClosed(nodeIds)) {
-			return null;
-		}
 		List<com.osm2xp.model.osm.Node> nodes = getNodes(nodeIds);
-		Coordinate[] points = nodes.stream().map(node -> new Coordinate(node.getLon(), node.getLat()))
-				.toArray(Coordinate[]::new);
-		if (points.length < 4) {
+		NodeCoordinate[] points = nodes.stream().map(node -> new NodeCoordinate(node.getLon(), node.getLat(), node.getId()))
+				.toArray(NodeCoordinate[]::new);
+		if (points.length < 1) {
 			return null;
 		}
 		return points;

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.osm2xp.translators.xplane.IDRenumbererService;
+import com.osm2xp.utils.geometry.NodeCoordinate;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -29,9 +30,9 @@ public class OsmPolylineFactory {
 				LineString interiorRingN = ((Polygon) geometry).getInteriorRingN(i);
 				innerCoords.add(interiorRingN.getCoordinates());
 			}
-			List<Node> nodes = createNodes(outerCoords);
+			List<Node> nodes = createRingNodes(outerCoords);
 			if (nodes != null) {
-				List<List<Node>> innerRings = innerCoords.stream().map(ring -> createNodes(ring)).filter(list -> list != null).collect(Collectors.toList());
+				List<List<Node>> innerRings = innerCoords.stream().map(ring -> createRingNodes(ring)).filter(list -> list != null).collect(Collectors.toList());
 				if (innerRings.size() > 0) {
 					return Collections.singletonList(new OsmMultiPolygon(id, tags, nodes, innerRings, false));
 				} else {
@@ -57,13 +58,37 @@ public class OsmPolylineFactory {
 		return null;
 	}
 	
-	public static List<Node> createNodes(Coordinate[] coords) {
+	public static List<Node> createRingNodes(Coordinate[] coords) {
 		if (coords.length < 4) {
 			return null;
 		}
 		List<Node> resList = new ArrayList<Node>();
 		for (int i = 0; i < coords.length; i++) {
-			long newId = i < coords.length - 1 ? IDRenumbererService.getIncrementId() : resList.get(0).getId();
+			long newId;
+			if (coords[i] instanceof NodeCoordinate) {
+				newId = ((NodeCoordinate) coords[i]).getNodeId();
+			} else if (i < coords.length - 1) {
+				newId = IDRenumbererService.getIncrementId();
+			} else {
+				newId = resList.get(0).getId();
+			}
+			resList.add(new Node(null, coords[i].y, coords[i].x, newId));
+		}
+		return resList;
+	}
+	
+	public static List<Node> createNodes(Coordinate[] coords) {
+		if (coords.length < 2) {
+			return null;
+		}
+		List<Node> resList = new ArrayList<Node>();
+		for (int i = 0; i < coords.length; i++) {
+			long newId;
+			if (coords[i] instanceof NodeCoordinate) {
+				newId = ((NodeCoordinate) coords[i]).getNodeId();
+			} else {
+				newId = IDRenumbererService.getIncrementId();
+			}
 			resList.add(new Node(null, coords[i].y, coords[i].x, newId));
 		}
 		return resList;
