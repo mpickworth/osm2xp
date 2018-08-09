@@ -9,6 +9,7 @@ public class NodeCoordinate extends Coordinate {
 
 	public NodeCoordinate(double x, double y, long nodeId) {
 		super(x, y);
+		this.nodeId = nodeId;
 	}
 
 	public long getNodeId() {

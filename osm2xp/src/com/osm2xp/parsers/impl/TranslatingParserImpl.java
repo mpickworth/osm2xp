@@ -24,6 +24,7 @@ import com.osm2xp.model.osm.OsmPolylineFactory;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
+import com.osm2xp.utils.geometry.CoordinateNodeIdPreserver;
 import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.geometry.NodeCoordinate;
 import com.osm2xp.utils.logging.Osm2xpLogger;
@@ -121,17 +122,53 @@ public abstract class TranslatingParserImpl extends BinaryParser {
 			Osm2xpLogger.error("Error processing way.", e);
 		}
 	}
-
-	protected void translateWay(Way way, List<Long> ids) throws Osm2xpBusinessException {
-		// get nodes from translator
-		List<com.osm2xp.model.osm.Node> nodes = getNodes(ids);
-
-		if (nodes != null) {
-			OsmPolyline polyline = OsmPolylineFactory.createPolylineFrom(way.getId(), way.getTag(), nodes,
-					nodes.size() < ids.size());
-			translator.processPolyline(polyline);
+	
+	protected void translateWay(com.osm2xp.model.osm.Way way, List<Long> ids) throws Osm2xpBusinessException {
+		Geometry geometry = getGeometry(ids);
+		if (geometry == null) {
+			return;
+		}
+		List<Geometry> fixed = fix(Collections.singletonList(geometry));
+		if (fixed.isEmpty()) {
+			return;
+		} else if (fixed.size() == 1 && fixed.get(0) == geometry) {
+			List<com.osm2xp.model.osm.Node> nodes = getNodes(ids);                                            
+            
+			if (nodes != null) {                                                                              
+				OsmPolyline polyline = OsmPolylineFactory.createPolylineFrom(way.getId(), way.getTag(), nodes,
+						nodes.size() < ids.size());                                                           
+				translator.processPolyline(polyline);                                                         
+			}                                                                                                 
+		} else {
+			fixed = CoordinateNodeIdPreserver.preserveNodeIds(Collections.singletonList(geometry), fixed);
+			fixed.stream()
+			.map(poly -> OsmPolylineFactory.createPolylinesFromJTSGeometry(way.getId(), way.getTag(),
+					poly))
+			.filter(list -> list != null).flatMap(list -> list.stream()).forEach(polyline -> {
+				try {
+					translator.processPolyline(polyline);
+				} catch (Osm2xpBusinessException e) {
+					Activator.log(e);
+				}
+			});
 		}
 	}
+	
+	protected List<Geometry> fix(List<? extends Geometry> geometries) {
+		return geometries.stream().map(geom -> GeomUtils.fix(geom)).filter(geom -> geom != null).collect(Collectors.toList());
+	}
+
+
+//	protected void translateWay(Way way, List<Long> ids) throws Osm2xpBusinessException {
+//		// get nodes from translator
+//		List<com.osm2xp.model.osm.Node> nodes = getNodes(ids);
+//
+//		if (nodes != null) {
+//			OsmPolyline polyline = OsmPolylineFactory.createPolylineFrom(way.getId(), way.getTag(), nodes,
+//					nodes.size() < ids.size());
+//			translator.processPolyline(polyline);
+//		}
+//	}
 
 	protected List<com.osm2xp.model.osm.Node> getNodes(List<Long> polyIds) {
 		try {

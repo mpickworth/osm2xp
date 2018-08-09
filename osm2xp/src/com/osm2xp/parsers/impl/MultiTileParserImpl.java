@@ -44,13 +44,13 @@ import math.geom2d.Point2D;
  * @author Benjamin Blanchet
  * 
  */
-public class PbfSingleTileParserImpl extends TranslatingParserImpl implements IParser {
+public class MultiTileParserImpl extends TranslatingParserImpl implements IParser {
 
 	private File binaryFile;
 	private GeometryClipper tileClipper;
 	private Envelope bounds; 
 	
-	public PbfSingleTileParserImpl(Point2D currentTile) {
+	public MultiTileParserImpl(Point2D currentTile) {
 		bounds = new Envelope(currentTile.x, currentTile.x + 1, currentTile.y, currentTile.y + 1);
 		tileClipper = new GeometryClipper(bounds); //XXX need actual getting tile bounds instead  
 	}
