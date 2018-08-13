@@ -8,16 +8,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.geotools.geometry.jts.GeometryClipper;
+import org.eclipse.core.runtime.Status;
 import org.openstreetmap.osmosis.osmbinary.Osmformat;
 import org.openstreetmap.osmosis.osmbinary.Osmformat.DenseInfo;
 import org.openstreetmap.osmosis.osmbinary.Osmformat.DenseNodes;
 import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBlock;
 import org.openstreetmap.osmosis.osmbinary.Osmformat.Node;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.Relation;
 import org.openstreetmap.osmosis.osmbinary.Osmformat.Way;
 import org.openstreetmap.osmosis.osmbinary.file.BlockInputStream;
 
@@ -25,17 +27,13 @@ import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.exceptions.OsmParsingException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.osm.Tag;
-import com.osm2xp.parsers.IParser;
-import com.osm2xp.translators.ITranslator;
+import com.osm2xp.parsers.IBasicParser;
 import com.osm2xp.utils.geometry.GeomUtils;
-import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-
-import math.geom2d.Point2D;
 
 
 /**
@@ -44,28 +42,23 @@ import math.geom2d.Point2D;
  * @author Benjamin Blanchet
  * 
  */
-public class MultiTileParserImpl extends TranslatingParserImpl implements IParser {
+public class MultiTileParserImpl extends AbstractTranslatingParserImpl implements IBasicParser {
 
 	private File binaryFile;
-	private GeometryClipper tileClipper;
-	private Envelope bounds; 
+	private List<TileTranslationAdapter> translationAdapters;
 	
-	public MultiTileParserImpl(Point2D currentTile) {
-		bounds = new Envelope(currentTile.x, currentTile.x + 1, currentTile.y, currentTile.y + 1);
-		tileClipper = new GeometryClipper(bounds); //XXX need actual getting tile bounds instead  
-	}
-
-	public void init(File binaryFile, ITranslator translator,
-			Map<Long, Color> roofsColorMap, IDataSink processor) {
-		super.init(translator, roofsColorMap, processor);
+	public MultiTileParserImpl(File binaryFile, List<TileTranslationAdapter> traanslationAdapters, Map<Long, Color> roofsColorMap, IDataSink processor) {
 		this.binaryFile = binaryFile;
+		this.translationAdapters = traanslationAdapters;
 	}
 
 	/**
 	 * 
 	 */
 	public void complete() {
-		translator.complete();
+		for (TileTranslationAdapter tileTranslationAdapter : translationAdapters) {
+			tileTranslationAdapter.complete();
+		}
 	}
 
 	@Override
@@ -99,28 +92,37 @@ public class MultiTileParserImpl extends TranslatingParserImpl implements IParse
 				}
 				j++;
 			}
-//			if (di != null) {
-				com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
-				node.setId(id);
-				node.setLat(latf);
-				node.setLon(lonf);
-				node.getTag().addAll(tags);
-				try {
-					// give the node to the translator for processing
-					translator.processNode(node);
-					// ask translator if we have to store this node if we
-					// aren't on a single pass mode
-
-					if (!GuiOptionsHelper.getOptions().isSinglePass() && translator.mustStoreNode(node)) {
-						processor.storeNode(node);
-					}
-				} catch (DataSinkException e) {
-					Osm2xpLogger.error("Error processing node.", e);
-				} catch (Osm2xpBusinessException e) {
-					Osm2xpLogger.error("Node translation error.", e);
+			com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
+			node.setId(id);
+			node.setLat(latf);
+			node.setLon(lonf);
+			node.getTag().addAll(tags);
+			try {
+				// give the node to the translator for processing
+				for (TileTranslationAdapter adapter : translationAdapters) {
+					adapter.processNode(node);
 				}
-//			}
+				// ask translator if we have to store this node if we
+				// aren't on a single pass mode
+
+				if (mustStoreNode(node)) {
+					processor.storeNode(node);
+				}
+			} catch (DataSinkException e) {
+				Osm2xpLogger.error("Error processing node.", e);
+			} catch (Osm2xpBusinessException e) {
+				Osm2xpLogger.error("Node translation error.", e);
+			}
 		}
+	}
+
+	private boolean mustStoreNode(com.osm2xp.model.osm.Node node) {
+		for (TileTranslationAdapter tileTranslationAdapter : translationAdapters) {
+			if (tileTranslationAdapter.mustStoreNode(node)) {
+				return true;		
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -136,40 +138,33 @@ public class MultiTileParserImpl extends TranslatingParserImpl implements IParse
 
 	}
 	
-//	@Override
-//	protected void translateWay(com.osm2xp.model.osm.Way way, List<Long> ids) throws Osm2xpBusinessException {
-//		Geometry geometry = getGeometry(ids);
-//		if (geometry == null) {
-//			return;
-//		}
-//		List<Geometry> fixed = fix(Collections.singletonList(geometry));
-//		if (fixed.isEmpty()) {
-//			return;
-//		} else if (fixed.size() == 1 && fixed.get(0) == geometry) {
-//			super.translateWay(way, ids);
-//		} else {
-//			fixed.stream()
-//			.map(poly -> OsmPolylineFactory.createPolylinesFromJTSGeometry(way.getId(), way.getTag(),
-//					poly))
-//			.filter(list -> list != null).flatMap(list -> list.stream()).forEach(polyline -> {
-//				try {
-//					translator.processPolyline(polyline);
-//				} catch (Osm2xpBusinessException e) {
-//					Activator.log(e);
-//				}
-//			});
-//		}
-//	}
-
+	protected void translateWay(com.osm2xp.model.osm.Way way, List<Long> ids) throws Osm2xpBusinessException {
+		Geometry geometry = getGeometry(ids);
+		if (geometry == null) {
+			return;
+		}
+		List<Geometry> fixed = fix(Collections.singletonList(geometry));
+		for (TileTranslationAdapter adapter : translationAdapters) {
+			adapter.processWays(way.getId(), way.getTag(), geometry, fixed);
+		}
+		if (fixed.isEmpty()) {
+			return;
+		} 
+	}
+	
 	@Override
 	protected void parse(HeaderBlock header) {
-		translator.processBoundingBox(header.getBbox());
+		for (TileTranslationAdapter tileTranslationAdapter : translationAdapters) {
+			tileTranslationAdapter.processBoundingBox(header.getBbox());
+		}
 	}
 
 	public void process() throws OsmParsingException {
 
 		try {
-			translator.init();
+			for (TileTranslationAdapter tileTranslationAdapter : translationAdapters) {
+				tileTranslationAdapter.init();
+			}
 			InputStream input;
 			input = new FileInputStream(this.binaryFile);
 			BlockInputStream bm = new BlockInputStream(input, this);
@@ -184,32 +179,79 @@ public class MultiTileParserImpl extends TranslatingParserImpl implements IParse
 	}
 	
 	@Override
+	protected void parseRelations(List<Relation> rels) {
+		for (Relation pbfRelation : rels) {
+			Map<String, String> tags = new HashMap<String, String>();
+			for (int j = 0; j < pbfRelation.getKeysCount(); j++) {
+				tags.put(getStringById(pbfRelation.getKeys(j)), getStringById(pbfRelation.getVals(j)));
+			}
+			long lastMemberId = 0;
+			List<Tag> tagsModel = tags.keySet().stream().map(key -> new Tag(key, tags.get(key)))
+					.collect(Collectors.toList());
+			if ("multipolygon".equals(tags.get("type")) && mustProcessPolyline(tagsModel)) {
+				List<com.osm2xp.model.osm.Way> outerWays = new ArrayList<>();
+				List<com.osm2xp.model.osm.Way> innerWays = new ArrayList<>();
+				for (int j = 0; j < pbfRelation.getMemidsCount(); j++) {
+					long memberId = lastMemberId + pbfRelation.getMemids(j);
+					lastMemberId = memberId;
+					String role = getStringById(pbfRelation.getRolesSid(j));
+					if ("outer".equals(role)) {
+						com.osm2xp.model.osm.Way way = processor.getWay(memberId);
+						if (way != null) {
+							outerWays.add(way);
+						} else {
+							Activator.log(Status.ERROR, "Invalid way id: " + memberId);
+						}
+					}
+					if ("inner".equals(role)) {
+						com.osm2xp.model.osm.Way way = processor.getWay(memberId);
+						if (way != null) {
+							innerWays.add(way);
+						} else {
+							Activator.log(Status.ERROR, "Invalid way id: " + memberId);
+						}
+					}
+				}
+				List<List<Long>> collected = outerWays.stream()
+						.map(way -> way.getNd().stream().map(nd -> nd.getRef()).collect(Collectors.toList()))
+						.collect(Collectors.toList());
+				List<List<Long>> collectedInner = innerWays.stream()
+						.map(way -> way.getNd().stream().map(nd -> nd.getRef()).collect(Collectors.toList()))
+						.collect(Collectors.toList());
+
+				List<List<Long>> polygons = getPolygonsFrom(collected);
+				List<List<Long>> innerPolygons = getPolygonsFrom(collectedInner);
+				List<Polygon> cleanedPolys = doCleanup(polygons, innerPolygons);
+				translatePolys(pbfRelation.getId(), tagsModel, cleanedPolys);
+			}
+		}
+	}
+	
+	@Override
 	protected List<Polygon> doCleanup(List<List<Long>> outer, List<List<Long>> inner) {
 		List<Polygon> cleaned = super.doCleanup(outer, inner);
 		return fix(cleaned).stream().filter(geom -> geom instanceof Polygon).map(geom -> (Polygon)geom).collect(Collectors.toList());
 	}
 	
 	protected List<Geometry> fix(List<? extends Geometry> geometries) {
-		geometries = boundsFilter(geometries);
-		if (geometries.isEmpty()) {
-			return Collections.emptyList();
-		}
-		List<Geometry> fixed = geometries.stream().map(geom -> GeomUtils.fix(geom)).filter(geom -> geom != null).collect(Collectors.toList());
-		fixed = clipToTileSize(fixed);
-		return fixed;
-	}
-	
-	protected List<Geometry> boundsFilter(List<? extends Geometry> geometries) {
-		return geometries.stream().filter(geom -> geom.getEnvelopeInternal().intersects(bounds)).collect(Collectors.toList());
+		return geometries.stream().map(geom -> GeomUtils.fix(geom)).filter(geom -> geom != null).collect(Collectors.toList());
 	}
 
-	protected List<Geometry> clipToTileSize(List<? extends Geometry> geometries) {
-		List<Geometry> resGeomList = new ArrayList<>();
-		for (Geometry geometry : geometries) {
-			Geometry clipResult = tileClipper.clip(geometry, true);
-			resGeomList.addAll(GeomUtils.flatMap(clipResult));
+	@Override
+	protected boolean mustProcessPolyline(List<Tag> tagsModel) {
+		for (TileTranslationAdapter adapter : translationAdapters) {
+			if (adapter.mustProcessPolyline(tagsModel)) {
+				return true;
+			}
 		}
-		return resGeomList;
+		return false;
+	}
+
+	@Override
+	protected void translatePolys(long id, List<Tag> tagsModel, List<Polygon> cleanedPolys) {
+		for (TileTranslationAdapter adapter : translationAdapters) {
+			adapter.processWays(id, tagsModel, null, cleanedPolys);
+		}
 	}
 
 }

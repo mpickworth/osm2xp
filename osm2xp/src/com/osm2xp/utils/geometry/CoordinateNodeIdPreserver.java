@@ -12,7 +12,7 @@ import com.vividsolutions.jts.geom.LineString;
 
 public class CoordinateNodeIdPreserver {
 
-	public static List<Geometry> preserveNodeIds(List<Geometry> original, List<Geometry> fixed) {
+	public static List<? extends Geometry> preserveNodeIds(List<? extends Geometry> original, List<? extends Geometry> fixed) {
 		if (needPreserveCoordinates(original)) {
 			Map<Coordinate, Long> coordsMap = original.stream().flatMap(geometry -> Arrays.asList(geometry.getCoordinates()).stream())
 					.filter(coord -> coord instanceof NodeCoordinate).distinct()
@@ -23,7 +23,7 @@ public class CoordinateNodeIdPreserver {
 		return fixed;
 	}
 
-	protected static boolean needPreserveCoordinates(List<Geometry> geoms) {
+	protected static boolean needPreserveCoordinates(List<? extends Geometry> geoms) {
 		return geoms.stream().anyMatch(geom -> geom instanceof LineString);
 	}
 

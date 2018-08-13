@@ -7,11 +7,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.geotools.geometry.jts.GeometryClipper;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
 import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
+import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
+import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.OsmPolyline;
+import com.osm2xp.model.osm.OsmPolylineFactory;
+import com.osm2xp.model.osm.Tag;
 import com.osm2xp.translators.ITranslator;
+import com.osm2xp.utils.geometry.CoordinateNodeIdPreserver;
 import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.geometry.NodeCoordinate;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -27,10 +34,12 @@ public class TileTranslationAdapter {
 
 	private GeometryClipper tileClipper;
 	private Envelope bounds;
-	private IDataSink processor; 
+	private IDataSink processor;
+	private ITranslator translator; 
 	
 	public TileTranslationAdapter(Point2D currentTile, IDataSink processor, ITranslator translator) {
 		this.processor = processor;
+		this.translator = translator;
 		bounds = new Envelope(currentTile.x, currentTile.x + 1, currentTile.y, currentTile.y + 1);
 		tileClipper = new GeometryClipper(bounds); //XXX need actual getting tile bounds instead  
 	}
@@ -70,9 +79,7 @@ public class TileTranslationAdapter {
 		if (geometries.isEmpty()) {
 			return Collections.emptyList();
 		}
-		List<Geometry> fixed = geometries.stream().map(geom -> GeomUtils.fix(geom)).filter(geom -> geom != null).collect(Collectors.toList());
-		fixed = clipToTileSize(fixed);
-		return fixed;
+		return clipToTileSize(geometries);
 	}
 	
 	protected List<Geometry> boundsFilter(List<? extends Geometry> geometries) {
@@ -143,6 +150,59 @@ public class TileTranslationAdapter {
 			Activator.log(e);
 		}
 		return null;
+	}
+
+	public void complete() {
+		translator.complete();
+	}
+
+	public void init() {
+		translator.init();
+	}
+
+	public Boolean mustStoreNode(Node node) {
+		return translator.mustStoreNode(node);
+	}
+
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return translator.mustProcessPolyline(tags);
+	}
+
+	public void processBoundingBox(HeaderBBox bbox) {
+		translator.processBoundingBox(bbox);
+	}
+
+	public void processNode(Node node) throws Osm2xpBusinessException {
+		if (bounds.contains(node.getLon(), node.getLat())) {
+			translator.processNode(node);
+		}
+	}
+
+	public void processWays(long wayId, List<Tag> tags, Geometry originalGeometry, List<? extends Geometry> fixedGeometries) {
+		fixedGeometries = fix(fixedGeometries);
+		if (fixedGeometries.isEmpty()) {
+			return;
+		} else if (fixedGeometries.size() == 1 && fixedGeometries.get(0) == originalGeometry) {
+            
+			List<OsmPolyline> polyline = OsmPolylineFactory.createPolylinesFromJTSGeometry(wayId, tags, originalGeometry);                                                           
+			try {
+				translator.processPolyline(polyline.get(0));
+			} catch (Osm2xpBusinessException e) {
+				Activator.log(e);
+			}                                                         
+		} else {
+			fixedGeometries = CoordinateNodeIdPreserver.preserveNodeIds(Collections.singletonList(originalGeometry), fixedGeometries);
+			fixedGeometries.stream()
+			.map(poly -> OsmPolylineFactory.createPolylinesFromJTSGeometry(wayId, tags,poly))
+			.filter(list -> list != null).flatMap(list -> list.stream()).forEach(polyline -> {
+				try {
+					translator.processPolyline(polyline);
+				} catch (Osm2xpBusinessException e) {
+					Activator.log(e);
+				}
+			});
+		}
+		
 	}
 
 

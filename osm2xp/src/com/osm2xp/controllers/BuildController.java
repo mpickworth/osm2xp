@@ -299,9 +299,9 @@ public class BuildController {
 					}
 				}
 				// launch a build for each tile
-				for (Point2D tuile : tilesList) {
+				for (Point2D tile : tilesList) {
 					try {
-						generateSingleTile(currentFile, tuile, folderPath,
+						generateSingleTile(currentFile, tile, folderPath,
 								relationsLister.getRelationsList());
 					} catch (Osm2xpBusinessException e) {
 						Osm2xpLogger.error("Error generating tile", e);

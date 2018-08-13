@@ -33,7 +33,7 @@ public class GenerateTileJob extends Job {
 	private transient File currentFile;
 	private transient String folderPath;
 	private transient List<Relation> relationsList;
-	private String familly;
+	private String family;
 
 	public GenerateTileJob(String name, File currentFile, Point2D coordinates,
 			String folderPath, List<Relation> relationsList, String familly) {
@@ -43,7 +43,7 @@ public class GenerateTileJob extends Job {
 		this.currentFile = currentFile;
 		this.folderPath = folderPath;
 		this.relationsList = relationsList;
-		this.familly = familly;
+		this.family = familly;
 
 	}
 
@@ -77,15 +77,15 @@ public class GenerateTileJob extends Job {
 	}
 	
 	public boolean belongsTo(Object family) {
-		return familly.equals(family);
+		return family.equals(family);
 	}
 
 	public String getFamilly() {
-		return familly;
+		return family;
 	}
 
 	public void setFamilly(String familly) {
-		this.familly = familly;
+		this.family = familly;
 	}
 
 }
