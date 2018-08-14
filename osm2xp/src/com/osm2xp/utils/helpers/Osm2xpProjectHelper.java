@@ -11,6 +11,7 @@ import javax.xml.bind.Unmarshaller;
 import math.geom2d.Point2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.project.Coordinates;
 import com.osm2xp.model.project.CoordinatesList;
 import com.osm2xp.model.project.Osm2XpProject;
@@ -121,6 +122,16 @@ public class Osm2xpProjectHelper {
 
 	public static File getProjectFile() {
 		return projectFile;
+	}
+
+	public static void removeTiles(List<Point2D> tiles) {
+		for (Point2D point2d : tiles) {
+			try {
+				removeTile(point2d);
+			} catch (Osm2xpBusinessException e) {
+				Activator.log(e);
+			}
+		}
 	}
 
 }

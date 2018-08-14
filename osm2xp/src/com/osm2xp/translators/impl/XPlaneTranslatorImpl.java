@@ -469,11 +469,11 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	}
 
 	@Override
-	public void processPolyline(OsmPolyline osmPolygon) throws Osm2xpBusinessException {
+	public void processPolyline(OsmPolyline osmPolyline) throws Osm2xpBusinessException {
 	
 		// polygon is null or empty don't process it
-		if (osmPolygon.getNodes() != null && !osmPolygon.getNodes().isEmpty()) {
-			List<OsmPolyline> polylines = preprocess(osmPolygon);
+		if (osmPolyline.getNodes() != null && !osmPolyline.getNodes().isEmpty()) {
+			List<OsmPolyline> polylines = preprocess(osmPolyline);
 			// try to transform those polygons into dsf objects.
 			for (OsmPolyline poly : polylines) {
 				

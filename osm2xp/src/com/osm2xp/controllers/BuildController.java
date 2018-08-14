@@ -20,8 +20,10 @@ import com.osm2xp.constants.Perspectives;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.views.MainSceneryFileView;
+import com.osm2xp.jobs.GenerateMultiTilesJob;
 import com.osm2xp.jobs.GenerateTileJob;
 import com.osm2xp.jobs.MutexRule;
+import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.project.Coordinates;
 import com.osm2xp.parsers.relationsLister.RelationsLister;
@@ -132,7 +134,7 @@ public class BuildController {
 		// get user setted cordinates
 		Point2D coordinates = GuiOptionsHelper.getSelectedCoordinates();
 		// launch generation
-		
+		FacadeSetManager.clearCache();
 		if (coordinates == null) {
 			if (GuiOptionsHelper.getOptions().isSinglePass()) {
 				generateWholeFileOnASinglePass(currentFile, folderPath, null);
@@ -252,7 +254,7 @@ public class BuildController {
 	 */
 	private void generateWholeFile(final File currentFile,
 			final String folderPath) {
-		Job job = new Job("Listing tiles ") {
+		Job tilesJob = new Job("Listing tiles ") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				final TilesLister tilesLister = TilesListerFactory
@@ -298,16 +300,41 @@ public class BuildController {
 						Osm2xpLogger.error("Error creating project file", e1);
 					}
 				}
-				// launch a build for each tile
-				for (Point2D tile : tilesList) {
-					try {
-						generateSingleTile(currentFile, tile, folderPath,
-								relationsLister.getRelationsList());
-					} catch (Osm2xpBusinessException e) {
-						Osm2xpLogger.error("Error generating tile", e);
-						canceling();
+				GenerateMultiTilesJob tilesJob = new GenerateMultiTilesJob("Generate several tiles", currentFile, tilesList, folderPath, relationsLister.getRelationsList(), "todoJob");
+				tilesJob.setRule(new MutexRule());
+				tilesJob.addJobChangeListener(new JobChangeAdapter() {
+
+
+					@Override
+					public void done(IJobChangeEvent event) {
+						tilesJob.setFamily("endedJob");
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								if ((Job.getJobManager().find("todoJob")).length == 0) {
+									try {
+										StatsHelper.RecapStats(folderPath);
+
+									} catch (Osm2xpBusinessException e) {
+										Osm2xpLogger.warning(
+												"Error saving recap stats.", e);
+									}
+									Osm2xpLogger.info("Generation finished.");
+
+									// MiscUtils.switchPerspective(GuiOptionsHelper
+									// .getOptions().getOutputFormat());
+
+								}
+							}
+						});
+
 					}
-				}
+					
+				});
+
+				tilesJob.setRule(rule);
+				tilesJob.schedule();
+				
 				if (tilesList.isEmpty()) {
 					try {
 						GuiOptionsHelper.getOptions().setSinglePass(true);
@@ -322,7 +349,7 @@ public class BuildController {
 			}
 		};
 
-		job.schedule();
+		tilesJob.schedule();
 
 	}
 }

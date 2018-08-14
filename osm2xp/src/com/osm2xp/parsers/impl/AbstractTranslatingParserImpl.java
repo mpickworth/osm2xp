@@ -39,6 +39,11 @@ public abstract class AbstractTranslatingParserImpl extends BinaryParser {
 		super();
 	}
 
+	public AbstractTranslatingParserImpl(Map<Long, Color> roofsColorMap, IDataSink processor) {
+		this.roofsColorMap = roofsColorMap;
+		this.processor = processor;
+	}
+
 	protected boolean isClosed(List<Long> curList) {
 		if (curList.size() > 1) {
 			return curList.get(0).equals(curList.get(curList.size() - 1));

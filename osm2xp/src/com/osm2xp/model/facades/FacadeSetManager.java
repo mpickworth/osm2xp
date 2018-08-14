@@ -40,6 +40,10 @@ public class FacadeSetManager {
 	protected Multimap<SpecialFacadeType, Facade> specialFacades = HashMultimap.create();
 
 	private String[] setPaths;
+
+	private static FacadeSetManager facadeSetManager;
+	
+	private static String lastId = null;
 	
 	/**
 	 * Get {@link FacadeSetManager} for given options
@@ -48,8 +52,16 @@ public class FacadeSetManager {
 	 * @return {@link FacadeSetManager} instance
 	 */
 	public static FacadeSetManager getManager(String facadeSetsStr, File targetFolder) {
-		FacadeSetManager facadeSetManager = new FacadeSetManager(facadeSetsStr, targetFolder);
+		String id = facadeSetsStr + (targetFolder != null ? targetFolder.getAbsolutePath() : "");
+		if (!id.equals(lastId)) {
+			facadeSetManager = new FacadeSetManager(facadeSetsStr, targetFolder);
+			lastId = id;
+		}
 		return facadeSetManager;
+	}
+	
+	public static void clearCache() {
+		lastId = null;
 	}
 
 	private FacadeSetManager(String facadeSetsStr, File targetFolder) {

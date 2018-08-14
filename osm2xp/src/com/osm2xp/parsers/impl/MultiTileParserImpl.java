@@ -48,6 +48,7 @@ public class MultiTileParserImpl extends AbstractTranslatingParserImpl implement
 	private List<TileTranslationAdapter> translationAdapters;
 	
 	public MultiTileParserImpl(File binaryFile, List<TileTranslationAdapter> traanslationAdapters, Map<Long, Color> roofsColorMap, IDataSink processor) {
+		super(roofsColorMap, processor);
 		this.binaryFile = binaryFile;
 		this.translationAdapters = traanslationAdapters;
 	}
