@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.osm2xp.translators.xplane.IDRenumbererService;
+import com.osm2xp.translators.xplane.IDGenerationService;
 import com.osm2xp.utils.geometry.NodeCoordinate;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -68,7 +68,7 @@ public class OsmPolylineFactory {
 			if (coords[i] instanceof NodeCoordinate) {
 				newId = ((NodeCoordinate) coords[i]).getNodeId();
 			} else if (i < coords.length - 1) {
-				newId = IDRenumbererService.getIncrementId();
+				newId = IDGenerationService.getIncrementId();
 			} else {
 				newId = resList.get(0).getId();
 			}
@@ -87,7 +87,7 @@ public class OsmPolylineFactory {
 			if (coords[i] instanceof NodeCoordinate) {
 				newId = ((NodeCoordinate) coords[i]).getNodeId();
 			} else {
-				newId = IDRenumbererService.getIncrementId();
+				newId = IDGenerationService.getIncrementId();
 			}
 			resList.add(new Node(null, coords[i].y, coords[i].x, newId));
 		}

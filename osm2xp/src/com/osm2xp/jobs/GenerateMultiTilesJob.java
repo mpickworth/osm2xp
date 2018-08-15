@@ -18,7 +18,7 @@ import com.osm2xp.utils.logging.Osm2xpLogger;
 import math.geom2d.Point2D;
 
 /**
- * GenerateTileJob.
+ * Job for generating scenario for multiple tiles 
  * 
  * @author Dmitry Karpenko
  * 
@@ -30,7 +30,7 @@ public class GenerateMultiTilesJob extends GenerateJob {
 			String folderPath, List<Relation> relationsList, String family) {
 		super(name, currentFile, folderPath, relationsList, family);
 		this.tiles = tiles;
-		Osm2xpLogger.info("Starting  generation of " + tiles.size() + "tiles, target folder " + folderPath);
+		Osm2xpLogger.info("Starting  generation of " + tiles.size() + " tiles, target folder " + folderPath);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class GenerateMultiTilesJob extends GenerateJob {
 					folderPath, relationsList);
 			parser.process();
 			Osm2xpProjectHelper.removeTiles(tiles);
-			Osm2xpLogger.info("Finished generation of " +  tiles.size() + "tiles, target folder " + folderPath);
+			Osm2xpLogger.info("Finished generation of " +  tiles.size() + " tiles, target folder " + folderPath);
 		} catch (DataSinkException e) {
 			Osm2xpLogger.error("Data sink exception : ", e);
 		} catch (OsmParsingException e) {

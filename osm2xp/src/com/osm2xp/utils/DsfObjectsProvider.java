@@ -165,15 +165,15 @@ public class DsfObjectsProvider {
 	public void computeObjectsList() {
 		objectsList.clear();
 		// add 3D objects
-		for (XplaneObjectTagRule object : XplaneOptionsHelper.getOptions()
-				.getObjectsRules().getRules()) {
-			for (ObjectFile file : object.getObjectsFiles()) {
-				if (!objectsList.contains(file.getPath())) {
-					objectsList.add(file.getPath());
-				}
-
-			}
-		}
+//		for (XplaneObjectTagRule object : XplaneOptionsHelper.getOptions() TODO Not needed, since we register object during copy operation
+//				.getObjectsRules().getRules()) {
+//			for (ObjectFile file : object.getObjectsFiles()) {
+//				if (!objectsList.contains(file.getPath())) {
+//					objectsList.add(file.getPath());
+//				}
+//
+//			}
+//		}
 		
 		//add special 3d objects (e.g. chimneys)
 		add3DObjects();
