@@ -72,10 +72,4 @@ public class OsmWriterImpl implements IWriter {
 		writerFooter();
 	}
 
-	@Override
-	public void write(Object data, Point2D coordinates) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

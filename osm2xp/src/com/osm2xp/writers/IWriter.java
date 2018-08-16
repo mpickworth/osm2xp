@@ -14,7 +14,5 @@ public interface IWriter {
 
 	public void write(Object data);
 
-	public void write(Object data, Point2D coordinates);
-
 	public void complete(Object data);
 }

@@ -6,21 +6,17 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import math.geom2d.Point2D;
 
 import org.apache.commons.io.FileUtils;
 
 import com.osm2xp.constants.XplaneConstants;
 import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.DsfUtils;
-import com.osm2xp.utils.FilesUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.osm2xp.writers.IWriter;
+
+import math.geom2d.Point2D;
 
 /**
  * Dsf Writer implementation.
@@ -32,22 +28,41 @@ public class DsfWriterImpl implements IWriter {
 
 	private String sceneFolder;
 	private DsfObjectsProvider dsfObjectsProvider;
-	private Map<Point2D, File> dsfFiles = new HashMap<Point2D, File>();
-	private Map<Point2D, BufferedWriter> dsfWriters = new HashMap<Point2D, BufferedWriter>();
+	private File dsfFile;
+	private BufferedWriter writer;
 
-	public DsfWriterImpl(String sceneFolder,
-			DsfObjectsProvider dsfObjectsProvider) {
+	public DsfWriterImpl(String sceneFolder, Point2D tile, DsfObjectsProvider dsfObjectsProvider) {
 		this.sceneFolder = sceneFolder;
 		this.dsfObjectsProvider = dsfObjectsProvider;
+
+		dsfFile = DsfUtils.computeXPlaneDsfFilePath(sceneFolder, tile);
+		// if file doesn't exists
+		// if (!dsfFile.exists()) {
+		// create the parent folder file
+		File parentFolder = new File(dsfFile.getParent());
+		parentFolder.mkdirs();
+		// create writer for this file
+
+		try {
+			FileWriter fileWriter = new FileWriter(dsfFile, true);
+			writer = new BufferedWriter(fileWriter);
+
+			// write its header
+			String dsfHeader = DsfUtils.getDsfHeader(tile, this.dsfObjectsProvider);
+			writer.write(dsfHeader);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		// delete on exist
+		dsfFile.deleteOnExit();
 	}
 
-	public void write(Object data, Point2D coordinates) {
+	public void write(Object data) {
 		try {
 			if (data != null) {
-				// look if we have a dsf file for this coordinate point
-				checkDsfFile(coordinates);
 				// write into this dsf file
-				dsfWriters.get(coordinates).write((String) data);
+				writer.write((String) data);
 			}
 		} catch (IOException e) {
 			Osm2xpLogger.error(e.getMessage());
@@ -57,15 +72,13 @@ public class DsfWriterImpl implements IWriter {
 	@Override
 	public void complete(Object data) {
 		// flush/close all writers
-		for (Entry<Point2D, BufferedWriter> entry : dsfWriters.entrySet()) {
 			try {
-				entry.getValue().flush();
-				entry.getValue().close();
+				writer.flush();
+				writer.close();
 			} catch (IOException e) {
 				Osm2xpLogger.error(e.getMessage());
 			}
 
-		}
 
 		if (data != null) {
 			try {
@@ -74,10 +87,7 @@ public class DsfWriterImpl implements IWriter {
 				e.printStackTrace();
 			}
 		}
-		for (Map.Entry<Point2D, File> entry : dsfFiles.entrySet()) {
-			DsfUtils.textToDsf(entry.getValue(), new File(entry.getValue()
-					.getPath().replaceAll(".txt", "")));
-		}
+		DsfUtils.textToDsf(dsfFile, new File(dsfFile.getPath().replaceAll(".txt", "")));
 
 	}
 
@@ -97,79 +107,32 @@ public class DsfWriterImpl implements IWriter {
 
 	}
 
-	public File checkDsfFile(Point2D coordinates) throws IOException {
-		File dsfFile = dsfFiles.get(coordinates); 
-		if (dsfFile != null) {
-			return dsfFile;
-		}
-		// compute the dsf file path
-		dsfFile = DsfUtils.computeXPlaneDsfFilePath(sceneFolder,
-				coordinates);
-		// if file doesn't exists
-//		if (!dsfFile.exists()) {
-			// create the parent folder file
-			File parentFolder = new File(dsfFile.getParent());
-			parentFolder.mkdirs();
-			// create writer for this file
-			FileWriter writer;
-
-			writer = new FileWriter(dsfFile, true);
-			BufferedWriter output = new BufferedWriter(writer);
-
-			// write its header
-			String dsfHeader = DsfUtils.getDsfHeader(coordinates,
-					this.dsfObjectsProvider);
-			output.write(dsfHeader);
-			// add the file to the local files list
-			dsfFiles.put(coordinates, dsfFile);
-			// add the writer to the writers list
-			dsfWriters.put(coordinates, output);
-			// delete on exist
-			dsfFile.deleteOnExit();
-
-//		}
-
-		// return the dsf file
-		return dsfFile;
-	}
-
-	@Override
-	public void write(Object data) {
-
-	}
-
 	private void injectSmartExclusions(String exclusionText) throws IOException {
 
-		for (Map.Entry<Point2D, File> entry : dsfFiles.entrySet()) {
+		// temp file
+		File tempFile = new File(dsfFile.getAbsolutePath() + "_temp");
+		BufferedReader br = new BufferedReader(new FileReader(dsfFile));
+		String line;
+		Boolean exclusionInjected = false;
 
-			// temp file
-			File tempFile = new File(entry.getValue().getAbsolutePath()
-					+ "_temp");
-			BufferedReader br = new BufferedReader(new FileReader(
-					entry.getValue()));
-			String line;
-			Boolean exclusionInjected = false;
+		FileWriter writer = new FileWriter(tempFile.getPath(), true);
+		BufferedWriter output = new BufferedWriter(writer);
 
-			FileWriter writer = new FileWriter(tempFile.getPath(), true);
-			BufferedWriter output = new BufferedWriter(writer);
-
-			while ((line = br.readLine()) != null) {
-				if (!exclusionInjected
-						&& line.contains(XplaneConstants.EXCLUSION_PLACEHOLDER)) {
-					output.write(exclusionText);
-					exclusionInjected = true;
-				} else {
-					output.write(line + "\n");
-				}
+		while ((line = br.readLine()) != null) {
+			if (!exclusionInjected && line.contains(XplaneConstants.EXCLUSION_PLACEHOLDER)) {
+				output.write(exclusionText);
+				exclusionInjected = true;
+			} else {
+				output.write(line + "\n");
 			}
-			br.close();
-			output.flush();
-			output.close();
-
-			FileUtils.copyFile(tempFile, entry.getValue());
-			tempFile.delete();
-			tempFile.deleteOnExit();
-
 		}
+		br.close();
+		output.flush();
+		output.close();
+
+		FileUtils.copyFile(tempFile, dsfFile);
+		tempFile.delete();
+		tempFile.deleteOnExit();
+
 	}
 }

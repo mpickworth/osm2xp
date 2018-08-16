@@ -66,10 +66,4 @@ public class BglWriterImpl implements IWriter {
 
 	}
 
-	@Override
-	public void write(Object data, Point2D coordinates) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

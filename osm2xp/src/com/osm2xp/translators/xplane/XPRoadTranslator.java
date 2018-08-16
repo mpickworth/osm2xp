@@ -15,8 +15,8 @@ public class XPRoadTranslator extends XPPathTranslator {
 	private static final String HIGHWAY_TAG = "highway";
 	private String[] allowedHighwayTypes = GuiOptionsHelper.getAllowedHighwayTypes();
 	private String[] allowedHighwaySurfaceTypes = GuiOptionsHelper.getAllowedHighwaySurfaceTypes();
-	public XPRoadTranslator(IWriter writer, XPOutputFormat outputFormat) {
-		super(writer, outputFormat);
+	public XPRoadTranslator(IWriter writer, XPOutputFormat outputFormat, IDRenumbererService idProvider) {
+		super(writer, outputFormat, idProvider);
 	}
 
 	@Override

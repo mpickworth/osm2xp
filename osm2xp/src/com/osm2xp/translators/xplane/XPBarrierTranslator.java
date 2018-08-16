@@ -45,9 +45,7 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 				}
 				
 				sb.append(outputFormat.getPolygonString(osmPolyline.getPolyline(), facade + "", "2")); //TODO need actual wall height here, using "2" for now
-				writer.write(sb.toString(), GeomUtils
-						.cleanCoordinatePoint(osmPolyline.getPolyline()
-								.getFirstPoint()));
+				writer.write(sb.toString());
 			}
 			return true;
 		}

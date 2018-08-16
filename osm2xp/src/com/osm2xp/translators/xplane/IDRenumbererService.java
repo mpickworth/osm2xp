@@ -10,15 +10,15 @@ import java.util.Map;
  */
 public class IDRenumbererService {
 	
-	private static Map<Long, Integer> crossingRenumberMap = new HashMap<Long, Integer>();
-	private static int renumberCounter = 1; 
+	private Map<Long, Integer> crossingRenumberMap = new HashMap<Long, Integer>();
+	private int renumberCounter = 1; 
 	
-	public static void reinit() {
+	public void reinit() {
 		crossingRenumberMap.clear();
 		renumberCounter = 1;
 	}
 	
-	public static int getNewId(long id) {
+	public int getNewId(long id) {
 		Integer newId = crossingRenumberMap.get(id);
 		if (newId == null) {
 			newId = renumberCounter;
@@ -28,7 +28,7 @@ public class IDRenumbererService {
 		return newId;
 	}
 	
-	public static int getIncrementId() {
+	public int getIncrementId() {
 		int newId = renumberCounter;
 		renumberCounter++;
 		return newId;

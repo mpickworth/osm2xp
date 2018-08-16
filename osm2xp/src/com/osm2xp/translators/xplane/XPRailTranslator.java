@@ -7,8 +7,8 @@ import com.osm2xp.writers.IWriter;
 
 public class XPRailTranslator extends XPPathTranslator {
 
-	public XPRailTranslator(IWriter writer, XPOutputFormat outputFormat) {
-		super(writer, outputFormat);
+	public XPRailTranslator(IWriter writer, XPOutputFormat outputFormat, IDRenumbererService idProvider) {
+		super(writer, outputFormat, idProvider);
 	}
 
 	@Override

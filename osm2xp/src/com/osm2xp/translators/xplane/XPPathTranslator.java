@@ -28,10 +28,12 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 	
 	private Set<Integer> bridgeNodeIds = new HashSet<Integer>();
 	private XPOutputFormat outputFormat;
+	private IDRenumbererService idProvider;
 	
-	public XPPathTranslator(IWriter writer, XPOutputFormat outputFormat) {
+	public XPPathTranslator(IWriter writer, XPOutputFormat outputFormat, IDRenumbererService idProvider) {
 		super(writer);
 		this.outputFormat = outputFormat;
+		this.idProvider = idProvider;
 	}
 
 	protected void addSegmentsFrom(OsmPolyline poly) {
@@ -69,7 +71,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 			}
 		}
 		for (XPPathSegment pathSegment : resultSegmentList) {
-			writer.write(outputFormat.getPathStr(pathSegment), GeomUtils.cleanCoordinatePoint(pathSegment.getPoint(0)));
+			writer.write(outputFormat.getPathStr(pathSegment));
 		}
 		
 	}
@@ -96,7 +98,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 							double newY = points[i-1].y + (points[i].y-points[i-1].y)*k;
 							Point2D[] newSegPts = Arrays.copyOf(points, i + 1);
 							newSegPts[i] = new Point2D(newX, newY);
-							int newPointId = IDRenumbererService.getIncrementId();
+							int newPointId = idProvider.getIncrementId();
 							startSegment = new XPPathSegment(pathSegment.getType(), pathSegment.getStartId(), newPointId, newSegPts);
 							startSegment.setStartHeight(1);
 							Point2D[] tailPts = Arrays.copyOfRange(points, i, points.length);
@@ -121,7 +123,7 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 							Point2D[] newSegPts = Arrays.copyOf(points, i + 2);
 							newSegPts[i+1] = new Point2D(newX, newY);
 							long originalEndId = pathSegment.getEndId();
-							int newPointId = IDRenumbererService.getIncrementId();
+							int newPointId = idProvider.getIncrementId();
 							pathSegment = new XPPathSegment(pathSegment.getType(), pathSegment.getStartId(), newPointId, newSegPts);
 							Point2D[] tailPts = Arrays.copyOfRange(points, i+1, points.length); //was i 
 							tailPts = (Point2D[]) ArrayUtils.add(tailPts, 0, new Point2D(newX, newY));
@@ -166,8 +168,8 @@ public abstract class XPPathTranslator extends XPWritingTranslator {
 			currentSegment.add(node);
 			if ((i == nodes.size() - 1) ||
 				(currentSegment.size() > 1 && pathCrossingIds.contains(node.getId()))) {
-				int newStartId = IDRenumbererService.getNewId(currentSegment.get(0).getId());
-				int newEndId = IDRenumbererService.getNewId(node.getId());
+				int newStartId = idProvider.getNewId(currentSegment.get(0).getId());
+				int newEndId = idProvider.getNewId(node.getId());
 				if (bridge) {
 					bridgeNodeIds.add(newStartId);
 					bridgeNodeIds.add(newEndId);

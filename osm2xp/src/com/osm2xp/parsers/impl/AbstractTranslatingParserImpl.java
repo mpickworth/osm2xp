@@ -61,22 +61,26 @@ public abstract class AbstractTranslatingParserImpl extends BinaryParser {
 			}
 		}
 		while (!curves.isEmpty()) {
-			int matchIdx = 0;
+			List<Long> segment = curves.remove(0);
 			List<Long> current = new ArrayList<>();
-			while (matchIdx > -1) {
-				List<Long> segment = curves.get(matchIdx);
+			while (segment != null) {
 				if (!current.isEmpty()) {
 					segment = segment.subList(1, segment.size());
 				}
 				current.addAll(segment);
+				segment = null;
 				Long lastNodeId = current.get(current.size() - 1);
-				curves.remove(matchIdx);
-				matchIdx = -1;
 				for (int i = 0; i < curves.size(); i++) {
 					List<Long> curve = curves.get(i);
-					if (!curve.isEmpty() && curve.get(0).equals(lastNodeId)) {
-						matchIdx = i;
-						break;
+					if (!curve.isEmpty()) { 
+						if (curve.get(0).equals(lastNodeId)) {
+							segment = curves.remove(i);
+							break;
+						} else if (curve.get(curve.size() - 1).equals(lastNodeId)) {
+							segment = curves.remove(i);							
+							Collections.reverse(segment);
+							break;
+						}
 					}
 				}
 			}

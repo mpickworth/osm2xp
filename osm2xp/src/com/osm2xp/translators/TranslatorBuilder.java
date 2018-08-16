@@ -194,7 +194,7 @@ public class TranslatorBuilder {
 		GenerationStats stats = StatsHelper.initStats(currentFile, currentTile);
 		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,FacadeSetHelper.getDefaultFacadePath());
 		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath, FacadeSetManager.getManager(facadeSetsStr, new File(folderPath)));
-		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
+		IWriter writer = new DsfWriterImpl(folderPath, currentTile, dsfObjectsProvider);
 		Xplane10TranslatorImpl translatorImpl = new Xplane10TranslatorImpl(stats, writer, currentTile,
 				folderPath, dsfObjectsProvider);
 		if (XplaneOptionsHelper.getOptions().isGenerateDebugImg()) {
@@ -218,7 +218,7 @@ public class TranslatorBuilder {
 		GenerationStats stats = StatsHelper.initStats(currentFile, currentTile);
 		String facadeSetsStr = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,FacadeSetHelper.getDefaultFacadePath());
 		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath, FacadeSetManager.getManager(facadeSetsStr, new File(folderPath)));
-		IWriter writer = new DsfWriterImpl(folderPath, dsfObjectsProvider);
+		IWriter writer = new DsfWriterImpl(folderPath, currentTile, dsfObjectsProvider);
 		Xplane9TranslatorImpl xplane9TranslatorImpl = new Xplane9TranslatorImpl(stats, writer, currentTile,
 				folderPath, dsfObjectsProvider);
 		if (XplaneOptionsHelper.getOptions().isGenerateDebugImg()) {

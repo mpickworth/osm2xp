@@ -117,13 +117,14 @@ public class XPlaneTranslatorImpl implements ITranslator{
 		this.dsfObjectsProvider = dsfObjectsProvider;
 		this.startTime = new Date();
 		
-		IDRenumbererService.reinit();
 		outputFormat = new XPOutputFormat();
 		
+		IDRenumbererService idProvider = new IDRenumbererService();
+		
 		polyHandlers.add(new XPBarrierTranslator(writer, dsfObjectsProvider, outputFormat));
-		polyHandlers.add(new XPRoadTranslator(writer, outputFormat));
-		polyHandlers.add(new XPRailTranslator(writer, outputFormat));
-		polyHandlers.add(new XPPowerlineTranslator(writer, outputFormat));
+		polyHandlers.add(new XPRoadTranslator(writer, outputFormat, idProvider));
+		polyHandlers.add(new XPRailTranslator(writer, outputFormat, idProvider));
+		polyHandlers.add(new XPPowerlineTranslator(writer, outputFormat, idProvider));
 		polyHandlers.add(new XPCoolingTowerTranslator(writer, dsfObjectsProvider));
 		polyHandlers.add(new XPChimneyTranslator(writer, dsfObjectsProvider));
 		forestTranslator = new XPForestTranslator(writer, dsfObjectsProvider, outputFormat, stats);
@@ -191,9 +192,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 					.getPolygon()));
 			if (osmPolygon.getPolygon().getArea() * 100000000 > 0.1
 					&& osmPolygon.getPolygon().getVertexNumber() > 3) {
-				writer.write(outputFormat.getPolygonString(osmPolygon, facade +"", osmPolygon.getHeight() + ""), GeomUtils
-						.cleanCoordinatePoint(osmPolygon.getPolygon()
-								.getFirstPoint()));
+				writer.write(outputFormat.getPolygonString(osmPolygon, facade +"", osmPolygon.getHeight() + ""));
 	
 				// stats TODO not working anymore since v2 facades new features.
 				if (dsfObjectsProvider.getPolygonsList().get(facade)
@@ -420,8 +419,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	protected void writeObjectToDsf(XplaneDsfObject object) throws Osm2xpBusinessException {
 	
 		String objectDsfText = object.asObjDsfText();
-		writer.write(objectDsfText, GeomUtils.cleanCoordinatePoint(object
-				.getOsmPolygon().getCenter()));
+		writer.write(objectDsfText);
 		// stats
 		StatsHelper.addObjectType(
 				dsfObjectsProvider.getObjectsList().get(object.getDsfIndex()),

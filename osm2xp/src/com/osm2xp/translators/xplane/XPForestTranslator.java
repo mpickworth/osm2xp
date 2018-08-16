@@ -36,8 +36,7 @@ public class XPForestTranslator extends XPWritingTranslator {
 				if (!osmPolyline.isValid()) {
 					List<LinearRing2D> fixed = GeomUtils.fix((LinearRing2D)osmPolyline.getPolyline());
 					for (LinearRing2D linearRing2D : fixed) {
-						writer.write(outputFormat.getPolygonString(linearRing2D, forestIndexAndDensity[0] + "", forestIndexAndDensity[1] + ""), GeomUtils.cleanCoordinatePoint(osmPolyline
-								.getPolyline().getFirstPoint()));
+						writer.write(outputFormat.getPolygonString(linearRing2D, forestIndexAndDensity[0] + "", forestIndexAndDensity[1] + ""));
 					}
 				} else {
 					writeForestToDsf((OsmPolygon) osmPolyline, forestIndexAndDensity);
@@ -61,8 +60,7 @@ public class XPForestTranslator extends XPWritingTranslator {
 	 */
 	private void writeForestToDsf(OsmPolygon osmPolygon, Integer[] forestIndexAndDensity) {
 	
-		writer.write(outputFormat.getPolygonString(osmPolygon, forestIndexAndDensity[0] + "", forestIndexAndDensity[1] + ""), GeomUtils.cleanCoordinatePoint(osmPolygon
-				.getPolygon().getFirstPoint()));
+		writer.write(outputFormat.getPolygonString(osmPolygon, forestIndexAndDensity[0] + "", forestIndexAndDensity[1] + ""));
 		// stats
 		StatsHelper.addForestType(
 				dsfObjectsProvider.getPolygonsList().get(

@@ -10,7 +10,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.utils.DsfObjectsProvider;
-import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.writers.IWriter;
 
@@ -76,12 +75,11 @@ public abstract class XPSpecObjectTranslator extends XPWritingTranslator {
 			Integer chimneyObjectIdx = objectsProvider.getSpecialObject(getSuitableModelFile(size));
 			Point2D center = osmPolygon.getCenter();
 			String objStr =  String.format(Locale.ROOT, "OBJECT %1d %2.9f %3.9f 0" + System.getProperty("line.separator"), chimneyObjectIdx, center.x, center.y);
-			Point2D point = GeomUtils.cleanCoordinatePoint(osmPolygon.getCenter());
 			if (XplaneOptionsHelper.getOptions().isGenerateComments()) {
 				String comment = getComment(osmPolygon);
-				writer.write(comment, point);
+				writer.write(comment);
 			}
-			writer.write(objStr, point);
+			writer.write(objStr);
 			return true;
 		}
 		return false;
