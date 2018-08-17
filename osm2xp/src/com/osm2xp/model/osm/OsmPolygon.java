@@ -18,17 +18,10 @@ import math.geom2d.polygon.LinearRing2D;
 public class OsmPolygon extends OsmPolyline {
 
 	private Double area;
-	public OsmPolygon(long id, List<Tag> tags, List<Node> nodes, boolean partial) {
-		super(id, tags, nodes, partial);
+	public OsmPolygon(long id, List<Tag> tags, List<Node> nodes, boolean part) {
+		super(id, tags, nodes, part);
 		this.height = OsmUtils.getHeightFromTags(tags);
 	}
-
-//	public void simplifyPolygon() {
-//		if (this.polygon != null) {
-//			LinearRing2D result = GeomUtils.simplifyPolygon(this.polygon);
-//			this.polygon = result;
-//		}
-//	}
 
 	public Double getArea() {
 		if (nodes.size() > 2) {
@@ -57,8 +50,8 @@ public class OsmPolygon extends OsmPolyline {
 	}
 
 	public OsmPolygon toSimplifiedPoly() { //Made this mutable since otherwise shapes was simplified even when it's not necessary - e.g. for forest
-		if (this.polyline != null) {
-			OsmPolygon simplified = new OsmPolygon(id, Collections.unmodifiableList(tags), Collections.unmodifiableList(nodes), partial); 
+		if (this.polyline != null && !part) {
+			OsmPolygon simplified = new OsmPolygon(id, Collections.unmodifiableList(tags), Collections.unmodifiableList(nodes), part); 
 			LinearRing2D result = GeomUtils.simplifyPolygon((LinearRing2D) this.polyline);
 			simplified.polyline = result;
 			return simplified;

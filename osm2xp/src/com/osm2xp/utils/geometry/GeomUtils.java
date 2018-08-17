@@ -13,6 +13,7 @@ import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.algorithm.CentroidArea;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -24,10 +25,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequenceFactory;
+import com.vividsolutions.jts.geom.util.LineStringExtracter;
 import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 
-import SGImplify.SGImplify;
-import Tuple.Tuple2f;
 import math.geom2d.Angle2D;
 import math.geom2d.Box2D;
 import math.geom2d.Point2D;
@@ -44,70 +44,8 @@ import math.geom2d.polygon.Rectangle2D;
  * 
  */
 public class GeomUtils {
-//	public static Double getPolygonAngle2(LinearRing2D polygon) {
-//		Double result = null;
-//		LineSegment2D resultSegment = null;
-//
-//		for (LineSegment2D segment : polygon.getEdges()) {
-//
-//			if (resultSegment == null
-//					|| resultSegment.getLength() > segment.getLength())
-//				resultSegment = segment;
-//
-//		}
-//
-//		result = bearing(resultSegment.getFirstPoint().x,
-//				resultSegment.getFirstPoint().y,
-//				resultSegment.getLastPoint().x, resultSegment.getLastPoint().y);
-//		if (result - 7 > 0) {
-//			result = result - 7;
-//		}
-//		return result;
-//	}
-
-//	public static Double getPolygonMaxVectorAngle(LinearRing2D polygon) {
-//		Double result = null;
-//		LineSegment2D resultSegment = null;
-//
-//		for (LineSegment2D segment : polygon.getEdges()) {
-//
-//			if (resultSegment == null
-//					|| resultSegment.getLength() > segment.getLength())
-//				resultSegment = segment;
-//
-//		}
-//		Coordinate c1 = new Coordinate(resultSegment.getFirstPoint().x,
-//				resultSegment.getFirstPoint().y);
-//		Coordinate c2 = new Coordinate(resultSegment.getLastPoint().x,
-//				resultSegment.getLastPoint().y);
-//		result = Math.toDegrees(Angle.angle(c1, c2));
-//		if (result < 0) {
-//			result = Math.toDegrees(Angle.angle(c2, c1));
-//		}
-//		return result;
-//	}
-
-//	public static Double getPolygonMinVectorAngle(LinearRing2D polygon) {
-//		Double result = null;
-//		LineSegment2D resultSegment = null;
-//
-//		for (LineSegment2D segment : polygon.getEdges()) {
-//
-//			if (resultSegment == null
-//					|| resultSegment.getLength() < segment.getLength())
-//				resultSegment = segment;
-//
-//		}
-//		Coordinate c1 = new Coordinate(resultSegment.getFirstPoint().x,
-//				resultSegment.getFirstPoint().y);
-//		Coordinate c2 = new Coordinate(resultSegment.getLastPoint().x,
-//				resultSegment.getLastPoint().y);
-//		result = Math.toDegrees(Angle.angle(c1, c2));
-//		if (result < 0) {
-//			result = Math.toDegrees(Angle.angle(c2, c1));
-//		}
-//		return result;
-//	}
+	
+	public static final double E = 0.000001;
 
 	public static double bearing(double lat1, double Lng1, double lat2,
 			double Lng2) {
@@ -391,53 +329,7 @@ public class GeomUtils {
 		return cleanedLoc;
 	}
 
-	/**
-	 * remove some vertex to simplify polygon
-	 * 
-	 * @param polygon
-	 * @return
-	 */
-	public static LinearRing2D simplifyLine2D(LinearRing2D polygon) {
-		try {
-			List<Tuple2f> tuples = new ArrayList<Tuple2f>();
-			for (Point2D pt : polygon.getVertices()) {
-				Tuple2f tuple2f = new Tuple2f((float) pt.x, (float) pt.y);
-				tuples.add(tuple2f);
-			}
-
-			Tuple2f[] tuplesTab = (Tuple2f[]) tuples.toArray(new Tuple2f[tuples
-					.size()]);
-			Tuple2f[] tuplesmod = SGImplify.simplifyLine2D(0.00003F, tuplesTab);
-
-			List<Point2D> cleanedPoints = new ArrayList<Point2D>();
-			for (int i = 0; i < tuplesmod.length; i++) {
-				Point2D point2d = new Point2D(tuplesmod[i].x, tuplesmod[i].y);
-				cleanedPoints.add(point2d);
-			}
-
-			LinearRing2D result = new LinearRing2D(cleanedPoints);
-
-			// we check if the simplification hasn't moved one point to another
-			// tile
-			boolean isOnSingleTile = isLinearRingOnASingleTile(result);
-			// we check if the result is a simple footprint
-			boolean isASimpleFootprint = result.getVertexNumber() == 5;
-			// we check if the result hasn't made too much simplification
-			boolean isAreaChangeMinimal = linearRing2DToPolygon(result)
-					.getArea() > (linearRing2DToPolygon(polygon).getArea() / 1.5);
-
-			if (isOnSingleTile && isASimpleFootprint && isAreaChangeMinimal) {
-				return result;
-			} else {
-				return null;
-			}
-
-		} catch (Exception e) {
-			return null;
-		}
-
-	}
-
+	
 	/**
 	 * @param linearRing2D
 	 * @return
@@ -1121,4 +1013,76 @@ public class GeomUtils {
 		}
 		return Collections.singletonList(polygon);
 	}
+	
+
+	@SuppressWarnings("unchecked")
+	public static Geometry polygonize(Geometry geometry) {
+		List<?> lines = LineStringExtracter.getLines(geometry);
+		Polygonizer polygonizer = new Polygonizer();
+		polygonizer.add(lines);
+		Collection<Polygon> polys = polygonizer.getPolygons();
+		Polygon[] polyArray = GeometryFactory.toPolygonArray(polys);
+		return geometry.getFactory().createGeometryCollection(polyArray);
+	}
+
+	public static Geometry splitPolygon(Geometry poly, Geometry line) {
+		Geometry nodedLinework = poly.getBoundary().union(line);
+		Geometry polys = polygonize(nodedLinework);
+
+		// Only keep polygons which are inside the input
+		List<Polygon> output = new ArrayList<Polygon>();
+		for (int i = 0; i < polys.getNumGeometries(); i++) {
+			Polygon candpoly = (Polygon) polys.getGeometryN(i);
+			if (poly.contains(candpoly.getInteriorPoint())) {
+				output.add(candpoly);
+			}
+		}
+		return poly.getFactory().createGeometryCollection(GeometryFactory.toGeometryArray(output));
+	}
+	
+	public static Collection<? extends Geometry> cutHoles(Geometry geometry, int maxHoleCount) {
+		if (!(geometry instanceof Polygon)) {
+			return Collections.singletonList(geometry);
+		}
+		int numHoles = ((Polygon) geometry).getNumInteriorRing();
+		if (numHoles <= maxHoleCount) {
+			return Collections.singletonList(geometry);
+		}
+		GeometryFactory geometryFactory = new GeometryFactory(GeomUtils.getDefaultPrecisionModel());
+		Polygon poly = (Polygon) geometry;
+		Envelope envelope = poly.getExteriorRing().getCoordinateSequence().expandEnvelope(new Envelope());
+		Coordinate p1 = poly.getInteriorRingN(0).getCentroid().getCoordinate();
+		//If we have only one hole, cutting line is horizontal line containing it's center
+		//If we have more - cutting line is a line going through centers of two first holes - this would allow to git rid of two holes at least per each cut
+		LineString cuttingLine;								
+		if (numHoles > 1) {
+			Coordinate p2 =  poly.getInteriorRingN(1).getCentroid().getCoordinate();
+			double dx = p2.x-p1.x;
+			if (Math.abs(dx) < GeomUtils.E) { //Use vertical cutting line
+				cuttingLine = geometryFactory.createLineString(new Coordinate[] {
+						new Coordinate(p1.x, envelope.getMinY()), 
+						new Coordinate(p1.x, envelope.getMaxY()),
+						});
+			} else {
+				double k = (p2.y-p1.y)/dx;
+				double b = p1.y - k* p1.x;
+				cuttingLine = geometryFactory.createLineString(new Coordinate[] {
+						new Coordinate(envelope.getMinX(), k * envelope.getMinX() + b), 
+						new Coordinate(envelope.getMaxX(), k * envelope.getMaxX() + b)
+						});
+			}
+		} else {
+			cuttingLine = geometryFactory.createLineString(new Coordinate[] {
+					new Coordinate(envelope.getMinX(), p1.y), 
+					new Coordinate(envelope.getMaxX(), p1.y)
+					});
+		}
+		List<Geometry> cutResult = GeomUtils.flatMap(GeomUtils.splitPolygon(geometry, cuttingLine));
+		List<Geometry> resultList = new ArrayList<Geometry>();
+		for (Geometry curGeom : cutResult) {
+			resultList.addAll(cutHoles(curGeom, maxHoleCount));
+		}
+		return resultList;
+	}
+
 }

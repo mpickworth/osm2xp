@@ -36,6 +36,6 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="lib" path="lib/osmosis-osm-binary-0.46.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1533711954649/source/osmosis-osm-binary-0.46-sources-1533797390112.jar"/>
 	<classpathentry kind="lib" path="lib/protobuf-java-3.4.0.jar"/>
-	<classpathentry kind="lib" path="lib/jts-1.13.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1533711954649/source/jts-1.13-sources-1533711962014.jar"/>
+	<classpathentry kind="lib" path="lib/jts-1.13.jar" sourcepath="C:/Users/Sviridov/AppData/Local/Temp/.org.sf.feeling.decompiler1534485643678/source/jts-1.13-sources-1534497423567.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

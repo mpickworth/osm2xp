@@ -85,6 +85,13 @@ public interface ITranslator {
 	 * @return true if this poly is of interest for this translator.
 	 */
 	public Boolean mustProcessPolyline(List<Tag> tags);
+	
+	/**
+	 * Returns maximum hole count for polyline with given tags. 0 would mean no holes allowed
+	 * @param tags Tags for polyline being analyzed
+	 * @return max hole count for polygon with given tags. 0 - no holes allowed, you can use Integer.MAX_VALUE to indicate no restriction
+	 */
+	public int getMaxHoleCount(List<Tag> tags);
 
 	public void processBoundingBox(HeaderBBox bbox);
 

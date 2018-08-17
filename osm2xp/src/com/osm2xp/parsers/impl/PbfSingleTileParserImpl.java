@@ -40,10 +40,13 @@ import math.geom2d.Point2D;
 
 /**
  * PBF parser implementation.
+ * {@link Deprecated} 
+ * Use {@link MultiTileParserImpl} with single tile passed to it instead
  * 
  * @author Benjamin Blanchet
  * 
  */
+@Deprecated
 public class PbfSingleTileParserImpl extends TranslatingParserImpl implements IParser {
 
 	private File binaryFile;

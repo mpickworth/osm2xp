@@ -187,4 +187,9 @@ public class OsmTranslatorImpl implements ITranslator {
 	public Boolean mustProcessPolyline(List<Tag> tags) {
 		return false;
 	}
+	
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		return Integer.MAX_VALUE; 
+	}
 }

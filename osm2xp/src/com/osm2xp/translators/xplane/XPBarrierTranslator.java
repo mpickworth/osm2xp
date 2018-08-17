@@ -27,7 +27,7 @@ public class XPBarrierTranslator extends XPWritingTranslator {
 
 	@Override
 	public boolean handlePoly(OsmPolyline osmPolyline) {
-		if (!XplaneOptionsHelper.getOptions().isGenerateFence() || osmPolyline.isPartial()) {
+		if (!XplaneOptionsHelper.getOptions().isGenerateFence()) {
 			return false;
 		}
 		String barrierType = osmPolyline.getTagValue("barrier");

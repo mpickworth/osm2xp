@@ -15,14 +15,14 @@ import com.vividsolutions.jts.geom.Polygon;
 
 public class OsmPolylineFactory {
 
-	public static OsmPolyline createPolylineFrom(long id, List<Tag> tags, List<Node> nodes, boolean partial) {
+	public static OsmPolyline createPolylineFrom(long id, List<Tag> tags, List<Node> nodes, boolean part) {
 		if (nodes.size() > 3 && nodes.get(0).getId() == nodes.get(nodes.size() - 1).getId()) {
-			return new OsmPolygon(id, tags, nodes, partial);
+			return new OsmPolygon(id, tags, nodes, part);
 		}
-		return new OsmPolyline(id, tags, nodes, partial);
+		return new OsmPolyline(id, tags, nodes, part);
 	}
 	
-	public static List<OsmPolyline> createPolylinesFromJTSGeometry(long id, List<Tag> tags, Geometry geometry) {
+	public static List<OsmPolyline> createPolylinesFromJTSGeometry(long id, List<Tag> tags, Geometry geometry, boolean part) {
 		if (geometry instanceof Polygon) {
 			Coordinate[] outerCoords = ((Polygon) geometry).getExteriorRing().getCoordinates();
 			List<Coordinate[]> innerCoords = new ArrayList<>();
@@ -34,21 +34,21 @@ public class OsmPolylineFactory {
 			if (nodes != null) {
 				List<List<Node>> innerRings = innerCoords.stream().map(ring -> createRingNodes(ring)).filter(list -> list != null).collect(Collectors.toList());
 				if (innerRings.size() > 0) {
-					return Collections.singletonList(new OsmMultiPolygon(id, tags, nodes, innerRings, false));
+					return Collections.singletonList(new OsmMultiPolygon(id, tags, nodes, innerRings, part));
 				} else {
-					return Collections.singletonList(new OsmPolygon(id, tags, nodes, false));
+					return Collections.singletonList(new OsmPolygon(id, tags, nodes, part));
 				}
 			}
 			return null;
 		} else if (geometry instanceof LineString) {
 			List<Node> nodes = createNodes(geometry.getCoordinates());
 			if (nodes != null) {
-				return Collections.singletonList(new OsmPolyline(id, tags, nodes, false));
+				return Collections.singletonList(new OsmPolyline(id, tags, nodes, part));
 			}
 		} else if (geometry instanceof GeometryCollection) {
 			List<OsmPolyline> resList = new ArrayList<OsmPolyline>();
 			for (int i = 0; i < geometry.getNumGeometries(); i++) {
-				List<OsmPolyline> polylines = createPolylinesFromJTSGeometry(id, tags, geometry.getGeometryN(i));
+				List<OsmPolyline> polylines = createPolylinesFromJTSGeometry(id, tags, geometry.getGeometryN(i), geometry.getNumGeometries() > 1);
 				if (polylines != null) {
 					resList.addAll(polylines);
 				}

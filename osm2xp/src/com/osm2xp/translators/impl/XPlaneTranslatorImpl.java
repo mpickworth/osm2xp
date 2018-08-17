@@ -531,7 +531,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 	protected boolean process3dObject(OsmPolyline poly) {
 		Boolean result = false;
 
-		if (!(poly instanceof OsmPolygon) || poly.isPartial() || !((OsmPolygon) poly).getPolygon().isClosed()) {
+		if (!(poly instanceof OsmPolygon) || poly.isPart() || !((OsmPolygon) poly).getPolygon().isClosed()) {
 			return false;
 		}
 		
@@ -574,8 +574,7 @@ public class XPlaneTranslatorImpl implements ITranslator{
 				&& OsmUtils.isBuilding(osmPolygon.getTags())
 				&& !OsmUtils.isExcluded(osmPolygon.getTags(),
 						osmPolygon.getId())
-				&& !specialExcluded(osmPolygon)
-				&& !osmPolygon.isPartial()
+				&& !specialExcluded(osmPolygon)				
 				&& osmPolygon.isValid()
 				&& osmPolygon.getPolygon().getVertexNumber() > BUILDING_MIN_VECTORS
 				&& osmPolygon.getPolygon().getVertexNumber() < BUILDING_MAX_VECTORS) {
@@ -683,6 +682,17 @@ public class XPlaneTranslatorImpl implements ITranslator{
 
 	public void setTranslationListener(ITranslationListener translationListener) {
 		this.translationListener = translationListener;
+	}
+	
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		if (OsmUtils.isBuilding(tags)) {
+			return 0; //No holes for building supported
+		}
+		if (OsmUtils.isForest(tags)) {
+			return 254; //255 windings at most - 1 outer winding = 254
+		}
+		return Integer.MAX_VALUE; 
 	}
 
 }

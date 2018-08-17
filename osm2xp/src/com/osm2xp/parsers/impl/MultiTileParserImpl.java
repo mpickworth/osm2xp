@@ -37,9 +37,9 @@ import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
- * PBF parser implementation.
+ * PBF parser with ability to split parsed data around several polygons using JTS to clip, cut, simplify and fix OSM polygons 
  * 
- * @author Benjamin Blanchet
+ * @author Dmitry Karpenko, OnPositive
  * 
  */
 public class MultiTileParserImpl extends AbstractTranslatingParserImpl implements IBasicParser {

@@ -2,6 +2,7 @@ package com.osm2xp.controllers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -166,7 +167,7 @@ public class BuildController {
 
 			@Override
 			public void done(IJobChangeEvent event) {
-				job.setFamilly("endedJob");
+				job.setFamily("endedJob");
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
@@ -210,15 +211,16 @@ public class BuildController {
 			throws Osm2xpBusinessException {
 		String jobTitle = "Generate tile " + +(int) coordinates.y + " / "
 				+ (int) coordinates.x + " of file " + currentFile.getName();
-		final GenerateTileJob job = new GenerateTileJob(jobTitle, currentFile,
-				coordinates, folderPath, relationsList, "todoJob");
+		final GenerateMultiTilesJob job = new GenerateMultiTilesJob(jobTitle, currentFile, Collections.singletonList(coordinates), folderPath, relationsList, "todoJob");
+//		final GenerateTileJob job = new GenerateTileJob(jobTitle, currentFile,
+//				coordinates, folderPath, relationsList, "todoJob");
 		job.setRule(new MutexRule());
 		job.addJobChangeListener(new JobChangeAdapter() {
 
 
 			@Override
 			public void done(IJobChangeEvent event) {
-				job.setFamilly("endedJob");
+				job.setFamily("endedJob");
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {

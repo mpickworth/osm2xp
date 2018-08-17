@@ -2,7 +2,6 @@ package com.osm2xp.parsers.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,44 +41,15 @@ public class TileTranslationAdapter {
 		this.translator = translator;
 		bounds = new Envelope(currentTile.x, currentTile.x + 1, currentTile.y, currentTile.y + 1);
 		tileClipper = new GeometryClipper(bounds); //XXX need actual getting tile bounds instead  
-	}
+	}	
 	
-	protected List<Polygon> doCleanup(List<List<Long>> outer, List<List<Long>> inner) {
-		GeometryFactory factory = new GeometryFactory(GeomUtils.getDefaultPrecisionModel());
-		if (outer.size() == 1) { // If we have only one outer ring - assign all inner rings to it and return
-			LinearRing[] innerRings = inner.stream().map(ids -> getRing(ids)).filter(ring -> ring != null)
-					.toArray(LinearRing[]::new);
-			return Collections.singletonList(factory.createPolygon(getRing(outer.get(0)), innerRings));
-		} else if (inner.isEmpty()) { // If we have no inner rings - create poly for each outer ring and return these
-										// polys
-			return outer.stream().map(ids -> getPolygon(ids)).collect(Collectors.toList());
-		}
-		List<Polygon> outerPolysList = outer.stream().map(ids -> getPolygon(ids)).filter(poly -> poly != null)
-				.collect(Collectors.toList());
-		List<LinearRing> innerRingsList = inner.stream().map(ids -> getRing(ids)).filter(ring -> ring != null)
-				.collect(Collectors.toList());
-		List<Polygon> resultList = new ArrayList<Polygon>();
-		for (Polygon outerPoly : outerPolysList) {
-			List<LinearRing> innerRingList = new ArrayList<LinearRing>();
-			for (Iterator<LinearRing> iterator = innerRingsList.iterator(); iterator.hasNext();) {
-				LinearRing innerRing = iterator.next();
-				if (outerPoly.covers(innerRing)) {
-					innerRingList.add(innerRing);
-					iterator.remove();
-				}
-			}
-			resultList.add(factory.createPolygon(factory.createLinearRing(outerPoly.getCoordinates()),
-					innerRingList.toArray(new LinearRing[0])));
-		}
-		return fix(resultList).stream().filter(geom -> geom instanceof Polygon).map(geom -> (Polygon)geom).collect(Collectors.toList());
-	}
-	
-	protected List<Geometry> fix(List<? extends Geometry> geometries) {
+	protected List<Geometry> preprocess(List<? extends Geometry> geometries, List<Tag> tags) {
 		geometries = boundsFilter(geometries);
 		if (geometries.isEmpty()) {
 			return Collections.emptyList();
 		}
-		return clipToTileSize(geometries);
+		List<Geometry> clipped = clipToTileSize(geometries);		
+		return cutHoles(clipped, tags);
 	}
 	
 	protected List<Geometry> boundsFilter(List<? extends Geometry> geometries) {
@@ -151,7 +121,20 @@ public class TileTranslationAdapter {
 		}
 		return null;
 	}
+	
+	protected List<Geometry> cutHoles(List<Geometry> initialGeomtry, List<Tag> tags) {
+		int maxHoleCount = translator.getMaxHoleCount(tags);
+		if (maxHoleCount == Integer.MAX_VALUE) {
+			return initialGeomtry;
+		}
+		List<Geometry>resultList = new ArrayList<>();
+		for (Geometry geometry : initialGeomtry) {
+			resultList.addAll(GeomUtils.cutHoles(geometry, maxHoleCount));
+		}
+		return resultList;
+	}
 
+	
 	public void complete() {
 		translator.complete();
 	}
@@ -179,21 +162,22 @@ public class TileTranslationAdapter {
 	}
 
 	public void processWays(long wayId, List<Tag> tags, Geometry originalGeometry, List<? extends Geometry> fixedGeometries) {
-		fixedGeometries = fix(fixedGeometries);
+		fixedGeometries = preprocess(fixedGeometries, tags);
 		if (fixedGeometries.isEmpty()) {
 			return;
 		} else if (fixedGeometries.size() == 1 && fixedGeometries.get(0) == originalGeometry) {
             
-			List<OsmPolyline> polyline = OsmPolylineFactory.createPolylinesFromJTSGeometry(wayId, tags, originalGeometry);                                                           
+			List<OsmPolyline> polyline = OsmPolylineFactory.createPolylinesFromJTSGeometry(wayId, tags, originalGeometry, false);                                                           
 			try {
 				translator.processPolyline(polyline.get(0));
 			} catch (Osm2xpBusinessException e) {
 				Activator.log(e);
 			}                                                         
 		} else {
+			boolean parts = fixedGeometries.size() > 1; //Should resulting polys/lines be marked as parts of one common line?
 			fixedGeometries = CoordinateNodeIdPreserver.preserveNodeIds(Collections.singletonList(originalGeometry), fixedGeometries);
 			fixedGeometries.stream()
-			.map(poly -> OsmPolylineFactory.createPolylinesFromJTSGeometry(wayId, tags,poly))
+			.map(poly -> OsmPolylineFactory.createPolylinesFromJTSGeometry(wayId, tags,poly, parts))
 			.filter(list -> list != null).flatMap(list -> list.stream()).forEach(polyline -> {
 				try {
 					translator.processPolyline(polyline);

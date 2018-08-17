@@ -146,8 +146,7 @@ public class Xplane10TranslatorImpl extends XPlaneTranslatorImpl {
 				&& OsmUtils.isBuilding(osmPolygon.getTags())
 				&& !OsmUtils.isExcluded(osmPolygon.getTags(),
 						osmPolygon.getId())
-				&& !specialExcluded(osmPolygon)
-				&& !osmPolygon.isPartial()
+				&& !specialExcluded(osmPolygon)				
 				&& osmPolygon.getPolygon().getVertexNumber() > BUILDING_MIN_VECTORS
 				&& osmPolygon.getPolygon().getVertexNumber() < BUILDING_MAX_VECTORS) { 
 	

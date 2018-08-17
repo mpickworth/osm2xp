@@ -65,17 +65,5 @@ public class GenerateTileJob extends GenerateJob {
 		Point intPt = coords.getAsInt();
 		return String.format(Locale.ROOT, "tile (%d,%d)", intPt.x, intPt.y);
 	}
-	
-	public boolean belongsTo(Object family) {
-		return family.equals(family);
-	}
-
-	public String getFamilly() {
-		return family;
-	}
-
-	public void setFamilly(String familly) {
-		this.family = familly;
-	}
 
 }

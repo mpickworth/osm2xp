@@ -153,4 +153,9 @@ public class FsxBgTranslatorImpl implements ITranslator {
 	public void processBoundingBox(HeaderBBox bbox) {
 		// Do nothing
 	}
+	
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		return Integer.MAX_VALUE; //TODO is this supported?
+	}
 }

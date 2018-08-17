@@ -1,10 +1,6 @@
 package com.osm2xp.model.osm;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import com.osm2xp.utils.geometry.GeomUtils;
@@ -21,18 +17,17 @@ public class OsmPolyline {
 	protected Polyline2D polyline;
 	protected Point2D center;
 	/**
-	 * Whether only part of nodes is present for this.
-	 * Can be OK to use for forest, road or powerline generation, but not OK for buildings
+	 * Indicates whether current polygon is a part of some complex polygon
 	 */
-	protected boolean partial;
+	protected boolean part;
 	protected Boolean valid = null;
 
-	public OsmPolyline(long id, List<Tag> tags, List<Node> nodes, boolean partial) {
+	public OsmPolyline(long id, List<Tag> tags, List<Node> nodes, boolean part) {
 		super();
 		this.id = id;
 		this.tags = tags;
 		this.nodes = nodes;
-		this.partial = partial;
+		this.part = part;
 	}
 
 	public boolean isOnOneTile() {
@@ -151,17 +146,16 @@ public class OsmPolyline {
 	}
 
 	/**
-	 * Whether all polygon nodes was read from source file
-	 * Can be OK to generate road, railway, powerline or forest piece based on partial data,
-	 * but not OK to generate building
-	 * @return all polygon nodes was read from source file
+	 * Whether current polygon is a part of some complex polygon
+	 * In this case special logics can be applied for it - e.g. no simplification, using same facade/forest type for all parts etc. 
+	 * @return <code>true</code> current polygon is a part of some complex polygon, <code>false</code> otherwise
 	 */
-	public boolean isPartial() {
-		return partial;
+	public boolean isPart() {
+		return part;
 	}
 
-	public void setPartial(boolean partial) {
-		this.partial = partial;
+	public void setPart(boolean part) {
+		this.part = part;
 	}
 
 	@Override
