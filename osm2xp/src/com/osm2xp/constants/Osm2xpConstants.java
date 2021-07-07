@@ -12,7 +12,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
  */
 public class Osm2xpConstants {
 
-	public static final String OSM2XP_VERSION = "2.0.3";
+	public static final String OSM2XP_VERSION = "3.2.0";
 	public static final String PREFS_PATH = "." + File.separator + "ressources"
 			+ File.separator + "prefs" + File.separator;
 	public static final String FACADES_SETS_PATH = ResourcesPlugin
@@ -27,5 +27,12 @@ public class Osm2xpConstants {
 	public static final String UTILS_PATH = ResourcesPlugin.getWorkspace()
 			.getRoot().getLocation()
 			+ File.separator + "resources" + File.separatorChar + "utils";
+	public static final String MAN_MADE_TAG = "man_made";
+	
+	public static final String LAST_PERSP_PROP = "lastPerspective";
+	public static final String LEVEL_HEIGHT_PROP = "levelHeight";
+	
+	public static final String[] OSM_FILE_FILTER_NAMES = { "OSM files (*.osm,*.pbf;*.shp)" };
+	public static final String[] OSM_FILE_FILTER_EXTS = { "*.osm;*.pbf;*.shp" };
 
 }

@@ -29,7 +29,6 @@ import com.osm2xp.gui.views.panels.xplane.StatsOptionsPanel;
  */
 public class XplaneAdvancedOptionsView extends ViewPart implements
 		IContextProvider {
-	private FormToolkit toolkit;
 	private ScrolledForm form;
 
 	public XplaneAdvancedOptionsView() {
@@ -39,7 +38,7 @@ public class XplaneAdvancedOptionsView extends ViewPart implements
 	@Override
 	public void createPartControl(Composite parent) {
 		parent.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		toolkit = new FormToolkit(parent.getDisplay());
+		FormToolkit toolkit = new FormToolkit(parent.getDisplay());
 		form = toolkit.createScrolledForm(parent);
 		form.setImage(ResourceManager.getPluginImage("com.osm2xp",
 				"images/toolbarsIcons/advanced_32.png"));
@@ -68,7 +67,7 @@ public class XplaneAdvancedOptionsView extends ViewPart implements
 				Section.TWISTIE | Section.EXPANDED | Section.TITLE_BAR);
 		sectionGeneratedItems.setLayoutData(new TableWrapData(
 				TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 1));
-		sectionGeneratedItems.setText("generated items");
+		sectionGeneratedItems.setText("Generated items");
 		GeneratedItemsPanel scGeneratedItemsPanel = new GeneratedItemsPanel(
 				sectionGeneratedItems, SWT.BORDER);
 		toolkit.adapt(scGeneratedItemsPanel, true, true);
@@ -107,7 +106,7 @@ public class XplaneAdvancedOptionsView extends ViewPart implements
 				Section.TWISTIE | Section.TITLE_BAR);
 		statsOptionsSection.setLayoutData(new TableWrapData(
 				TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 1));
-		statsOptionsSection.setText("Stats options");
+		statsOptionsSection.setText("Stats and Debug options");
 		StatsOptionsPanel statsOptionsPanel = new StatsOptionsPanel(
 				statsOptionsSection, SWT.BORDER);
 
@@ -136,5 +135,5 @@ public class XplaneAdvancedOptionsView extends ViewPart implements
 	public String getSearchExpression(Object target) {
 		return "advanced";
 	}
-
+	
 }

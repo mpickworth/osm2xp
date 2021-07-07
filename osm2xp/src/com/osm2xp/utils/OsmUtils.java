@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import com.osm2xp.constants.Osm2xpConstants;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.options.ForestTagRule;
 import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.options.XplaneObjectTagRule;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 
@@ -91,7 +93,7 @@ public class OsmUtils {
 	 * @return
 	 */
 	public static List<Tag> getMatchingTags(List<Tag> tagsList,
-			OsmPolygon osmPolygon) {
+			OsmPolyline osmPolygon) {
 
 		List<Tag> result = new ArrayList<Tag>();
 		for (Tag userTag : tagsList) {
@@ -145,7 +147,7 @@ public class OsmUtils {
 	 * @return
 	 */
 	public static List<TagsRule> getMatchingRules(
-			List<? extends TagsRule> tagsRulesList, OsmPolygon osmPolygon) {
+			List<? extends TagsRule> tagsRulesList, OsmPolyline osmPolygon) {
 
 		List<TagsRule> result = new ArrayList<TagsRule>();
 		for (TagsRule tagsRules : tagsRulesList) {
@@ -311,10 +313,27 @@ public class OsmUtils {
 		return userTag.getKey().equalsIgnoreCase(tag.getKey())
 				&& userTag.getValue().equalsIgnoreCase(tag.getValue());
 	}
+	
+	public static boolean isRailway(List<Tag> tags) {
+		return isTagInTagsList("railway","rail", tags);
+	}
+	
+	public static boolean isRoad(List<Tag> tags) {
+		return isStringInTags("highway", tags);
+	}
+	
+	public static boolean isPowerline(List<Tag> tags) {
+		return isTagInTagsList("power","line", tags);
+	}
+	
+	public static boolean isFence(List<Tag> tags) {
+		return isStringInTags("barrier", tags);
+	}
 
 	public static boolean isBuilding(List<Tag> tags) {
-		return ((isStringInTags("building", tags) && !isTagInTagsList("wall",
-				"no", tags)));
+		return isStringInTags("building", tags) && 
+				!isTagInTagsList("wall","no", tags) && 
+				!isTagInTagsList("building:part","*", tags);
 	}
 
 	public static String getNormalizedTagText(Tag tag) {
@@ -377,81 +396,82 @@ public class OsmUtils {
 	public static String CreateTempFile(String folderPath,
 			List<OsmPolygon> wayList, String fileName) throws IOException {
 
-		FileWriter writer = null;
 		String filePath = folderPath + File.separator + fileName + ".osm";
-		writer = new FileWriter(filePath, false);
 
-		BufferedWriter output = new BufferedWriter(writer);
-		output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		output.write("<osm version=\"0.6\" generator=\"osm2xp "
-				+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
+		try (BufferedWriter output = new BufferedWriter(new FileWriter(filePath, false))){
+			output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+			output.write("<osm version=\"0.6\" generator=\"osm2xp "
+					+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
+	
+			// write all nodes
+			for (OsmPolyline osmPolygon : wayList) {
+				for (Node node : osmPolygon.getNodes()) {
+					output.write("<node id=\"" + node.getId() + "\" lat=\""
+							+ node.getLat() + "\" lon=\"" + node.getLon()
+							+ "\" version=\"1\" />\n");
+				}
+	
+			}
+	
+			for (OsmPolyline osmPolygon : wayList) {
+				output.write("<way id=\"" + osmPolygon.getId()
+						+ "\" visible=\"true\" version=\"2\" >\n");
+				for (Node node : osmPolygon.getNodes()) {
+					output.write("<nd ref=\"" + node.getId() + "\"/>\n");
+				}
+				for (Tag tag : osmPolygon.getTags()) {
+					String normalizedTag = getNormalizedTagText(tag);
+					if (normalizedTag != null) {
+						output.write(normalizedTag);
+					}
+	
+				}
+				output.write("</way>\n");
+			}
+			output.write("</osm>");
+			output.flush();
+		} catch (IOException e) {
+			Activator.log(e);
+		}
+		new File(filePath).deleteOnExit();
+		return filePath;
+	}
 
-		// write all nodes
-		for (OsmPolygon osmPolygon : wayList) {
+	public static String CreateTempFile(String folderPath, OsmPolyline osmPolygon)
+			throws IOException {
+
+		String filePath = folderPath + File.separator + osmPolygon.getId()
+				+ ".osm";
+		try (BufferedWriter output = new BufferedWriter(new FileWriter(filePath, false))){
+			output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+			output.write("<osm version=\"0.6\" generator=\"osm2xp "
+					+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
+	
 			for (Node node : osmPolygon.getNodes()) {
 				output.write("<node id=\"" + node.getId() + "\" lat=\""
 						+ node.getLat() + "\" lon=\"" + node.getLon()
 						+ "\" version=\"1\" />\n");
 			}
-
-		}
-
-		for (OsmPolygon osmPolygon : wayList) {
+	
 			output.write("<way id=\"" + osmPolygon.getId()
 					+ "\" visible=\"true\" version=\"2\" >\n");
-			for (Node node : osmPolygon.getNodes()) {
-				output.write("<nd ref=\"" + node.getId() + "\"/>\n");
+			for (Node nd : osmPolygon.getNodes()) {
+				output.write("<nd ref=\"" + nd.getId() + "\"/>\n");
 			}
 			for (Tag tag : osmPolygon.getTags()) {
 				String normalizedTag = getNormalizedTagText(tag);
 				if (normalizedTag != null) {
 					output.write(normalizedTag);
 				}
-
+	
 			}
 			output.write("</way>\n");
+	
+			output.write("</osm>");
+			output.flush();
+		} catch (IOException e) {
+			Activator.log(e);
 		}
-		output.write("</osm>");
-		output.flush();
-		new File(filePath).deleteOnExit();
-		return filePath;
-	}
-
-	public static String CreateTempFile(String folderPath, OsmPolygon osmPolygon)
-			throws IOException {
-
-		FileWriter writer = null;
-		String filePath = folderPath + File.separator + osmPolygon.getId()
-				+ ".osm";
-		writer = new FileWriter(filePath, false);
-
-		BufferedWriter output = new BufferedWriter(writer);
-		output.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		output.write("<osm version=\"0.6\" generator=\"osm2xp "
-				+ Osm2xpConstants.OSM2XP_VERSION + "\">\n");
-
-		for (Node node : osmPolygon.getNodes()) {
-			output.write("<node id=\"" + node.getId() + "\" lat=\""
-					+ node.getLat() + "\" lon=\"" + node.getLon()
-					+ "\" version=\"1\" />\n");
-		}
-
-		output.write("<way id=\"" + osmPolygon.getId()
-				+ "\" visible=\"true\" version=\"2\" >\n");
-		for (Node nd : osmPolygon.getNodes()) {
-			output.write("<nd ref=\"" + nd.getId() + "\"/>\n");
-		}
-		for (Tag tag : osmPolygon.getTags()) {
-			String normalizedTag = getNormalizedTagText(tag);
-			if (normalizedTag != null) {
-				output.write(normalizedTag);
-			}
-
-		}
-		output.write("</way>\n");
-
-		output.write("</osm>");
-		output.flush();
 		new File(filePath).deleteOnExit();
 		return filePath;
 	}

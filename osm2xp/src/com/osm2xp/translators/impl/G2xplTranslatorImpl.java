@@ -3,19 +3,21 @@ package com.osm2xp.translators.impl;
 import java.io.File;
 import java.util.List;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
+
 import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.FilesUtils;
-import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
@@ -56,7 +58,7 @@ public class G2xplTranslatorImpl implements ITranslator {
 		this.currentTile = currentTile;
 		this.folderPath = folderPath;
 		this.txtFile = new File(this.folderPath + File.separator + "g2xpl_"
-				+ currentTile.x + "_" + currentTile.y + ".txt");
+				+ currentTile.y + "_" + currentTile.x + ".txt");
 	}
 
 	@Override
@@ -64,16 +66,16 @@ public class G2xplTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 		LinearRing2D polygon = new LinearRing2D();
 		if (OsmUtils.isBuilding(osmPolygon.getTags())) {
 			polygon = GeomUtils.getPolygonFromOsmNodes(osmPolygon.getNodes());
-			polygon = GeomUtils.setClockwise(polygon);
+			polygon = GeomUtils.setCCW(polygon);
 			StringBuilder wayText = new StringBuilder();
 			wayText.append(osmPolygon.getId() + ":");
 			for (Point2D point : polygon.getVertices()) {
-				wayText.append(point.x + "," + point.y + ",");
+				wayText.append(point.y + "," + point.x + ",");
 			}
 			wayText.replace(wayText.lastIndexOf(","), wayText.length(), "");
 			wayText.append("\n");
@@ -95,7 +97,7 @@ public class G2xplTranslatorImpl implements ITranslator {
 	@Override
 	public void init() {
 		Osm2xpLogger.info("Starting G2xpl binding file for tile "
-				+ this.currentTile.x + "/" + this.currentTile.y + ".");
+				+ this.currentTile.y + "/" + this.currentTile.x + ".");
 	}
 
 	@Override
@@ -108,8 +110,24 @@ public class G2xplTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		List<Tag> tags = way.getTag();
 		return (OsmUtils.isBuilding(tags));
+	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return (OsmUtils.isBuilding(tags));
+	}
+
+	
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
+	}
+	
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		return Integer.MAX_VALUE; //TODO is this supported?
 	}
 }

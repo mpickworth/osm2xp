@@ -1,8 +1,8 @@
 package com.osm2xp.gui.views.panels;
 
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.beans.PojoObservables;
-import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.core.databinding.beans.PojoProperties;
+import org.eclipse.jface.databinding.swt.WidgetProperties;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -34,14 +34,19 @@ public abstract class Osm2xpPanel extends Composite {
 	 * @param bean
 	 * @param property
 	 */
+	@SuppressWarnings("unchecked")
 	protected void bindComponent(Widget component, Object bean, String property) {
 		if (component instanceof Spinner || component instanceof Button) {
-			bindingContext.bindValue(
-					SWTObservables.observeSelection(component),
-					PojoObservables.observeValue(bean, property));
+			bindingContext.bindValue(WidgetProperties.selection().observe(component),		
+					PojoProperties.value(property).observe(bean));
+//			bindingContext.bindValue(
+//					SWTObservables.observeSelection(component),
+//					PojoObservables.observeValue(bean, property));
 		} else if (component instanceof Combo) {
-			bindingContext.bindValue(SWTObservables.observeText(component),
-					PojoObservables.observeValue(bean, property));
+			bindingContext.bindValue(WidgetProperties.text().observe(component),		
+					PojoProperties.value(property).observe(bean));
+//			bindingContext.bindValue(SWTObservables.observeText(component),
+//					PojoObservables.observeValue(bean, property));
 		}
 	}
 

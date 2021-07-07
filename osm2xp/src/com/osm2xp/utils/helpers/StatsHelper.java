@@ -15,6 +15,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
 import math.geom2d.Point2D;
 
 import com.lowagie.text.BadElementException;
@@ -29,6 +31,8 @@ import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
+import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.stats.BuildingStat;
 import com.osm2xp.model.stats.BuildingsStats;
 import com.osm2xp.model.stats.ForestStat;
@@ -45,6 +49,7 @@ import com.osm2xp.model.stats.ObjectsStats;
  */
 public class StatsHelper {
 
+	private static final String STATS_FOLDER = "stats";
 	private static List<GenerationStats> statsList = new ArrayList<GenerationStats>();
 
 	public static void RecapStats(String folderPath)
@@ -184,8 +189,8 @@ public class StatsHelper {
 		stats.setDate(dateFormat.format(new Date()));
 		stats.setOsmFile(currentFile.getPath());
 		if (coordinates != null) {
-			stats.setLatitude((int) coordinates.x);
-			stats.setLongitude((int) coordinates.y);
+			stats.setLatitude((int) coordinates.y);
+			stats.setLongitude((int) coordinates.x);
 		}
 	}
 
@@ -346,8 +351,8 @@ public class StatsHelper {
 	 */
 	public static void saveStats(String folderPath, Point2D tile,
 			GenerationStats stats) throws Osm2xpBusinessException {
-		File file = new File(folderPath + File.separator + "stats"
-				+ File.separator + "stats_" + (int) tile.x + "-" + (int) tile.y
+		File file = new File(folderPath + File.separator + STATS_FOLDER
+				+ File.separator + "stats_" + (int) tile.y + "-" + (int) tile.x
 				+ ".xml");
 		try {
 			JAXBContext jc = JAXBContext.newInstance(GenerationStats.class
@@ -371,7 +376,7 @@ public class StatsHelper {
 	public static void saveRecapStats(String folderPath)
 			throws Osm2xpBusinessException {
 		if (!statsList.isEmpty()) {
-			File file = new File(folderPath + File.separator + "stats"
+			File file = new File(folderPath + File.separator + STATS_FOLDER
 					+ File.separator + "recapStats" + ".xml");
 			GenerationStats stats = getRecapStats();
 			try {
@@ -397,7 +402,7 @@ public class StatsHelper {
 
 	public static void generatePdfRecapReport(String folderPath)
 			throws Osm2xpBusinessException {
-		File file = new File(folderPath + File.separator + "stats"
+		File file = new File(folderPath + File.separator + STATS_FOLDER
 				+ File.separator + "recapStats.pdf");
 		String title = "Osm2xp recap stats ";
 		generatePdfReport(file, getRecapStats(), title);
@@ -405,7 +410,7 @@ public class StatsHelper {
 
 	public static void generatePdfReport(String folderPath,
 			GenerationStats stats) throws Osm2xpBusinessException {
-		File file = new File(folderPath + File.separator + "stats"
+		File file = new File(folderPath + File.separator + STATS_FOLDER
 				+ File.separator + "stats_" + stats.getLatitude() + "-"
 				+ stats.getLongitude() + ".pdf");
 		String title = "Osm2xp report for tile " + stats.getLatitude() + "/"
@@ -451,8 +456,8 @@ public class StatsHelper {
 					+ GuiOptionsHelper.getOptions().getOutputFormat(),
 					new Font(Font.TIMES_ROMAN, 12, Font.NORMAL)));
 			if (XplaneOptionsHelper.getOptions().isGenerateBuildings()) {
-				preface.add(new Paragraph("Facade set: "
-						+ XplaneOptionsHelper.getOptions().getFacadeSet(),
+				preface.add(new Paragraph("Facade sets: "
+						+ InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,""),
 						new Font(Font.TIMES_ROMAN, 12, Font.NORMAL)));
 				preface.add(new Paragraph("Facade L.O.D: "
 						+ XplaneOptionsHelper.getOptions().getFacadeLod(),

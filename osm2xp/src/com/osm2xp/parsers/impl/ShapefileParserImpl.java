@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.Relation;
+
 import com.bbn.openmap.layer.shape.ESRIPoly.ESRIFloatPoly;
 import com.bbn.openmap.layer.shape.ESRIPolygonRecord;
 import com.bbn.openmap.layer.shape.ShapeFile;
@@ -86,8 +88,8 @@ public class ShapefileParserImpl implements IParser {
 				List<Node> nodes = processor.getNodes(ids);
 				if (nodes != null) {
 					OsmPolygon polygon = new OsmPolygon(way.getId(),
-							way.getTag(), nodes);
-					translator.processPolygon(polygon);
+							way.getTag(), nodes, nodes.size() < ids.size());
+					translator.processPolyline(polygon);
 				}
 				esriPolygonRecord = (ESRIPolygonRecord) shapeFile
 						.getNextRecord();

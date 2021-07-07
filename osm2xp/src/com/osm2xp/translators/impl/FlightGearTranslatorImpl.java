@@ -9,18 +9,20 @@ import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
 import org.apache.commons.lang.StringUtils;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
+import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.FilesUtils;
-import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.FlightGearOptionsHelper;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
@@ -63,7 +65,7 @@ public class FlightGearTranslatorImpl implements ITranslator {
 		String fileName = file.getName().substring(0,
 				file.getName().indexOf("."));
 		this.xmlFile = new File(this.folderPath + File.separator + fileName
-				+ "_" + currentTile.x + "_" + currentTile.y + ".stg");
+				+ "_" + currentTile.y + "_" + currentTile.x + ".stg");
 
 	}
 
@@ -72,7 +74,7 @@ public class FlightGearTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 		if (osmPolygon != null && osmPolygon.getNodes() != null) {
 			// check if the current polygon has some tags this translator wants
@@ -111,13 +113,13 @@ public class FlightGearTranslatorImpl implements ITranslator {
 		if (object != null && StringUtils.isNotBlank(object.getPath())) {
 
 			// compute center point of the polygon.
-			Point2D centerPoint = GeomUtils.getPolygonCenter(simplifiedPolygon);
+			Point2D centerPoint = GeomUtils.getPolylineCenter(simplifiedPolygon);
 			// params : <object-path> <longitude> <latitude>
 			// <elevation-offset-m> <heading-deg> <pitch-deg> <roll-deg>
 			String objectDeclaration = MessageFormat.format(
 					FLIGHT_GEAR_OBJECT_DECLARATION,
-					new Object[] { object.getPath(), centerPoint.x,
-							centerPoint.y, 0, 1, 0, 0 });
+					new Object[] { object.getPath(), centerPoint.y,
+							centerPoint.x, 0, 1, 0, 0 });
 			objectDeclaration = objectDeclaration.replaceAll(",", ".");
 			FilesUtils.writeTextToFile(this.xmlFile, objectDeclaration, true);
 
@@ -137,7 +139,7 @@ public class FlightGearTranslatorImpl implements ITranslator {
 	@Override
 	public void init() {
 		Osm2xpLogger.info("Starting FlightGear file for tile "
-				+ this.currentTile.x + "/" + this.currentTile.y + ".");
+				+ this.currentTile.y + "/" + this.currentTile.x + ".");
 	}
 
 	@Override
@@ -150,7 +152,24 @@ public class FlightGearTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
 	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
+	}
+
+	
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
+	}
+	
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		return Integer.MAX_VALUE; //TODO is this supported for FlightGear ?
+	}
+
 }

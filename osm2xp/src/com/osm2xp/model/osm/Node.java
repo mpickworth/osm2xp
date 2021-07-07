@@ -125,4 +125,9 @@ public class Node {
 		this.id = value;
 	}
 
+	@Override
+	public String toString() {
+		return "Node " + id + "[lat=" + lat + ", lon=" + lon + "]";
+	}
+
 }

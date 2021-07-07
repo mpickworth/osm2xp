@@ -2,9 +2,13 @@ package com.osm2xp.gui.views;
 
 import java.io.File;
 
+import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -13,12 +17,15 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.wb.swt.ResourceManager;
 
+import com.osm2xp.constants.Osm2xpConstants;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.gui.views.panels.generic.SceneryFilePanel;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 
@@ -29,12 +36,18 @@ import com.osm2xp.utils.helpers.GuiOptionsHelper;
  * 
  */
 public class LastFilesView extends ViewPart {
-	private static final FormToolkit formToolkit = new FormToolkit(
+	private final FormToolkit formToolkit = new FormToolkit(
 			Display.getDefault());
 	private Table lastFilesTable;
-	private static TableViewer lastFilesTableViewer;
+	private TableViewer lastFilesTableViewer;
+	private IPreferenceChangeListener prefChangeListener = (event) -> {
+		if (GuiOptionsHelper.USED_FILES.equals(event.getKey())) {
+			refreshList();
+		}
+	};
 
 	public LastFilesView() {
+		InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).addPreferenceChangeListener(prefChangeListener);
 	}
 
 	@Override
@@ -57,20 +70,29 @@ public class LastFilesView extends ViewPart {
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				if (!lastFilesTableViewer.getSelection().isEmpty()) {
-					IStructuredSelection selection = (IStructuredSelection) lastFilesTableViewer
-							.getSelection();
-					GuiOptionsHelper.getOptions().setCurrentFilePath(
-							(String) selection.getFirstElement());
-					SceneryFilePanel.refreshCurrentFilePath();
-					if (((String) selection.getFirstElement()).toUpperCase()
-							.contains(".SHP")) {
-						GuiOptionsHelper.askShapeFileNature(parent.getShell());
+					IStructuredSelection selection = (IStructuredSelection) lastFilesTableViewer.getSelection();
+					if (!selection.isEmpty()) {
+						GuiOptionsHelper.getOptions().setCurrentFilePath((String) selection.getFirstElement());
+						if (((String) selection.getFirstElement()).toUpperCase().contains(".SHP")) {
+							GuiOptionsHelper.askShapeFileNature(parent.getShell());
+						}
+					}
+				} else {
+					FileDialog dlg = new FileDialog(lastFilesTable.getShell(), SWT.OPEN);
+					dlg.setFilterNames(Osm2xpConstants.OSM_FILE_FILTER_NAMES);
+					dlg.setFilterExtensions(Osm2xpConstants.OSM_FILE_FILTER_EXTS);
+					String fileName = dlg.open();
+					if (fileName != null) {
+						GuiOptionsHelper.addUsedFile(fileName);
+						refreshList();
+						lastFilesTableViewer.setSelection(new StructuredSelection(fileName));
 					}
 				}
 			}
 		});
+		getSite().setSelectionProvider(lastFilesTableViewer);
 		formToolkit.paintBordersFor(lastFilesTable);
-		if (GuiOptionsHelper.getOptions().getLastFiles() != null) {
+		if (GuiOptionsHelper.getLastFiles() != null) {
 			lastFilesTableViewer.setContentProvider(new ArrayContentProvider());
 			lastFilesTableViewer.setLabelProvider(new LabelProvider() {
 				public Image getImage(Object element) {
@@ -94,13 +116,12 @@ public class LastFilesView extends ViewPart {
 
 				}
 			});
-			lastFilesTableViewer.setInput(GuiOptionsHelper.getOptions()
-					.getLastFiles());
+			lastFilesTableViewer.setInput(GuiOptionsHelper.getLastFiles());
 
 		}
 	}
 
-	public static void refreshList() {
+	public void refreshList() {
 		lastFilesTableViewer.refresh();
 	}
 
@@ -108,5 +129,11 @@ public class LastFilesView extends ViewPart {
 	public void setFocus() {
 		// TODO Auto-model.options method stub
 
+	}
+	
+	@Override
+	public void dispose() {
+		InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).removePreferenceChangeListener(prefChangeListener);
+		super.dispose();
 	}
 }

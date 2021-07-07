@@ -1,19 +1,23 @@
 package com.osm2xp.translators.impl;
 
 import java.text.MessageFormat;
+import java.util.List;
+
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 
 import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
+import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.BglUtils;
-import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.writers.IWriter;
 
@@ -70,7 +74,7 @@ public class FsxBgTranslatorImpl implements ITranslator {
 			String guid = BglUtils
 					.getRandomBglGuid(node.getTag(), node.getId());
 			if (guid != null) {
-				write3dObjectToBgl(new Point2D(node.getLat(), node.getLon()),
+				write3dObjectToBgl(new Point2D(node.getLon(), node.getLat()),
 						guid);
 			}
 		}
@@ -94,11 +98,11 @@ public class FsxBgTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 		LinearRing2D polygon = GeomUtils.getPolygonFromOsmNodes(osmPolygon
 				.getNodes());
-		Point2D center = GeomUtils.getPolygonCenter(polygon);
+		Point2D center = GeomUtils.getPolylineCenter(polygon);
 		String guid = BglUtils.getRandomBglGuid(osmPolygon.getTags(),
 				osmPolygon.getId());
 		if (guid != null) {
@@ -135,7 +139,23 @@ public class FsxBgTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
+	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
+	}
+
+	
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
+	}
+	
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		return Integer.MAX_VALUE; //TODO is this supported?
 	}
 }

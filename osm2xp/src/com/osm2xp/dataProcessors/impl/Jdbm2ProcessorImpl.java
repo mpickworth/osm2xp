@@ -2,20 +2,18 @@ package com.osm2xp.dataProcessors.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import com.osm2xp.constants.Osm2xpConstants;
+import com.osm2xp.exceptions.DataSinkException;
+import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.Way;
+import com.osm2xp.utils.FilesUtils;
 
 import jdbm.PrimaryTreeMap;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
-
-import com.osm2xp.constants.Osm2xpConstants;
-import com.osm2xp.dataProcessors.IDataSink;
-import com.osm2xp.exceptions.DataSinkException;
-import com.osm2xp.model.osm.Node;
-import com.osm2xp.utils.FilesUtils;
 
 /**
  * Jdbm2 data sink implementation.
@@ -23,7 +21,7 @@ import com.osm2xp.utils.FilesUtils;
  * @author Benjamin Blanchet
  * 
  */
-public class Jdbm2ProcessorImpl implements IDataSink {
+public class Jdbm2ProcessorImpl extends AbstractDataProcessor {
 	private RecordManager recman;
 	private PrimaryTreeMap<Long, double[]> nodesMap;
 	// private RecordManager recMan;
@@ -99,22 +97,6 @@ public class Jdbm2ProcessorImpl implements IDataSink {
 	}
 
 	@Override
-	public List<Node> getNodes(List<Long> ids) throws DataSinkException {
-
-		List<Node> nodes = new ArrayList<Node>();
-		for (Long nd : ids) {
-			Node node = getNode(nd);
-			if (node == null) {
-				return null;
-			} else {
-				nodes.add(node);
-			}
-		}
-		return nodes;
-
-	}
-
-	@Override
 	public void complete() throws DataSinkException {
 		try {
 			recman.close();
@@ -127,6 +109,17 @@ public class Jdbm2ProcessorImpl implements IDataSink {
 	@Override
 	public Long getNodesNumber() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public void storeWay(Way way) {
+		// TODO Not supported yet
+	}
+
+	@Override
+	public Way getWay(long wayId) {
+		//TODO not supported yet
 		return null;
 	}
 

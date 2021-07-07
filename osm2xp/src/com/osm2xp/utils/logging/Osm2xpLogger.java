@@ -72,9 +72,8 @@ public class Osm2xpLogger {
 	public static void displayWelcomeMessage() {
 		logger.info("==================================================");
 		logger.info("Osm2XP " + Osm2xpConstants.OSM2XP_VERSION
-				+ " by Benjamin Blanchet");
-		logger.info("check last osm2xp news on http://osm2xp.com");
-		logger.info("===================================================");
+				+ " by Benjamin Blanchet and Dmitry Karpenko");
+		logger.info("==================================================");
 	}
 
 	public static void error(String message) {

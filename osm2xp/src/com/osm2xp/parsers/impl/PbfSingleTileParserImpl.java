@@ -7,52 +7,61 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.geotools.geometry.jts.GeometryClipper;
+import org.openstreetmap.osmosis.osmbinary.Osmformat;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.DenseInfo;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.DenseNodes;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBlock;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.Node;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.Way;
+import org.openstreetmap.osmosis.osmbinary.file.BlockInputStream;
 
 import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.exceptions.OsmParsingException;
-import com.osm2xp.model.osm.Nd;
-import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.parsers.IParser;
 import com.osm2xp.translators.ITranslator;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 
-import crosby.binary.BinaryParser;
-import crosby.binary.Osmformat;
-import crosby.binary.Osmformat.DenseInfo;
-import crosby.binary.Osmformat.DenseNodes;
-import crosby.binary.Osmformat.HeaderBlock;
-import crosby.binary.Osmformat.Node;
-import crosby.binary.Osmformat.Relation;
-import crosby.binary.Osmformat.Way;
-import crosby.binary.file.BlockInputStream;
+import math.geom2d.Point2D;
+
 
 /**
  * PBF parser implementation.
+ * {@link Deprecated} 
+ * Use {@link MultiTileParserImpl} with single tile passed to it instead
  * 
  * @author Benjamin Blanchet
  * 
  */
-public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
+@Deprecated
+public class PbfSingleTileParserImpl extends TranslatingParserImpl implements IParser {
 
 	private File binaryFile;
-	private ITranslator translator;
-	private Map<Long, Color> roofsColorMap;
-	private IDataSink processor;
+	private GeometryClipper tileClipper;
+	private Envelope bounds; 
+	
+	public PbfSingleTileParserImpl(Point2D currentTile) {
+		bounds = new Envelope(currentTile.x, currentTile.x + 1, currentTile.y, currentTile.y + 1);
+		tileClipper = new GeometryClipper(bounds); //XXX need actual getting tile bounds instead  
+	}
 
 	public void init(File binaryFile, ITranslator translator,
 			Map<Long, Color> roofsColorMap, IDataSink processor) {
-
+		super.init(translator, roofsColorMap, processor);
 		this.binaryFile = binaryFile;
-		this.translator = translator;
-		this.roofsColorMap = roofsColorMap;
-		this.processor = processor;
-
 	}
 
 	/**
@@ -60,10 +69,6 @@ public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
 	 */
 	public void complete() {
 		translator.complete();
-	}
-
-	@Override
-	protected void parseRelations(List<Relation> rels) {
 	}
 
 	@Override
@@ -97,7 +102,7 @@ public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
 				}
 				j++;
 			}
-			if (di != null) {
+//			if (di != null) {
 				com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
 				node.setId(id);
 				node.setLat(latf);
@@ -109,17 +114,15 @@ public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
 					// ask translator if we have to store this node if we
 					// aren't on a single pass mode
 
-					if (!GuiOptionsHelper.getOptions().isSinglePass()) {
-						if (translator.mustStoreNode(node)) {
-							processor.storeNode(node);
-						}
+					if (!GuiOptionsHelper.getOptions().isSinglePass() && translator.mustStoreNode(node)) {
+						processor.storeNode(node);
 					}
 				} catch (DataSinkException e) {
 					Osm2xpLogger.error("Error processing node.", e);
 				} catch (Osm2xpBusinessException e) {
 					Osm2xpLogger.error("Node translation error.", e);
 				}
-			}
+//			}
 		}
 	}
 
@@ -130,63 +133,40 @@ public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
 	@Override
 	protected void parseWays(List<Way> ways) {
 
-		for (Osmformat.Way i : ways) {
-			List<Tag> listeTags = new ArrayList<Tag>();
-			for (int j = 0; j < i.getKeysCount(); j++) {
-				Tag tag = new Tag();
-				tag.setKey(getStringById(i.getKeys(j)));
-				tag.setValue(getStringById(i.getVals(j)));
-				listeTags.add(tag);
-			}
-
-			long lastId = 0;
-			List<Nd> listeLocalisationsRef = new ArrayList<Nd>();
-			for (long j : i.getRefsList()) {
-				Nd nd = new Nd();
-				nd.setRef(j + lastId);
-				listeLocalisationsRef.add(nd);
-				lastId = j + lastId;
-			}
-
-			com.osm2xp.model.osm.Way way = new com.osm2xp.model.osm.Way();
-			way.getTag().addAll(listeTags);
-			way.setId(i.getId());
-			way.getNd().addAll(listeLocalisationsRef);
-
-			// if roof color information is available, add it to the current way
-			if (this.roofsColorMap != null
-					&& this.roofsColorMap.get(way.getId()) != null) {
-				String hexColor = Integer.toHexString(this.roofsColorMap.get(
-						way.getId()).getRGB() & 0x00ffffff);
-				Tag roofColorTag = new Tag("building:roof:color", hexColor);
-				way.getTag().add(roofColorTag);
-			}
-
-			try {
-				List<Long> ids = new ArrayList<Long>();
-				for (Nd nd : way.getNd()) {
-					ids.add(nd.getRef());
-				}
-				// get nodes from translator
-				List<com.osm2xp.model.osm.Node> nodes = processor.getNodes(ids);
-
-				if (nodes != null) {
-					OsmPolygon polygon = new OsmPolygon(way.getId(),
-							way.getTag(), nodes);
-					translator.processPolygon(polygon);
-				}
-
-			} catch (Osm2xpBusinessException e) {
-				Osm2xpLogger.error("Error processing way.", e);
-			} catch (DataSinkException e) {
-				Osm2xpLogger.error("Error processing way.", e);
-			}
+		for (Osmformat.Way curWay : ways) {
+			processWay(curWay);
 		}
 
 	}
+	
+//	@Override
+//	protected void translateWay(com.osm2xp.model.osm.Way way, List<Long> ids) throws Osm2xpBusinessException {
+//		Geometry geometry = getGeometry(ids);
+//		if (geometry == null) {
+//			return;
+//		}
+//		List<Geometry> fixed = fix(Collections.singletonList(geometry));
+//		if (fixed.isEmpty()) {
+//			return;
+//		} else if (fixed.size() == 1 && fixed.get(0) == geometry) {
+//			super.translateWay(way, ids);
+//		} else {
+//			fixed.stream()
+//			.map(poly -> OsmPolylineFactory.createPolylinesFromJTSGeometry(way.getId(), way.getTag(),
+//					poly))
+//			.filter(list -> list != null).flatMap(list -> list.stream()).forEach(polyline -> {
+//				try {
+//					translator.processPolyline(polyline);
+//				} catch (Osm2xpBusinessException e) {
+//					Activator.log(e);
+//				}
+//			});
+//		}
+//	}
 
 	@Override
 	protected void parse(HeaderBlock header) {
+		translator.processBoundingBox(header.getBbox());
 	}
 
 	public void process() throws OsmParsingException {
@@ -204,6 +184,35 @@ public class PbfSingleTileParserImpl extends BinaryParser implements IParser {
 			throw new OsmParsingException(e);
 		}
 
+	}
+	
+	@Override
+	protected List<Polygon> doCleanup(List<List<Long>> outer, List<List<Long>> inner) {
+		List<Polygon> cleaned = super.doCleanup(outer, inner);
+		return fix(cleaned).stream().filter(geom -> geom instanceof Polygon).map(geom -> (Polygon)geom).collect(Collectors.toList());
+	}
+	
+	protected List<Geometry> fix(List<? extends Geometry> geometries) {
+		geometries = boundsFilter(geometries);
+		if (geometries.isEmpty()) {
+			return Collections.emptyList();
+		}
+		List<Geometry> fixed = geometries.stream().map(geom -> GeomUtils.fix(geom)).filter(geom -> geom != null).collect(Collectors.toList());
+		fixed = clipToTileSize(fixed);
+		return fixed;
+	}
+	
+	protected List<Geometry> boundsFilter(List<? extends Geometry> geometries) {
+		return geometries.stream().filter(geom -> geom.getEnvelopeInternal().intersects(bounds)).collect(Collectors.toList());
+	}
+
+	protected List<Geometry> clipToTileSize(List<? extends Geometry> geometries) {
+		List<Geometry> resGeomList = new ArrayList<>();
+		for (Geometry geometry : geometries) {
+			Geometry clipResult = tileClipper.clip(geometry, true);
+			resGeomList.addAll(GeomUtils.flatMap(clipResult));
+		}
+		return resGeomList;
 	}
 
 }

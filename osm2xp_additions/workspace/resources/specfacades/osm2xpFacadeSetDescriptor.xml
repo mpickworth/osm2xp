@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<FacadeSet>
+    <name>Default special facades</name>
+    <author>32kda</author>
+    <description>OSM2XP 3.x default special facades set. This config is NOT intended to be edited by user, if you want to change it - be sure you know what you do</description>
+    <facades>
+        <file>tank.fac</file>
+		<specialType>tank</specialType>
+		<industrial>false</industrial>
+        <commercial>false</commercial>
+        <residential>false</residential>        
+        <minHeight>0</minHeight>
+        <maxHeight>100</maxHeight>
+    </facades>
+	<facades>
+        <file>garages.fac</file>
+		<specialType>garage</specialType>
+		<industrial>false</industrial>
+        <commercial>false</commercial>
+        <residential>false</residential>        
+        <minHeight>0</minHeight>
+        <maxHeight>100</maxHeight>
+    </facades>
+    <facades>
+        <file>Concrete_Grey_Mid.fac</file>
+        <specialType>wall</specialType>
+        <industrial>false</industrial>
+        <commercial>false</commercial>
+        <residential>false</residential>       
+        <minHeight>0</minHeight>
+        <maxHeight>0</maxHeight>
+    </facades>
+	<facades>
+        <file>fence0_open.fac</file>        
+        <specialType>fence</specialType>
+        <industrial>false</industrial>
+        <commercial>false</commercial>
+        <residential>false</residential>        
+        <minHeight>0</minHeight>
+        <maxHeight>0</maxHeight>
+    </facades>
+</FacadeSet>

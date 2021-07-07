@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.Way;
 
 /**
  * Data sink interface. Store open street map nodes.
@@ -49,4 +50,20 @@ public interface IDataSink {
 	 * @return
 	 */
 	public Long getNodesNumber();
+
+
+	/**
+	 * Store a way in the storage implementation.
+	 * 
+	 * @param way way to store
+	 */
+	void storeWay(Way way);
+	
+	/**
+	 * Find a way in the storage implementation.
+	 * 
+	 * @param wayId
+	 * @return corresponding {@link Way} or <code>null</code>
+	 */
+	Way getWay(long wayId);
 }

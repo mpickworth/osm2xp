@@ -1,13 +1,11 @@
 package com.osm2xp.dataProcessors.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.model.osm.Node;
+import com.osm2xp.model.osm.Way;
 
 /**
  * Memory data sink implementation
@@ -15,15 +13,15 @@ import com.osm2xp.model.osm.Node;
  * @author Benjamin Blanchet
  * 
  */
-public class MemoryProcessorImpl implements IDataSink {
+public class MemoryProcessorImpl extends AbstractDataProcessor {
 
 	private Map<Long, double[]> nodeMap = new HashMap<Long, double[]>();
+	private Map<Long, Way> wayMap = new HashMap<>();
 
 	@Override
 	public void storeNode(final Node node) throws DataSinkException {
 		double[] pt = new double[] { node.getLat(), node.getLon() };
 		this.nodeMap.put(node.getId(), pt);
-
 	}
 
 	@Override
@@ -40,28 +38,23 @@ public class MemoryProcessorImpl implements IDataSink {
 	}
 
 	@Override
-	public List<Node> getNodes(final List<Long> ids) throws DataSinkException {
-		final List<Node> nodes = new ArrayList<Node>();
-		for (Long nd : ids) {
-			final Node node = getNode(nd);
-			if (node == null) {
-				return null;
-			} else {
-				nodes.add(node);
-			}
-		}
-		return nodes;
-	}
-
-	@Override
 	public void complete() {
 		nodeMap = null;
-
 	}
 
 	@Override
 	public Long getNodesNumber() {
 		return (long) nodeMap.size();
+	}
+
+	@Override
+	public void storeWay(Way way) {
+		wayMap.put(way.getId(), way);
+	}
+
+	@Override
+	public Way getWay(long wayId) {
+		return wayMap.get(wayId);
 	}
 
 }

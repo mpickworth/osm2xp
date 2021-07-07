@@ -2,18 +2,21 @@ package com.osm2xp.translators.impl;
 
 import java.util.List;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
+
 import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
+import math.geom2d.polygon.Polyline2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
-import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
@@ -71,12 +74,12 @@ public class ConsoleTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon polygon)
+	public void processPolyline(OsmPolyline polyline)
 			throws Osm2xpBusinessException {
-		LinearRing2D poly = new LinearRing2D();
-		poly = GeomUtils.getPolygonFromOsmNodes(polygon.getNodes());
-		if (!processBuilding(polygon, poly)) {
-			processForest(polygon, poly);
+		Polyline2D poly = new LinearRing2D();
+		poly = GeomUtils.getPolylineFromOsmNodes(polyline.getNodes());
+		if (!processBuilding(polyline, poly)) {
+			processForest(polyline, poly);
 		}
 	}
 
@@ -92,10 +95,10 @@ public class ConsoleTranslatorImpl implements ITranslator {
 	@Override
 	public void init() {
 		Osm2xpLogger.info("Starting console debug output for tile lat "
-				+ currentTile.x + " long " + currentTile.y);
+				+ currentTile.y + " long " + currentTile.x);
 	}
 
-	private boolean processBuilding(OsmPolygon polygon, LinearRing2D poly) {
+	private boolean processBuilding(OsmPolyline polygon, Polyline2D poly) {
 		Boolean result = false;
 		if (OsmUtils.isBuilding(polygon.getTags())
 				&& !OsmUtils.isExcluded(polygon.getTags(), polygon.getId())
@@ -108,7 +111,7 @@ public class ConsoleTranslatorImpl implements ITranslator {
 			stringBuilder.append("building id " + polygon.getId() + "\n");
 			stringBuilder.append("smallest vector " + minVector
 					+ ", largest vector " + maxVector + "\n");
-			stringBuilder.append("area " + ((poly.getArea() * 100000) * 100000)
+			stringBuilder.append("area " + ((((LinearRing2D) poly).getArea() * 100000) * 100000)
 					+ "\n");
 
 			stringBuilder.append("polygon is made of  "
@@ -132,18 +135,18 @@ public class ConsoleTranslatorImpl implements ITranslator {
 
 	/**
 	 * @param way
-	 * @param polygon
+	 * @param poly
 	 * @return
 	 */
-	private boolean processForest(OsmPolygon osmPolygon, LinearRing2D polygon) {
+	private boolean processForest(OsmPolyline osmPolygon, Polyline2D poly) {
 
 		if (OsmUtils.isOsmForest(osmPolygon.getTags())) {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append("forest id " + osmPolygon.getId() + "\n");
 			stringBuilder.append("area "
-					+ ((polygon.getArea() * 100000) * 100000) + "\n");
+					+ ((((LinearRing2D) poly).getArea() * 100000) * 100000) + "\n");
 			stringBuilder.append("polygon is made of  "
-					+ (polygon.getVertexNumber() - 1) + " points\n");
+					+ (poly.getVertexNumber() - 1) + " points\n");
 			Osm2xpLogger.info(stringBuilder.toString());
 		}
 
@@ -160,7 +163,24 @@ public class ConsoleTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
+	}
+	
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		if (bbox != null) {
+			Osm2xpLogger.info("Bounding box: " + bbox.getLeft() + "," + bbox.getTop() + "," + bbox.getRight() + "," + bbox.getBottom());
+		}
+	}
+
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
+	}
+
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		return Integer.MAX_VALUE;
 	}
 }

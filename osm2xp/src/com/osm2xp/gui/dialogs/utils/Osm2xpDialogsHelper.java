@@ -17,7 +17,15 @@ public class Osm2xpDialogsHelper {
 			.getActiveWorkbenchWindow().getShell();
 
 	public static void displayErrorDialog(String message) {
-		MessageDialog.openError(lShell, "Error", message);
+		displayErrorDialog("Error", message);
+	}
+	
+	public static boolean displayQuestionDialog(String title, String message) {
+		return MessageDialog.openQuestion(lShell, title, message);
+	}
+	
+	public static void displayErrorDialog(String title, String message) {
+		MessageDialog.openError(lShell, title, message);
 	}
 
 	public static void displayInfoDialog(String message) {

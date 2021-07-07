@@ -28,7 +28,9 @@ import com.osm2xp.gui.views.panels.generic.SceneryFilePanel;
  * 
  */
 public class MainSceneryFileView extends ViewPart implements IContextProvider {
-	private FormToolkit toolkit;
+	
+	public static final String ID = "com.osm2xp.viewSceneryTab";
+	
 	private ScrolledForm form;
 
 	public MainSceneryFileView() {
@@ -68,7 +70,7 @@ public class MainSceneryFileView extends ViewPart implements IContextProvider {
 				TableWrapData.TOP, 1, 1));
 		sectionFile.setText("File and scene name");
 		SceneryFilePanel sceneryFilePanel = new SceneryFilePanel(sectionFile,
-				SWT.BORDER);
+				SWT.BORDER, getSite());
 		toolkit.adapt(sceneryFilePanel, true, true);
 		sectionFile.setClient(sceneryFilePanel);
 		new Label(sceneryFilePanel, SWT.NONE);
@@ -79,7 +81,7 @@ public class MainSceneryFileView extends ViewPart implements IContextProvider {
 		Section sectionSceneryOptions = toolkit.createSection(form.getBody(),
 				Section.TWISTIE | Section.TITLE_BAR);
 		sectionSceneryOptions.setLayoutData(new TableWrapData(
-				TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 1));
+				TableWrapData.FILL, TableWrapData.TOP, 1, 1));
 		sectionSceneryOptions.setText("Scenery options");
 		GeneralOptionsPanel sceneryOptionsPanel = new GeneralOptionsPanel(
 				sectionSceneryOptions, SWT.BORDER);
@@ -111,14 +113,6 @@ public class MainSceneryFileView extends ViewPart implements IContextProvider {
 	 */
 	public void setFocus() {
 		form.setFocus();
-	}
-
-	/**
-	 * Disposes the toolkit
-	 */
-	public void dispose() {
-		toolkit.dispose();
-		super.dispose();
 	}
 
 	@Override

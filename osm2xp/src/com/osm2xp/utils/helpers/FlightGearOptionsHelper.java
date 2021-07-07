@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.options.FlightGearObjectTagRule;
 import com.osm2xp.model.options.FlightGearObjectsRulesList;
@@ -38,7 +39,8 @@ public class FlightGearOptionsHelper extends OptionsHelper {
 				Osm2xpLogger.error(
 						"Error initializing FlightGear options helper", e);
 			}
-		} else {
+		} 
+		if (options == null) {
 			options = createNewFlightGearOptionsBean();
 		}
 	}
@@ -64,13 +66,13 @@ public class FlightGearOptionsHelper extends OptionsHelper {
 	private static FlightGearObjectsRulesList createNewObjectsRules() {
 		List<FlightGearObjectTagRule> FlightGearObjectTagRules = new ArrayList<FlightGearObjectTagRule>();
 		FlightGearObjectTagRules.add(new FlightGearObjectTagRule(new Tag(
-				"man_made", "lighthouse"), new ArrayList<ObjectFile>() {
+				Osm2xpConstants.MAN_MADE_TAG, "lighthouse"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile("Models/Communications/lighthouses.xml"));
 			}
 		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
 		FlightGearObjectTagRules.add(new FlightGearObjectTagRule(new Tag(
-				"man_made", "water_tower"), new ArrayList<ObjectFile>() {
+				Osm2xpConstants.MAN_MADE_TAG, "water_tower"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile("Models/Communications/water-tower.xml"));
 			}

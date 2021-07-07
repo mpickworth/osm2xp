@@ -1,9 +1,8 @@
 package com.osm2xp.gui.handlers;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.commands.IHandlerListener;
 
 /**
  * CommandDropDownTools.
@@ -11,19 +10,7 @@ import org.eclipse.core.commands.IHandlerListener;
  * @author Benjamin Blanchet
  * 
  */
-public class CommandDropDownTools implements IHandler {
-
-	@Override
-	public void addHandlerListener(IHandlerListener handlerListener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-
-	}
+public class CommandDropDownTools extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -40,12 +27,6 @@ public class CommandDropDownTools implements IHandler {
 	public boolean isHandled() {
 		// TODO Auto-generated method stub
 		return true;
-	}
-
-	@Override
-	public void removeHandlerListener(IHandlerListener handlerListener) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

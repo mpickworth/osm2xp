@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
+
 import math.geom2d.Point2D;
 
 import com.osm2xp.constants.FsxConstants;
@@ -13,13 +15,14 @@ import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.fsx.FsxObject;
 import com.osm2xp.model.geom.Lod13Location;
 import com.osm2xp.model.osm.Node;
-import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
+import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.model.stats.GenerationStats;
 import com.osm2xp.translators.ITranslator;
-import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.osm2xp.writers.IWriter;
@@ -113,7 +116,7 @@ public class FsxTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 
 		if (OsmUtils.isForest(osmPolygon.getTags())) {
@@ -143,7 +146,7 @@ public class FsxTranslatorImpl implements ITranslator {
 	@Override
 	public void init() {
 		Osm2xpLogger.info("Starting FSX generation of tile "
-				+ (int) currentTile.x + "/" + (int) currentTile.y);
+				+ (int) currentTile.y + "/" + (int) currentTile.x);
 		writer.init(null);
 
 	}
@@ -158,8 +161,23 @@ public class FsxTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
+	}
+	
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
+	}
+	
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		return Integer.MAX_VALUE; //TODO is this supported?
 	}
 }

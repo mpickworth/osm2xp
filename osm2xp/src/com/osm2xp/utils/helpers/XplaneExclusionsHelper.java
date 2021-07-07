@@ -14,7 +14,7 @@ import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
 import com.osm2xp.model.osm.OsmPolygon;
-import com.osm2xp.utils.GeomUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 
 public class XplaneExclusionsHelper extends Thread {
@@ -34,9 +34,9 @@ public class XplaneExclusionsHelper extends Thread {
 			List<Box2D> footprintsToRemove = new ArrayList<Box2D>();
 			List<Box2D> footprintsToAdd = new ArrayList<Box2D>();
 			exclusionloop: for (Box2D footprint : exclusions) {
-				Point2D centerA = GeomUtils.getPolygonCenter(new LinearRing2D(
+				Point2D centerA = GeomUtils.getPolylineCenter(new LinearRing2D(
 						footprint.getVertices()));
-				Point2D centerB = GeomUtils.getPolygonCenter(osmPolygon
+				Point2D centerB = GeomUtils.getPolylineCenter(osmPolygon
 						.getPolygon());
 				double distanceBetweenPolygons = (centerA.distance(centerB)) * 1000;
 

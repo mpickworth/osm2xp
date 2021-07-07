@@ -6,16 +6,17 @@ import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.options.BuildingsExclusionsList;
 import com.osm2xp.model.options.FacadesRulesList;
 import com.osm2xp.model.options.ForestTagRule;
 import com.osm2xp.model.options.ForestsRulesList;
-import com.osm2xp.model.options.XplaneLightTagRule;
 import com.osm2xp.model.options.LightsRulesList;
 import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.ObjectsList;
 import com.osm2xp.model.options.ObjectsRulesList;
+import com.osm2xp.model.options.XplaneLightTagRule;
 import com.osm2xp.model.options.XplaneObjectTagRule;
 import com.osm2xp.model.options.XplaneObjectsRulesList;
 import com.osm2xp.model.options.XplaneOptions;
@@ -44,7 +45,8 @@ public class XplaneOptionsHelper extends OptionsHelper {
 				Osm2xpLogger.error("Error initializing Xplane options helper",
 						e);
 			}
-		} else {
+		} 
+		if (options == null) {
 			options = createNewXplaneOptionsBean();
 		}
 	}
@@ -59,15 +61,22 @@ public class XplaneOptionsHelper extends OptionsHelper {
 	private static XplaneOptions createNewXplaneOptionsBean() {
 		XplaneOptions result = new XplaneOptions();
 		result.setBuildingMax(30);
-		result.setBuildingMin(10);
+		result.setBuildingMin(6);
 		result.setResidentialMax(15);
-		result.setResidentialMin(6);
+		result.setResidentialMin(3);
 		result.setExcludeFor(true);
 		result.setExcludeObj(true);
 		result.setFacadeLod(25000);
 		result.setGenerateBuildings(true);
 		result.setGenerateFor(true);
+		result.setGenerateFence(true);
+		result.setGeneratePowerlines(true);
+		result.setGenerateRailways(true);
+		result.setGenerateRoads(true);
+		result.setGenerateTanks(true);
+		result.setGenerateBridges(true);
 		result.setGeneratePdfStats(true);
+		result.setGenerateDebugImg(false);
 		result.setGenerateSlopedRoofs(true);
 		result.setGenerateObj(true);
 		result.setPackageFacades(true);
@@ -112,30 +121,39 @@ public class XplaneOptionsHelper extends OptionsHelper {
 				"power_source", "wind"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile(
-						"opensceneryx/objects/buildings/industrial/wind_turbines/large.obj"));
+						"objects/wind_turbine.obj"));
 			}
 		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
-		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag("man_made",
+		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
 				"lighthouse"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile(
-						"opensceneryx/objects/buildings/marine/lighthouses/1.obj"));
+						"objects/capemay.obj"));
 			}
 		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
-		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag("man_made",
+		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
 				"water_tower"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile(
-						"opensceneryx/objects/buildings/industrial/water_towers/cylindrical/1.obj"));
+						"objects/watertower-3.obj"));
 				add(new ObjectFile(
-						"opensceneryx/objects/buildings/industrial/water_towers/cylindrical/2.obj"));
+						"objects/watertower-3.obj"));
 			}
 		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
-		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag("man_made",
+		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
+				"tower"), new ArrayList<ObjectFile>() {
+			{
+				add(new ObjectFile(
+						"objects/watertower-3.obj"));
+				add(new ObjectFile(
+						"objects/watertower-3.obj"));
+			}
+		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
+		XplaneObjectTagRules.add(new XplaneObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
 				"crane"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile(
-						"opensceneryx/objects/buildings/industrial/cranes/1.obj"));
+						"objects/crane.obj"));
 			}
 		}, 0, true, false, false, 0, 0, 0, 0, false, 0, 0, false, false));
 		XplaneObjectsRulesList result = new XplaneObjectsRulesList(
@@ -150,6 +168,9 @@ public class XplaneOptionsHelper extends OptionsHelper {
 		List<Tag> exclusionsList = new ArrayList<Tag>();
 		exclusionsList.add(new Tag("aeroway", "hangar"));
 		exclusionsList.add(new Tag("aeroway", "terminal"));
+		exclusionsList.add(new Tag(Osm2xpConstants.MAN_MADE_TAG, "chimney")); //Such a stuff should be handled with objects instead of generating building facades 
+		exclusionsList.add(new Tag(Osm2xpConstants.MAN_MADE_TAG, "tower"));
+		exclusionsList.add(new Tag(Osm2xpConstants.MAN_MADE_TAG, "cooling_tower"));
 		BuildingsExclusionsList result = new BuildingsExclusionsList(
 				exclusionsList);
 		return result;
@@ -165,44 +186,44 @@ public class XplaneOptionsHelper extends OptionsHelper {
 				new ArrayList<ObjectFile>() {
 					{
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/mixed.for"));
+								"forests/mixed.for"));
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/conifer.for"));
+								"forests/conifer.for"));
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/broad_leaf.for"));
+								"forests/broad_leaf.for"));
 					}
 				}, 255));
 		forestsRules.add(new ForestTagRule(new Tag("natural", "wood"),
 				new ArrayList<ObjectFile>() {
 					{
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/mixed.for"));
+								"forests/mixed.for"));
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/conifer.for"));
+								"forests/conifer.for"));
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/broad_leaf.for"));
+								"forests/broad_leaf.for"));
 					}
 				}, 255));
 		forestsRules.add(new ForestTagRule(new Tag("leisure", "garden"),
 				new ArrayList<ObjectFile>() {
 					{
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/heathland.for"));
+								"forests/heathland.for"));
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/sclerophyllous.for"));
+								"forests/sclerophyllous.for"));
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/conifer.for"));
+								"forests/conifer.for"));
 					}
 				}, 255));
 		forestsRules.add(new ForestTagRule(new Tag("leisure", "park"),
 				new ArrayList<ObjectFile>() {
 					{
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/heathland.for"));
+								"forests/heathland.for"));
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/sclerophyllous.for"));
+								"forests/sclerophyllous.for"));
 						add(new ObjectFile(
-								"opensceneryx/forests/trees/europe/continental/conifer.for"));
+								"forests/conifer.for"));
 					}
 				}, 255));
 		ForestsRulesList result = new ForestsRulesList(forestsRules);

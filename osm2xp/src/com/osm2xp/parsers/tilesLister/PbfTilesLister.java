@@ -10,19 +10,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openstreetmap.osmosis.osmbinary.BinaryParser;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.*;
+import org.openstreetmap.osmosis.osmbinary.file.BlockInputStream;
+
 import math.geom2d.Point2D;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.osm.Tag;
 
-import crosby.binary.BinaryParser;
-import crosby.binary.Osmformat.DenseInfo;
-import crosby.binary.Osmformat.DenseNodes;
-import crosby.binary.Osmformat.HeaderBlock;
-import crosby.binary.Osmformat.Node;
-import crosby.binary.Osmformat.Relation;
-import crosby.binary.Osmformat.Way;
-import crosby.binary.file.BlockInputStream;
 
 /**
  * PbfTilesLister.
@@ -85,20 +81,23 @@ public class PbfTilesLister extends BinaryParser implements TilesLister {
 				j++; // Skip over the '0' delimiter.
 			}
 			// Handle dense info.
-			if (di != null) {
-				Point2D loc = new Point2D(latf, lonf);
-				int lati = (int) Math.floor(loc.x);
-				int longi = (int) Math.floor(loc.y);
-				Point2D cleanedLoc = new Point2D(lati, longi);
+//			if (di != null) {
+				Point2D loc = new Point2D(lonf, latf);
+				int longi = (int) Math.floor(loc.x);
+				int lati = (int) Math.floor(loc.y);
+				Point2D cleanedLoc = new Point2D(longi, lati);
 				tilesList.add(cleanedLoc);
 
-			}
+//			}
 		}
 
 	}
 
 	@Override
 	protected void parseNodes(List<Node> nodes) {
+		for (Node node : nodes) {
+			System.out.println("PbfTilesLister.parseNodes()");
+		}
 	}
 
 	@Override

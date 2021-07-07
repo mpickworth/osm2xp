@@ -138,13 +138,17 @@ public class FilesUtils {
 		}
 		return listeSetsFacades;
 	}
+	
+	public static void copyDirectory(File sourceLocation, File targetLocation) throws IOException {
+		copyDirectory(sourceLocation, targetLocation, false);
+	}
 
 	/**
 	 * @param sourceLocation
 	 * @param targetLocation
 	 * @throws IOException
 	 */
-	public static void copyDirectory(File sourceLocation, File targetLocation)
+	public static void copyDirectory(File sourceLocation, File targetLocation, boolean rewrite)
 			throws IOException {
 		if (sourceLocation.isDirectory()) {
 			if (!targetLocation.exists()) {
@@ -154,18 +158,19 @@ public class FilesUtils {
 			String[] children = sourceLocation.list();
 			for (int i = 0; i < children.length; i++) {
 				copyDirectory(new File(sourceLocation, children[i]), new File(
-						targetLocation, children[i]));
+						targetLocation, children[i]), rewrite);
 			}
 		} else {
-			InputStream in = new FileInputStream(sourceLocation);
-			OutputStream out = new FileOutputStream(targetLocation);
-			byte[] buf = new byte[1024];
-			int len;
-			while ((len = in.read(buf)) > 0) {
-				out.write(buf, 0, len);
+			if (!rewrite && targetLocation.isFile()) {
+				return;
 			}
-			in.close();
-			out.close();
+			try (InputStream in = new FileInputStream(sourceLocation);OutputStream out = new FileOutputStream(targetLocation)) {
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = in.read(buf)) > 0) {
+					out.write(buf, 0, len);
+				}
+			}
 		}
 	}
 
@@ -174,6 +179,9 @@ public class FilesUtils {
 	 * @return
 	 */
 	public static String[] listFacadesFiles(String facadeSetFolder) {
+		if (!new File(facadeSetFolder).isDirectory()) {
+			return new String[0];
+		}
 
 		FilenameFilter facFilter = new FilenameFilter() {
 

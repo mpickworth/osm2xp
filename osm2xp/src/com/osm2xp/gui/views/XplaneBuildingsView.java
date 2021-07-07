@@ -32,7 +32,6 @@ import com.osm2xp.gui.views.panels.xplane.FacadesRulesPanel;
  * 
  */
 public class XplaneBuildingsView extends ViewPart implements IContextProvider {
-	private FormToolkit toolkit;
 	private ScrolledForm form;
 
 	public XplaneBuildingsView() {
@@ -73,15 +72,15 @@ public class XplaneBuildingsView extends ViewPart implements IContextProvider {
 				Section.TWISTIE | Section.EXPANDED | Section.TITLE_BAR);
 		sectionFacadeSet.setLayoutData(new TableWrapData(
 				TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 1));
-		sectionFacadeSet.setText("Facade set");
+		sectionFacadeSet.setText("Facade sets");
 		FacadeSetPanel facadeSetPanel = new FacadeSetPanel(sectionFacadeSet,
 				SWT.BORDER);
 
 		// display error if there is no facade set found
-		if (!new File(Osm2xpConstants.FACADES_SETS_PATH).exists()
-				|| (new File(Osm2xpConstants.FACADES_SETS_PATH).listFiles().length < 0)) {
-			form.setMessage("No facades sets found", IMessageProvider.ERROR);
-		}
+//		if (!new File(Osm2xpConstants.FACADES_SETS_PATH).exists()
+//				|| (new File(Osm2xpConstants.FACADES_SETS_PATH).listFiles().length < 0)) {
+//			form.setMessage("No facades sets found", IMessageProvider.ERROR);
+//		}
 		toolkit.adapt(facadeSetPanel, true, true);
 		sectionFacadeSet.setClient(facadeSetPanel);
 
@@ -136,14 +135,6 @@ public class XplaneBuildingsView extends ViewPart implements IContextProvider {
 	 */
 	public void setFocus() {
 		form.setFocus();
-	}
-
-	/**
-	 * Disposes the toolkit
-	 */
-	public void dispose() {
-		toolkit.dispose();
-		super.dispose();
 	}
 
 	@Override

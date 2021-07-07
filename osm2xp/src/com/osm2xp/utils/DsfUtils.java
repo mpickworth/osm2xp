@@ -8,19 +8,26 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
-import math.geom2d.Point2D;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.constants.Perspectives;
 import com.osm2xp.constants.XplaneConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.exceptions.Osm2xpTechnicalException;
+import com.osm2xp.gui.Activator;
+import com.osm2xp.model.facades.FacadeSetManager;
 import com.osm2xp.model.xplane.XplaneDsfObject;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
 import com.osm2xp.writers.impl.OsmWriterImpl;
+
+import math.geom2d.Box2D;
+import math.geom2d.Point2D;
 
 /**
  * DsfUtils.
@@ -41,8 +48,8 @@ public class DsfUtils {
 		for (Point2D point : dsfObject.getOsmPolygon().getPolygon()
 				.getVertices()) {
 
-			writer.write("<node id=\"" + cpt++ + "\" lat=\"" + point.x
-					+ "\" lon=\"" + point.y + "\" version=\"1\" />\n");
+			writer.write("<node id=\"" + cpt++ + "\" lat=\"" + point.y
+					+ "\" lon=\"" + point.x + "\" version=\"1\" />\n");
 		}
 
 		writer.write("<way id=\"" + cpt++
@@ -60,10 +67,10 @@ public class DsfUtils {
 		// write origin
 		Point2D origin = null;// GeomUtils.getRotationPoint(dsfObject.getOsmPolygon().getPolygon(),50,0);
 
-		writer.write("<node id=\"" + cpt++ + "\" lat=\"" + origin.x
-				+ "\" lon=\"" + origin.y + "\" version=\"1\" >\n");
-		writer.write("<tag k=\"man_made\" v=\"water_tower\"/>\n");
-		writer.write("</node>\n");
+//		writer.write("<node id=\"" + cpt++ + "\" lat=\"" + origin.y //TODO
+//				+ "\" lon=\"" + origin.x + "\" version=\"1\" >\n");
+//		writer.write("<tag k=\"man_made\" v=\"water_tower\"/>\n");
+//		writer.write("</node>\n");
 
 		writer.complete(null);
 	}
@@ -98,17 +105,21 @@ public class DsfUtils {
 					File facade = filesList[cpt];
 					String line = null;
 					String facadeContent = new String();
-					RandomAccessFile reader = new RandomAccessFile(facade, "rw");
-					while ((line = reader.readLine()) != null) {
-						facadeContent += line + "\r\n";
+					try (RandomAccessFile reader = new RandomAccessFile(facade, "rw");FileWriter writer = new FileWriter(facade.getAbsolutePath());) {
+						
+						while ((line = reader.readLine()) != null) {
+							facadeContent += line + "\r\n";
+						}
+						facadeContent = facadeContent.replaceAll(
+								DEFAULT_FACADE_LOD, "LOD 0.000000 "
+										+ XplaneOptionsHelper.getOptions()
+										.getFacadeLod() + ".000000");
+						
+						writer.write(facadeContent);
+						writer.close();
+					} catch (IOException e) {
+						throw e;
 					}
-					facadeContent = facadeContent.replaceAll(
-							DEFAULT_FACADE_LOD, "LOD 0.000000 "
-									+ XplaneOptionsHelper.getOptions()
-											.getFacadeLod() + ".000000");
-					FileWriter writer = new FileWriter(facade.getAbsolutePath());
-					writer.write(facadeContent);
-					writer.close();
 
 				}
 			}
@@ -130,17 +141,18 @@ public class DsfUtils {
 					File facade = filesList[cpt];
 					String line = null;
 					String facadeContent = new String();
-					RandomAccessFile reader = new RandomAccessFile(facade, "rw");
-					while ((line = reader.readLine()) != null) {
-						facadeContent += line + "\r\n";
+					try (RandomAccessFile reader = new RandomAccessFile(facade, "rw")) {
+						while ((line = reader.readLine()) != null) {
+							facadeContent += line + "\r\n";
+						}
+						facadeContent = facadeContent.replaceAll(
+								"HARD_ROOF concrete", "");
+						facadeContent = facadeContent.replaceAll(
+								"HARD_WALL concrete", "");
+						try (FileWriter writer = new FileWriter(facade.getAbsolutePath())) {
+							writer.write(facadeContent);
+						}
 					}
-					facadeContent = facadeContent.replaceAll(
-							"HARD_ROOF concrete", "");
-					facadeContent = facadeContent.replaceAll(
-							"HARD_WALL concrete", "");
-					FileWriter writer = new FileWriter(facade.getAbsolutePath());
-					writer.write(facadeContent);
-					writer.close();
 
 				}
 			}
@@ -190,7 +202,7 @@ public class DsfUtils {
 				outputlibrary.write("EXPORT \\lib\\osm2xp\\facades\\" + facade
 						+ " .." + File.separator + "osm2xpFacades"
 						+ File.separator
-						+ XplaneOptionsHelper.getOptions().getFacadeSet()
+						+ InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID).get(FacadeSetManager.FACADE_SETS_PROP,"")
 						+ File.separator + facade + "\n");
 
 			}
@@ -206,29 +218,29 @@ public class DsfUtils {
 	 * 
 	 * @throws Osm2xpBusinessException
 	 */
-	public static void copyFacadeSet(String sceneFolder) {
-		if (XplaneOptionsHelper.getOptions().isPackageFacades()
-				&& !new File(sceneFolder + File.separatorChar + "facades")
-						.exists()) {
-			File from = new File(Osm2xpConstants.FACADES_SETS_PATH
-					+ File.separatorChar
-					+ XplaneOptionsHelper.getOptions().getFacadeSet());
-			File to = new File(sceneFolder + File.separatorChar + "facades");
-
-			try {
-				FilesUtils.copyDirectory(from, to);
-				applyFacadeLod(to);
-				if (!XplaneOptionsHelper.getOptions().isHardBuildings()) {
-					DsfUtils.removeConcreteRoofsAndWalls(to);
-				}
-			} catch (FileNotFoundException e) {
-				throw new Osm2xpTechnicalException(e);
-			} catch (IOException e) {
-				throw new Osm2xpTechnicalException(e);
-			}
-
-		}
-	}
+//	public static void copyFacadeSet(String sceneFolder) {
+//		if (XplaneOptionsHelper.getOptions().isPackageFacades()
+//				&& !new File(sceneFolder + File.separatorChar + "facades")
+//						.exists()) {
+//			File from = new File(Osm2xpConstants.FACADES_SETS_PATH
+//					+ File.separatorChar
+//					+ XplaneOptionsHelper.getOptions().getFacadeSet());
+//			File to = new File(sceneFolder + File.separatorChar + "facades");
+//
+//			try {
+//				FilesUtils.copyDirectory(from, to);
+//				applyFacadeLod(to);
+//				if (!XplaneOptionsHelper.getOptions().isHardBuildings()) {
+//					DsfUtils.removeConcreteRoofsAndWalls(to);
+//				}
+//			} catch (FileNotFoundException e) {
+//				throw new Osm2xpTechnicalException(e);
+//			} catch (IOException e) {
+//				throw new Osm2xpTechnicalException(e);
+//			}
+//
+//		}
+//	}
 
 	/**
 	 * Compile a dsf file from a text file
@@ -254,8 +266,8 @@ public class DsfUtils {
 	 * @return String array, 0 = folder name, 1 = file name
 	 */
 	public static String[] getFolderAndFileNames(Point2D coordinates) {
-		int latitude = (int) coordinates.x;
-		int longitude = (int) coordinates.y;
+		int latitude = (int) coordinates.y;
+		int longitude = (int) coordinates.x;
 
 		Double dossierFirst = new Double(latitude);
 		Double dossierEnd = new Double(longitude);
@@ -351,9 +363,12 @@ public class DsfUtils {
 			DsfObjectsProvider dsfObjectsProvider) {
 
 		StringBuilder sb = new StringBuilder();
-		int latitude = (int) coordinates.x;
-		int longitude = (int) coordinates.y;
-		String tileCoordinate = longitude + ".000000/" + latitude + ".000000/"
+		int latitude = (int) coordinates.y;
+		int longitude = (int) coordinates.x;
+		Box2D exclusionBox = dsfObjectsProvider.getExclusionBox();
+		String exclusionCoordinate = exclusionBox != null ? formatDsfCoord(exclusionBox.getMinX()) + "/" + formatDsfCoord(exclusionBox.getMinY()) + "/" + 
+				formatDsfCoord(exclusionBox.getMaxX()) + "/" + formatDsfCoord(exclusionBox.getMaxY()) + "\n"				
+				: longitude + ".000000/" + latitude + ".000000/"
 				+ (longitude + 1) + ".000000/" + (latitude + 1) + ".000000\n";
 
 		sb.append("I\n");
@@ -374,7 +389,7 @@ public class DsfUtils {
 		sb.append("PROPERTY sim/creation_agent Osm2Xp "
 				+ Osm2xpConstants.OSM2XP_VERSION + " by Benjamin Blanchet \n");
 		// Exclusions
-		sb.append(getDsfExclusions(tileCoordinate));
+		sb.append(getDsfExclusions(exclusionCoordinate));
 		sb.append("PROPERTY sim/west " + longitude + "\n");
 		sb.append("PROPERTY sim/east " + (longitude + 1) + "\n");
 		sb.append("PROPERTY sim/north " + (latitude + 1) + "\n");
@@ -403,10 +418,10 @@ public class DsfUtils {
 				String facadeDeclaration = null;
 				if (!XplaneOptionsHelper.getOptions().isPackageFacades()) {
 
-					facadeDeclaration = "POLYGON_DEF \\lib\\osm2xp\\facades\\"
+					facadeDeclaration = "POLYGON_DEF /lib/osm2xp/facades/"
 							+ facade + "\n";
 				} else {
-					facadeDeclaration = "POLYGON_DEF facades\\" + facade + "\n";
+					facadeDeclaration = "POLYGON_DEF facades/" + facade + "\n";
 				}
 				sb.append(facadeDeclaration);
 			}
@@ -418,9 +433,20 @@ public class DsfUtils {
 				sb.append("OBJECT_DEF " + objectPath + "\n");
 			}
 		}
+		
+		sb.append("NETWORK_DEF lib/g10/roads.net\n");
 
 		return sb.toString();
 
+	}
+
+	/**
+	 * Formats lat/long to string with 9 chars after "."
+	 * @param coord coord value to format
+	 * @return formatted string
+	 */
+	public static String formatDsfCoord(double coord) {
+		return String.format(Locale.ROOT, "%.9f", coord);
 	}
 
 }

@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import math.geom2d.Point2D;
 import math.geom2d.polygon.LinearRing2D;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBBox;
 import org.osm2world.core.ConversionFacade;
 import org.osm2world.core.target.Target;
 import org.osm2world.core.target.obj.ObjTarget;
@@ -22,14 +23,15 @@ import com.osm2xp.model.options.ObjectTagRule;
 import com.osm2xp.model.options.ObjectsRulesList;
 import com.osm2xp.model.osm.Node;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Relation;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.osm.Way;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.DsfUtils;
 import com.osm2xp.utils.FilesUtils;
-import com.osm2xp.utils.GeomUtils;
 import com.osm2xp.utils.OsmUtils;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.DsfObjectsProvider;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.helpers.WavefrontOptionsHelper;
@@ -120,7 +122,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 	 * @param nodeList
 	 * @param way
 	 */
-	private void exportPolygonToObject(final OsmPolygon osmPolygon) {
+	private void exportPolygonToObject(final OsmPolyline osmPolygon) {
 		if (osmPolygon.getNodes().size() > 4
 				|| (OsmUtils.getHeightFromTags(osmPolygon.getTags()) != null && OsmUtils
 						.getHeightFromTags(osmPolygon.getTags()) > 20)) {
@@ -164,8 +166,8 @@ public class WavefrontTranslatorImpl implements ITranslator {
 				objectsTagRules.add(objectTagRule);
 				objectsMap
 						.put(osmPolygon.getId(), GeomUtils
-								.getPolygonCenter(GeomUtils
-										.getPolygonFromOsmNodes(osmPolygon
+								.getPolylineCenter(GeomUtils
+										.getPolylineFromOsmNodes(osmPolygon
 												.getNodes())));
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -175,7 +177,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public void processPolygon(OsmPolygon osmPolygon)
+	public void processPolyline(OsmPolyline osmPolygon)
 			throws Osm2xpBusinessException {
 		if (OsmUtils.isBuilding(osmPolygon.getTags())) {
 
@@ -184,7 +186,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 					|| (OsmUtils.getHeightFromTags(osmPolygon.getTags()) != null && OsmUtils
 							.getHeightFromTags(osmPolygon.getTags()) > WavefrontOptionsHelper
 							.getOptions().getWaveFrontExportHeightFilter())) {
-				globalWayList.add(osmPolygon);
+				globalWayList.add((OsmPolygon) osmPolygon);
 				globalNodeList.addAll(osmPolygon.getNodes());
 
 				if (!singleObjectExport) {
@@ -208,7 +210,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 				String fileName = null;
 				try {
 					fileName = OsmUtils.CreateTempFile(folderPath,
-							globalWayList, currentTile.x + "_" + currentTile.y);
+							globalWayList, currentTile.y + "_" + currentTile.x);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -260,19 +262,19 @@ public class WavefrontTranslatorImpl implements ITranslator {
 				+ File.separatorChar + fileName + ".dsf.txt");
 		dsfTextFile.deleteOnExit();
 		List<String> objectsList = new ArrayList<String>();
-		for (OsmPolygon way : globalWayList) {
+		for (OsmPolyline way : globalWayList) {
 			objectsList.add("objects/" + way.getId() + ".obj");
 		}
-		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider();
+		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath);
 		dsfObjectsProvider.setObjectsList(objectsList);
 		String dsfHeaderText = DsfUtils.getDsfHeader(currentTile,
 				dsfObjectsProvider);
 		FilesUtils.writeTextToFile(dsfTextFile, dsfHeaderText, false);
-		for (OsmPolygon way : globalWayList) {
+		for (OsmPolyline way : globalWayList) {
 
 			LinearRing2D polygon = GeomUtils.getPolygonFromOsmNodes(way
 					.getNodes());
-			Point2D center = GeomUtils.getPolygonCenter(polygon);
+			Point2D center = GeomUtils.getPolylineCenter(polygon);
 			StringBuffer sb = new StringBuffer();
 			sb.append("OBJECT "
 					+ objectsList.indexOf("/objects files/" + way.getId()
@@ -305,22 +307,22 @@ public class WavefrontTranslatorImpl implements ITranslator {
 		dsfTextFile.deleteOnExit();
 		List<String> objectsList = new ArrayList<String>();
 
-		objectsList.add("objects/" + currentTile.x + "_" + currentTile.y
+		objectsList.add("objects/" + currentTile.y + "_" + currentTile.x
 				+ ".obj");
-		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider();
+		DsfObjectsProvider dsfObjectsProvider = new DsfObjectsProvider(folderPath);
 		dsfObjectsProvider.setObjectsList(objectsList);
 		String dsfHeaderText = DsfUtils.getDsfHeader(currentTile,
 				dsfObjectsProvider);
 		FilesUtils.writeTextToFile(dsfTextFile, dsfHeaderText, false);
 		List<Point2D> areaNodes = new ArrayList<Point2D>();
 		// compute the center of the new large object
-		for (OsmPolygon way : globalWayList) {
+		for (OsmPolyline way : globalWayList) {
 
 			areaNodes.add(GeomUtils.getNodesCenter(way.getNodes()));
 
 		}
 		Point2D center = GeomUtils
-				.getPolygonCenter(new LinearRing2D(areaNodes));
+				.getPolylineCenter(new LinearRing2D(areaNodes));
 		StringBuffer sb = new StringBuffer();
 		sb.append("OBJECT 0" + " " + center.y + " " + center.x + " " + 0);
 		sb.append(System.getProperty("line.separator"));
@@ -345,12 +347,12 @@ public class WavefrontTranslatorImpl implements ITranslator {
 
 			target = new ObjTarget(new PrintStream(new File(folderPath
 					+ File.separator + "objects" + File.separator
-					+ currentTile.x + "_" + currentTile.y + ".obj")),
+					+ currentTile.y + "_" + currentTile.x + ".obj")),
 					(new PrintStream(new File(folderPath + File.separator
-							+ "objects" + File.separator + currentTile.x + "_"
-							+ currentTile.y + ".obj.mtl"))));
+							+ "objects" + File.separator + currentTile.y + "_"
+							+ currentTile.x + ".obj.mtl"))));
 			new File(folderPath + File.separator + "objects files"
-					+ File.separator + currentTile.x + "_" + currentTile.y
+					+ File.separator + currentTile.y + "_" + currentTile.x
 					+ ".obj.mtl").deleteOnExit();
 		} catch (FileNotFoundException e1) {
 		}
@@ -366,7 +368,7 @@ public class WavefrontTranslatorImpl implements ITranslator {
 	@Override
 	public void init() {
 		Osm2xpLogger.info("Starting wavefront (.obj) generation of tile "
-				+ (int) currentTile.x + "/" + (int) currentTile.y
+				+ (int) currentTile.y + "/" + (int) currentTile.x
 				+ " - wavefront export uses osm2world http://osm2world.org/");
 	}
 
@@ -412,10 +414,10 @@ public class WavefrontTranslatorImpl implements ITranslator {
 			sb.append(String.valueOf(entry.getKey()) + ".obj");
 			sb.append("</td>");
 			sb.append("<td>");
-			sb.append(String.valueOf(entry.getValue().x));
+			sb.append(String.valueOf(entry.getValue().y));
 			sb.append("</td>");
 			sb.append("<td>");
-			sb.append(String.valueOf(entry.getValue().y));
+			sb.append(String.valueOf(entry.getValue().x));
 			sb.append("</td>");
 			sb.append("<td>");
 			sb.append("<a href=" + OPENSTREETMAP_WAY_URL + entry.getKey()
@@ -424,8 +426,8 @@ public class WavefrontTranslatorImpl implements ITranslator {
 			sb.append("</td>");
 
 			sb.append("<td>");
-			sb.append("<a href=" + GOOGLEMAPS_URL + entry.getValue().x + ","
-					+ entry.getValue().y + "&num=1&t=h&vpsrc=0&z=20"
+			sb.append("<a href=" + GOOGLEMAPS_URL + entry.getValue().y + ","
+					+ entry.getValue().x + "&num=1&t=h&vpsrc=0&z=20"
 					+ "\" TARGET=_BLANK><img src=" + GOOGLEMAPS_LOGO + "></a>");
 			sb.append("</td>");
 
@@ -450,7 +452,22 @@ public class WavefrontTranslatorImpl implements ITranslator {
 	}
 
 	@Override
-	public Boolean mustStoreWay(Way way) {
+	public Boolean mustProcessWay(Way way) {
 		return null;
+	}
+	
+	@Override
+	public Boolean mustProcessPolyline(List<Tag> tags) {
+		return false;
+	}
+
+	@Override
+	public void processBoundingBox(HeaderBBox bbox) {
+		// Do nothing
+	}
+	
+	@Override
+	public int getMaxHoleCount(List<Tag> tags) {
+		return Integer.MAX_VALUE; //TODO is this supported?
 	}
 }

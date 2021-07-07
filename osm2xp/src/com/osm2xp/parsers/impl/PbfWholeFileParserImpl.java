@@ -10,27 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.DenseInfo;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.DenseNodes;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.HeaderBlock;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.Node;
+import org.openstreetmap.osmosis.osmbinary.Osmformat.Way;
+import org.openstreetmap.osmosis.osmbinary.file.BlockInputStream;
+
 import com.osm2xp.dataProcessors.IDataSink;
 import com.osm2xp.exceptions.DataSinkException;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.exceptions.OsmParsingException;
 import com.osm2xp.model.osm.Nd;
-import com.osm2xp.model.osm.OsmPolygon;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.parsers.IParser;
 import com.osm2xp.translators.ITranslator;
 import com.osm2xp.utils.helpers.GuiOptionsHelper;
 import com.osm2xp.utils.logging.Osm2xpLogger;
-
-import crosby.binary.BinaryParser;
-import crosby.binary.Osmformat;
-import crosby.binary.Osmformat.DenseInfo;
-import crosby.binary.Osmformat.DenseNodes;
-import crosby.binary.Osmformat.HeaderBlock;
-import crosby.binary.Osmformat.Node;
-import crosby.binary.Osmformat.Relation;
-import crosby.binary.Osmformat.Way;
-import crosby.binary.file.BlockInputStream;
 
 /**
  * Protobuff parser Single pass implementation. (Stream whole file once to store
@@ -39,21 +36,15 @@ import crosby.binary.file.BlockInputStream;
  * @author Benjamin Blanchet.
  * 
  */
-public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
+public class PbfWholeFileParserImpl extends TranslatingParserImpl implements IParser {
 
 	private File binaryFile;
-	private ITranslator translator;
-	private Map<Long, Color> roofsColorMap;
-	private IDataSink processor;
 	private boolean nodesRefCollectionDone;
 
 	public void init(File binaryFile, ITranslator translator,
 			Map<Long, Color> roofsColorMap, IDataSink processor) {
-
+		super.init(translator, roofsColorMap, processor);
 		this.binaryFile = binaryFile;
-		this.translator = translator;
-		this.roofsColorMap = roofsColorMap;
-		this.processor = processor;
 
 	}
 
@@ -75,10 +66,6 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 			translator.complete();
 		}
 
-	}
-
-	@Override
-	protected void parseRelations(List<Relation> rels) {
 	}
 
 	@Override
@@ -112,7 +99,7 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 					}
 					j++;
 				}
-				if (di != null) {
+//				if (di != null) {
 					com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
 					node.setId(id);
 					node.setLat(latf);
@@ -144,7 +131,7 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 					} catch (DataSinkException e) {
 						Osm2xpLogger.error("Error processing node.", e);
 					}
-				}
+//				}
 			}
 		}
 	}
@@ -154,90 +141,23 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 	}
 
 	private void sendWaysToTranslator(List<Way> ways) {
-
-		for (Osmformat.Way i : ways) {
-			List<Tag> listeTags = new ArrayList<Tag>();
-			for (int j = 0; j < i.getKeysCount(); j++) {
-				Tag tag = new Tag();
-				tag.setKey(getStringById(i.getKeys(j)));
-				tag.setValue(getStringById(i.getVals(j)));
-				listeTags.add(tag);
-			}
-
-			long lastId = 0;
-			List<Nd> listeLocalisationsRef = new ArrayList<Nd>();
-			for (long j : i.getRefsList()) {
-				Nd nd = new Nd();
-				nd.setRef(j + lastId);
-				listeLocalisationsRef.add(nd);
-				lastId = j + lastId;
-			}
-
-			com.osm2xp.model.osm.Way way = new com.osm2xp.model.osm.Way();
-			way.getTag().addAll(listeTags);
-			way.setId(i.getId());
-			way.getNd().addAll(listeLocalisationsRef);
-
-			// if roof color information is available, add it to the current way
-			if (this.roofsColorMap != null
-					&& this.roofsColorMap.get(way.getId()) != null) {
-				String hexColor = Integer.toHexString(this.roofsColorMap.get(
-						way.getId()).getRGB() & 0x00ffffff);
-				Tag roofColorTag = new Tag("building:roof:color", hexColor);
-				way.getTag().add(roofColorTag);
-			}
-
-			try {
-				List<Long> ids = new ArrayList<Long>();
-				for (Nd nd : way.getNd()) {
-					ids.add(nd.getRef());
-				}
-				List<com.osm2xp.model.osm.Node> nodes = processor.getNodes(ids);
-
-				if (nodes != null) {
-					OsmPolygon polygon = new OsmPolygon(way.getId(),
-							way.getTag(), nodes);
-					translator.processPolygon(polygon);
-				}
-
-			} catch (Osm2xpBusinessException e) {
-				Osm2xpLogger.error("Error processing way.", e);
-			} catch (DataSinkException e) {
-				Osm2xpLogger.error("Error processing way.", e);
-			}
+		for (Osmformat.Way curWay : ways) {
+			processWay(curWay);
 		}
 	}
 
 	private void checkWaysForUsefullNodes(List<Way> ways) {
-		for (Osmformat.Way i : ways) {
-			List<Tag> listeTags = new ArrayList<Tag>();
-			for (int j = 0; j < i.getKeysCount(); j++) {
-				Tag tag = new Tag();
-				tag.setKey(getStringById(i.getKeys(j)));
-				tag.setValue(getStringById(i.getVals(j)));
-				listeTags.add(tag);
-			}
-
-			long lastId = 0;
-			List<Nd> listeLocalisationsRef = new ArrayList<Nd>();
-			for (long j : i.getRefsList()) {
-				Nd nd = new Nd();
-				nd.setRef(j + lastId);
-				listeLocalisationsRef.add(nd);
-				lastId = j + lastId;
-			}
-
-			com.osm2xp.model.osm.Way way = new com.osm2xp.model.osm.Way();
-			way.getTag().addAll(listeTags);
-			way.setId(i.getId());
-			way.getNd().addAll(listeLocalisationsRef);
-
+		for (Osmformat.Way curWay : ways) {
+			com.osm2xp.model.osm.Way way = createWayFromParsed(curWay);
+			
+			processor.storeWay(way);
+			
 			try {
 				List<Long> ids = new ArrayList<Long>();
 				for (Nd nd : way.getNd()) {
 					ids.add(nd.getRef());
 				}
-				if (translator.mustStoreWay(way)) {
+				if (translator.mustProcessWay(way)) {
 					for (Nd nd : way.getNd()) {
 						com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
 						node.setId(nd.getRef());
@@ -251,7 +171,6 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 				Osm2xpLogger.error("Error processing way.", e);
 			}
 		}
-
 	}
 
 	@Override
@@ -267,6 +186,7 @@ public class PbfWholeFileParserImpl extends BinaryParser implements IParser {
 
 	@Override
 	protected void parse(HeaderBlock header) {
+		translator.processBoundingBox(header.getBbox());
 	}
 
 	public void process() throws OsmParsingException {

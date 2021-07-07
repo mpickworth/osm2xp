@@ -1,31 +1,39 @@
 package com.osm2xp.utils;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import math.geom2d.polygon.LinearRing2D;
-
-import org.apache.commons.lang.StringUtils;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
 
 import com.osm2xp.exceptions.Osm2xpBusinessException;
+import com.osm2xp.gui.Activator;
 import com.osm2xp.model.facades.Facade;
-import com.osm2xp.model.facades.FacadeSet;
+import com.osm2xp.model.facades.FacadeSetManager;
+import com.osm2xp.model.facades.SpecialFacadeType;
 import com.osm2xp.model.options.FacadeTagRule;
 import com.osm2xp.model.options.ForestTagRule;
+import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.TagsRule;
 import com.osm2xp.model.options.XplaneLightTagRule;
-import com.osm2xp.model.options.ObjectFile;
 import com.osm2xp.model.options.XplaneObjectTagRule;
 import com.osm2xp.model.osm.OsmPolygon;
+import com.osm2xp.model.osm.OsmPolyline;
 import com.osm2xp.model.osm.Tag;
 import com.osm2xp.model.xplane.XplaneDsf3DObject;
 import com.osm2xp.model.xplane.XplaneDsfLightObject;
 import com.osm2xp.model.xplane.XplaneDsfObject;
+import com.osm2xp.translators.BuildingType;
+import com.osm2xp.utils.geometry.GeomUtils;
 import com.osm2xp.utils.helpers.XplaneOptionsHelper;
-import com.osm2xp.utils.logging.Osm2xpLogger;
+
+import math.geom2d.Box2D;
+import math.geom2d.polygon.LinearRing2D;
 
 /**
  * DsfObjectsProvider.
@@ -35,6 +43,9 @@ import com.osm2xp.utils.logging.Osm2xpLogger;
  */
 public class DsfObjectsProvider {
 
+	public static final String OBJECTS_TARGET_FOLDER_NAME = "objects";
+	public static final String SPECIAL_OBJECTS_TARGET_FOLDER_NAME = "specobjects";
+	public static final String FORESTS_TARGET_FOLDER_NAME = "forests";
 	private List<String> objectsList = new ArrayList<String>();
 	private List<String> singlesFacadesList = new ArrayList<String>();
 	private List<String> facadesList = new ArrayList<String>();
@@ -42,23 +53,25 @@ public class DsfObjectsProvider {
 	private List<String> polygonsList = new ArrayList<String>();
 	private List<String> lightsObjectsList = new ArrayList<String>();
 
-	private FacadeSet facadeSet;
-	private List<Facade> slopedHousesList;
-	private List<Facade> facadesWithRoofColorList;
+	private FacadeSetManager facadeSetManager;
+	private Box2D exclusionBox;
+	private String targetFolderPath;
 
 	/**
 	 * @param facadeSet
 	 */
-	public DsfObjectsProvider(FacadeSet facadeSet) {
-		this.facadeSet = facadeSet;
+	public DsfObjectsProvider(String folderPath, FacadeSetManager facadeSetManager) {
+		this.facadeSetManager = facadeSetManager;
+		this.targetFolderPath = folderPath;
 		computePolygonsList();
 		computeObjectsList();
 	}
 
 	/**
-	 * @param facadeSet
+	 * @param folderPath target folder path
 	 */
-	public DsfObjectsProvider() {
+	public DsfObjectsProvider(String folderPath) {
+		this.targetFolderPath = folderPath;
 		computePolygonsList();
 		computeObjectsList();
 	}
@@ -67,307 +80,35 @@ public class DsfObjectsProvider {
 	 * Return the dsf index of the computed facade file
 	 * 
 	 * @param simpleBuilding
-	 * @param residential
+	 * @param buildingType
 	 * @param slopedRoof
 	 * @param xVectorLength
 	 * @return Integer the facade file index
 	 */
 	public Integer computeFacadeDsfIndex(Boolean simpleBuilding,
-			Boolean residential, Boolean slopedRoof, OsmPolygon osmPolygon) {
+			BuildingType buildingType, Boolean slopedRoof, OsmPolygon osmPolygon) {
 		Color roofColor = osmPolygon.getRoofColor();
 		Double minVector = osmPolygon.getMinVectorSize();
 		Integer height = osmPolygon.getHeight();
-		Integer result = null;
-		// residential object
-		if (residential) {
-			// simple 4 points footprint residential house
-			if (simpleBuilding) {
-				// residential sloped roof
-				if (slopedRoof) {
-					if (roofColor != null) {
-
-						result = getRandomHouseSlopedFacade(minVector, height,
-								roofColor);
-						if (result == null) {
-							result = getRandomHouseSlopedFacade(minVector,
-									height);
-						}
-					} else {
-
-						result = getRandomHouseSlopedFacade(minVector, height);
-						if (result == null) {
-							// System.out.println("min vector=" + minVector
-							// + "                " + (slope++));
-						}
-					}
-					// if no sloped house has been found, get a simple house
-					if (result == null) {
-						result = getRandomSimpleFootprintHouseFacade(height);
-
-					}
-					// if still null get a ComplexFootprintHouseFacade
-					if (result == null) {
-						return getRandomComplexFootprintHouseFacade(height);
-					}
-
-				}
-				// residential simple flat roofs
-				else {
-					result = getRandomSimpleFootprintHouseFacade(height);
-
-					if (result == null) {
-						return getRandomComplexFootprintHouseFacade(height);
-					}
-				}
-			}
-			// complex footprint residential house
-			else {
-				if (roofColor != null) {
-					result = getRandomComplexFootprintHouseFacade(height,
-							roofColor);
-				} else {
-					result = getRandomComplexFootprintHouseFacade(height);
-				}
-
-			}
+		Facade resFacade = null;
+		if (slopedRoof) {
+			resFacade = facadeSetManager.getRandomHouseSlopedFacade(buildingType, minVector, height, roofColor); 
 		}
-
-		// building object
-		else {
-			// simple 4 points footprint building
-			if (simpleBuilding) {
-
-				// building sloped roof
-				if (slopedRoof) {
-					result = getRandomBuildingSlopedFacade(minVector, height);
-				}
-				// building flat roof
-				else {
-					result = getRandomSimpleFootprintBuildingFacade(height);
-				}
-			}
-			// complex footprint building
-			else {
-				result = getRandomComplexFootprintBuildingFacade(height);
-			}
-
+		if (resFacade == null) {
+			resFacade = facadeSetManager.getRandomFacade(buildingType,height,simpleBuilding);
 		}
-
-		return result;
+		
+		return polygonsList.indexOf(resFacade.getFile());
+	}
+	
+	public Integer computeSpecialFacadeDsfIndex(SpecialFacadeType specialFacadeType, OsmPolyline polygon) {
+		Facade randomBarrierFacade = facadeSetManager.getRandomSpecialFacade(specialFacadeType);
+		if (randomBarrierFacade != null) {
+			return polygonsList.indexOf(randomBarrierFacade.getFile());
+		}
+		return -1;
 	}
 
-	/**
-	 * return the dsf index of a random residential sloped facade file
-	 * 
-	 * @param minVector
-	 * @return Integer the facade file
-	 */
-	private Integer getRandomHouseSlopedFacade(double minVector, double height) {
-		if (this.facadeSet != null) {
-			Collections.shuffle(facadeSet.getFacades());
-			for (Facade facade : this.getSlopedHousesList()) {
-				if ((facade.getMinVectorLength() <= minVector && facade
-						.getMaxVectorLength() >= minVector)) {
-					return polygonsList.indexOf(facade.getFile());
-				}
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * return the dsf index of a random residential sloped facade file
-	 * 
-	 * @param minVector
-	 * @return Integer the facade file
-	 */
-	private Integer getRandomHouseSlopedFacade(double minVector, double height,
-			Color buildingColor) {
-
-		// find facades which are good in terms of vector size for the sloped
-		// roof
-		List<Facade> goodFacades = new ArrayList<Facade>();
-		if (this.facadeSet != null) {
-			List<Facade> slopedFacades = this.getSlopedHousesList();
-			Collections.shuffle(slopedFacades);
-			for (Facade facade : slopedFacades) {
-				if ((facade.getMinVectorLength() <= minVector && facade
-						.getMaxVectorLength() >= minVector)) {
-					goodFacades.add(facade);
-				}
-			}
-		}
-
-		// now pick the one with the roof color closest the building one
-
-		Facade facadeResult = null;
-		Integer result = null;
-		Double colorDiff = null;
-
-		for (Facade facade : goodFacades) {
-			// only look at facades with roof color information
-			if (StringUtils.isNotBlank(facade.getRoofColor())) {
-				// create a color object
-				String rgbValues[] = facade.getRoofColor().split(",");
-				Color currentFacadeRoofColor = new Color(
-						Integer.parseInt(rgbValues[0]),
-						Integer.parseInt(rgbValues[1]),
-						Integer.parseInt(rgbValues[2]));
-				// compute the difference beetween building roof color and
-				// facade roof color
-				Double colorDifference = MiscUtils.colorDistance(buildingColor,
-						currentFacadeRoofColor);
-
-				// store current Facade if good
-				if (colorDiff == null || (colorDiff > colorDifference)) {
-					colorDiff = colorDifference;
-					facadeResult = facade;
-				}
-			}
-		}
-
-		if (facadeResult != null) {
-			result = polygonsList.indexOf(facadeResult.getFile());
-		}
-
-		return result;
-	}
-
-	private Integer getRandomComplexFootprintBuildingFacade(double height) {
-		if (this.facadeSet != null) {
-			Collections.shuffle(facadeSet.getFacades());
-			for (Facade facade : this.facadeSet.getFacades()) {
-				if ((facade.isCommercial() || facade.isIndustrial())
-						&& !facade.isSimpleBuildingOnly()) {
-					return polygonsList.indexOf(facade.getFile());
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @param height
-	 * @return
-	 */
-	private Integer getRandomSimpleFootprintBuildingFacade(double height) {
-		if (this.facadeSet != null) {
-			Collections.shuffle(facadeSet.getFacades());
-			for (Facade facade : this.facadeSet.getFacades()) {
-				if ((facade.isCommercial() || facade.isIndustrial())
-						&& facade.isSimpleBuildingOnly()) {
-					// check height
-					if (facade.getMinHeight() <= height
-							&& (facade.getMaxHeight() == 0 || (facade
-									.getMaxHeight() != 0 && facade
-									.getMaxHeight() >= height))) {
-						return polygonsList.indexOf(facade.getFile());
-					}
-				}
-			}
-		}
-		Osm2xpLogger
-				.warning("No facade found for simple footprint building, with height="
-						+ height);
-		return null;
-	}
-
-	/**
-	 * @param minVector
-	 * @param height
-	 * @return
-	 */
-	private Integer getRandomBuildingSlopedFacade(double minVector,
-			double height) {
-		if (this.facadeSet != null) {
-			Collections.shuffle(facadeSet.getFacades());
-			for (Facade facade : this.facadeSet.getFacades()) {
-				if ((facade.isCommercial() || facade.isIndustrial())
-						&& facade.isSloped()
-						&& (facade.getMinVectorLength() <= minVector && facade
-								.getMaxVectorLength() >= minVector)) {
-					return polygonsList.indexOf(facade.getFile());
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @param height
-	 * @return
-	 */
-	private Integer getRandomComplexFootprintHouseFacade(double height) {
-		if (this.facadeSet != null) {
-			Collections.shuffle(facadeSet.getFacades());
-			for (Facade facade : this.facadeSet.getFacades()) {
-				if (facade.isResidential() && !facade.isSimpleBuildingOnly()) {
-					return polygonsList.indexOf(facade.getFile());
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @param height
-	 * @return
-	 */
-	private Integer getRandomSimpleFootprintHouseFacade(double height) {
-
-		if (this.facadeSet != null) {
-			Collections.shuffle(facadeSet.getFacades());
-			for (Facade facade : this.facadeSet.getFacades()) {
-				if (facade.isResidential() && facade.isSimpleBuildingOnly()
-						&& !facade.isSloped()) {
-					return polygonsList.indexOf(facade.getFile());
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @param height
-	 * @return
-	 */
-	private Integer getRandomComplexFootprintHouseFacade(double height,
-			Color buildingColor) {
-
-		Facade facadeResult = null;
-		Integer result = null;
-		Double colorDiff = null;
-		if (this.facadeSet != null) {
-			Collections.shuffle(facadeSet.getFacades());
-
-			for (Facade facade : this.facadeSet.getFacades()) {
-				if (StringUtils.isNotBlank(facade.getRoofColor())
-						&& facade.isResidential()
-						&& !facade.isSimpleBuildingOnly()) {
-					String rgbValues[] = facade.getRoofColor().split(",");
-					Color currentFacadeRoofColor = new Color(
-							Integer.parseInt(rgbValues[0]),
-							Integer.parseInt(rgbValues[1]),
-							Integer.parseInt(rgbValues[2]));
-
-					Double colorDifference = MiscUtils.colorDistance(
-							buildingColor, currentFacadeRoofColor);
-
-					if (colorDiff == null || (colorDiff > colorDifference)) {
-						colorDiff = colorDifference;
-						facadeResult = facade;
-					}
-
-				}
-			}
-			if (facadeResult != null) {
-				result = polygonsList.indexOf(facadeResult.getFile());
-			}
-		}
-		return result;
-
-	}
 
 	/**
 	 * @param facadeSet
@@ -392,8 +133,9 @@ public class DsfObjectsProvider {
 
 				}
 			}
+			copyForestFiles();
 			polygonsList.addAll(forestsList);
-
+			
 		}
 		// FACADES RULES
 		if (!XplaneOptionsHelper.getOptions().getFacadesRules().getRules()
@@ -411,9 +153,7 @@ public class DsfObjectsProvider {
 
 		// BASIC BUILDINGS FACADES
 		if (XplaneOptionsHelper.getOptions().isGenerateBuildings()) {
-			for (Facade facade : facadeSet.getFacades()) {
-				facadesList.add(facade.getFile());
-			}
+			facadesList.addAll(facadeSetManager.getAllFacadeStrings());
 			polygonsList.addAll(facadesList);
 		}
 
@@ -425,15 +165,18 @@ public class DsfObjectsProvider {
 	public void computeObjectsList() {
 		objectsList.clear();
 		// add 3D objects
-		for (XplaneObjectTagRule object : XplaneOptionsHelper.getOptions()
-				.getObjectsRules().getRules()) {
-			for (ObjectFile file : object.getObjectsFiles()) {
-				if (!objectsList.contains(file.getPath())) {
-					objectsList.add(file.getPath());
-				}
-
-			}
-		}
+//		for (XplaneObjectTagRule object : XplaneOptionsHelper.getOptions() TODO Not needed, since we register object during copy operation
+//				.getObjectsRules().getRules()) {
+//			for (ObjectFile file : object.getObjectsFiles()) {
+//				if (!objectsList.contains(file.getPath())) {
+//					objectsList.add(file.getPath());
+//				}
+//
+//			}
+//		}
+		
+		//add special 3d objects (e.g. chimneys)
+		add3DObjects();
 
 		// add lights objects
 		for (XplaneLightTagRule object : XplaneOptionsHelper.getOptions()
@@ -444,6 +187,51 @@ public class DsfObjectsProvider {
 				}
 
 			}
+		}
+	}
+	
+	private void copyForestFiles() {
+		File forestsFolder = new File(
+				ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/forests");
+		if (forestsFolder.isDirectory()) {
+			try {
+				FilesUtils.copyDirectory(forestsFolder, new File(targetFolderPath, FORESTS_TARGET_FOLDER_NAME),
+						false);
+			} catch (IOException e) {
+				Activator.log(e);
+			}
+		}
+	}
+
+	private void add3DObjects() {
+		if (XplaneOptionsHelper.getOptions().isGenerateChimneys() || XplaneOptionsHelper.getOptions().isGenerateObj() ) {
+				File objectsFolder = new File(
+						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/objects");
+				if (objectsFolder.isDirectory()) {
+					registerAndCopyObjectsFolder(objectsFolder, OBJECTS_TARGET_FOLDER_NAME);
+				} else {
+					Activator.log(IStatus.ERROR, "Special facades folder not present in resources dir");
+				} 
+				File specObjectsFolder = new File(
+						ResourcesPlugin.getWorkspace().getRoot().getLocation() + "/resources/specobjects");
+				if (specObjectsFolder.isDirectory()) {
+					registerAndCopyObjectsFolder(specObjectsFolder, SPECIAL_OBJECTS_TARGET_FOLDER_NAME);
+				} else {
+					Activator.log(IStatus.ERROR, "Special facades folder not present in resources dir");
+				} 
+			}
+	}
+
+	protected void registerAndCopyObjectsFolder(File objectsFolder, String targetSubfolder) {
+		try {
+			FilesUtils.copyDirectory(objectsFolder, new File(targetFolderPath, targetSubfolder),
+					false);
+		} catch (IOException e) {
+			Activator.log(e);
+		}
+		File[] objFiles = objectsFolder.listFiles((parent, name) -> name.toLowerCase().endsWith(".obj"));
+		for (File file : objFiles) {
+			objectsList.add(targetSubfolder + "/" + file.getName());
 		}
 	}
 
@@ -466,7 +254,7 @@ public class DsfObjectsProvider {
 		String objectFile = tagRule.getObjectsFiles().get(0).getPath();
 		return objectsList.indexOf(objectFile);
 	}
-
+	
 	/**
 	 * @return
 	 */
@@ -664,46 +452,6 @@ public class DsfObjectsProvider {
 		this.polygonsList = polygonsList;
 	}
 
-	/**
-	 * 
-	 */
-	private void computeSlopedHousesFacadesList() {
-		this.slopedHousesList = new ArrayList<Facade>();
-		for (Facade facade : this.facadeSet.getFacades()) {
-			if (facade.isResidential() && facade.isSloped()) {
-				slopedHousesList.add(facade);
-
-			}
-		}
-	}
-
-	/**
-	 * 
-	 */
-	private void computeFacadesWithRoofColorList() {
-		this.facadesWithRoofColorList = new ArrayList<Facade>();
-		for (Facade facade : this.facadeSet.getFacades()) {
-			if (facade.getRoofColor() != null) {
-				facadesWithRoofColorList.add(facade);
-
-			}
-		}
-	}
-
-	public List<Facade> getFacadesWithRoofColorList() {
-		if (facadesWithRoofColorList == null) {
-			computeFacadesWithRoofColorList();
-		}
-		return facadesWithRoofColorList;
-	}
-
-	public List<Facade> getSlopedHousesList() {
-		if (slopedHousesList == null) {
-			computeSlopedHousesFacadesList();
-		}
-		return slopedHousesList;
-	}
-
 	public XplaneDsfObject getRandomDsfLightObject(OsmPolygon osmPolygon) {
 		XplaneDsfObject result = null;
 		// shuffle rules
@@ -732,6 +480,18 @@ public class DsfObjectsProvider {
 			}
 		}
 		return result;
+	}
+
+	public void setExclusionBox(Box2D boundingBox) {
+		this.exclusionBox = boundingBox;
+	}
+
+	public Box2D getExclusionBox() {
+		return exclusionBox;
+	}
+
+	public Integer getSpecialObject(String specialObjectFile) {
+		return objectsList.indexOf(SPECIAL_OBJECTS_TARGET_FOLDER_NAME + "/" + specialObjectFile);
 	}
 
 }

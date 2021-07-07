@@ -19,6 +19,11 @@
             id="com.osm2xp.xplane9ConfigurationPerspective">
       </perspective>
       <perspective
+            class="com.osm2xp.gui.perspectives.Xplane9ConfigurationPerspective"
+            id="com.osm2xp.xplane10ConfigurationPerspective"
+            name="Xplane 10 autogen Configuration">
+      </perspective>
+      <perspective
             class="com.osm2xp.gui.perspectives.BuildPerspective"
             id="com.osm2xp.buildPerspective"
             name="Build">
@@ -37,11 +42,6 @@
             class="com.osm2xp.gui.perspectives.StartupPerspective"
             id="com.osm2xp.startupPerspective"
             name="startup perspective">
-      </perspective>
-      <perspective
-            class="com.osm2xp.gui.perspectives.Xplane9ConfigurationPerspective"
-            id="com.osm2xp.xplane10ConfigurationPerspective"
-            name="Xplane 10 autogen Configuration">
       </perspective>
       <perspective
             class="com.osm2xp.gui.perspectives.FlyLegacyConfigurationPerspective"
@@ -70,13 +70,16 @@
             class="com.osm2xp.gui.views.MainSceneryFileView"
             id="com.osm2xp.viewSceneryTab"
             name="Scenery"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/map-16.png"
+            >
       </view>
       <view
             class="com.osm2xp.gui.views.XplaneBuildingsView"
             id="com.osm2xp.viewBuildingTab"
             name="Buildings"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/home-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.ViewContextualHelp"
@@ -88,43 +91,50 @@
             class="com.osm2xp.gui.views.XplaneForestsView"
             id="com.osm2xp.viewForestsTab"
             name="Forests"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/tree-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.Xplane3DObjectsView"
             id="com.osm2xp.viewObjectsTab"
             name="3D Objects"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/objects-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.LastFilesView"
             id="com.osm2xp.viewLastFiles"
             name="last files"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/recents-16.gif">
       </view>
       <view
             class="com.osm2xp.gui.views.XplaneAdvancedOptionsView"
             id="com.osm2xp.Xplane9AdvancedOptionsView"
             name="Advanced Options"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.WavefrontAdvancedOptionsView"
             id="com.osm2xp.WavefrontAdvancedOptionsView"
             name="Wavefront options"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.Fsx3DObjectsView"
             id="com.osm2xp.viewFsxObjectsTab"
             name="objects"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.XplaneAdvancedOptionsView"
             id="com.osm2xp.Xplane10AdvancedOptionsView"
             name="Advanced Options"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.FsxAdvancedOptionsView"
@@ -136,7 +146,8 @@
             class="com.osm2xp.gui.views.FlyLegacyAdvancedOptionsView"
             id="com.osm2xp.FlyLegacyAdvancedOptionsView"
             name="Fly Legacy options"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/settings-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.Osm2xpNewsView"
@@ -148,13 +159,15 @@
             class="com.osm2xp.gui.views.FlightGear3DObjectsView"
             id="com.osm2xp.viewFlightGearObjectsTab"
             name="FlightGear 3D Objects"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/objects-16.png">
       </view>
       <view
             class="com.osm2xp.gui.views.XplaneLightsView"
             id="com.osm2xp.viewLightsTab"
             name="Lights"
-            restorable="true">
+            restorable="true"
+            icon="images/viewIcons/light-16.png">
       </view>
    </extension>
    <extension
@@ -328,7 +341,7 @@
                relative="com.osm2xp.viewSceneryTab">
          </view>
       </perspectiveExtension>
-      <perspectiveExtension
+      <!--<perspectiveExtension
             targetID="com.osm2xp.startupPerspective">
          <view
                id="com.osm2xp.viewOsm2xpNews"
@@ -340,7 +353,7 @@
                standalone="true"
                visible="true">
          </view>
-      </perspectiveExtension>
+      </perspectiveExtension> -->
       <perspectiveExtension
             targetID="com.osm2xp.xplane10ConfigurationPerspective">
          <view
@@ -578,6 +591,25 @@
                   label="Tools"
                   style="pulldown">
             </command>
+            <command
+                  commandId="osm2xp.command.showConsole"
+                  icon="images/toolbarsIcons/console_32.png"
+                  label="Show Console"
+                  style="push"
+                  tooltip="Open Console view">
+            </command>
+            <command
+                  commandId="osm2xp.command.goBack"
+                  icon="images/toolbarsIcons/left_32.png"
+                  label="Back"
+                  style="push"
+                  tooltip="Back to generation config page">
+               	  <visibleWhen>
+                  <with variable="activeWorkbenchWindow.activePerspective">
+  					 <equals value="com.osm2xp.buildPerspective"/>
+                  </with>
+               </visibleWhen>
+            </command>
          </toolbar>
       </menuContribution>
       <menuContribution
@@ -648,22 +680,26 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="com.osm2xp.application"
-            name="Osm2xp">
+            name="Osm2XP">
          <property
                name="appName"
-               value="Osm2xp">
+               value="Osm2XP">
          </property>
          <property
                name="startupProgressRect"
                value="5,275,445,15">
          </property>
          <property
-               name="preferenceCustomization"
-               value="plugin_customization.ini">
+               name="aboutText"
+               value="Osm2xp 3.2.0, OpenStreetMap scenery generator for flight Simulators.&#x0A;&#x0A;Copyright (C) 2010-2013  Benjamin Blanchet for Javee software solutions.&#x0A;Copyright (C) 2018  Dmitry Karpenko, OnPositive&#x0A;&#x0A;Contact : osm2xp@gmail.com&#x0A;Project Website : https://github.com/32kda/osm2xp&#x0A;&#x0A;&#x0A;    This program is free software: you can redistribute it and/or modify&#x0A;    it under the terms of the GNU General Public License as published by&#x0A;    the Free Software Foundation, either version 3 of the License, or&#x0A;    (at your option) any later version.&#x0A;&#x0A;    This program is distributed in the hope that it will be useful,&#x0A;    but WITHOUT ANY WARRANTY; without even the implied warranty of&#x0A;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the&#x0A;    GNU General Public License for more details.&#x0A;&#x0A;    You should have received a copy of the GNU General Public License&#x0A;    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.&#x0A;&#x0A;&#x0A;FreeMem plugin by Markus junginger http://www.junginger.biz/eclipse/freemem.html&#x0A;Osm2world by Tobiass Knerr http://osm2world.org/&#x0A;Icons by Open Icon Library http://http://openiconlibrary.sourceforge.net/">
          </property>
          <property
-               name="aboutText"
-               value="Osm2xp 2.0.2, OpenStreetMap scenery generator for flight simulation.&#x0A;&#x0A;Copyright Benjamin Blanchet 2010-2012&#x0A;&#x0A;Contact : osm2xp@gmail.com&#x0A;Website : http://osm2xp.com&#x0A;&#x0A;this work is under Attribution-NonCommercial-NoDerivs 3.0 Unported licence (http://creativecommons.org/licenses/by-nc-nd/3.0/)&#x0A;&#x0A;You are free to Share ,to copy, distribute and transmit the work&#x0A;&#x0A;You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work).&#x0A;You may not use this work for commercial purposes.&#x0A;You may not alter, transform, or build upon this work.&#x0A;&#x0A;&#x0A;FreeMem plugin by Markus junginger http://www.junginger.biz/eclipse/freemem.html&#x0A;Osm2world by Tobiass Knerr http://osm2world.org/&#x0A;Icons by Open Icon Library http://http://openiconlibrary.sourceforge.net/">
+               name="windowImages"
+               value="images/plane_16.png,images/plane_32.png,images/plane_48.png">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
          </property>
          
       </product>
@@ -740,6 +776,16 @@
             id="osm2xp.command.flightGearMode"
             name="flightGearMode">
       </command>
+      <command
+            defaultHandler="com.osm2xp.gui.handlers.CommandShowConsole"
+            id="osm2xp.command.showConsole"
+            name="showConsole">
+      </command>
+      <command
+            defaultHandler="com.osm2xp.gui.handlers.CommandGoBack"
+            id="osm2xp.command.goBack"
+            name="goBack">
+      </command>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
@@ -747,6 +793,8 @@
             file="contexts.xml">
       </contexts>
    </extension>
- 
+  <extension point="org.eclipse.ui.startup">
+     <startup class="com.osm2xp.startup.OSM2XPStartup"/>
+   </extension>
 
 </plugin>

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openstreetmap.osmosis.osmbinary.Osmformat.Relation;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
@@ -173,15 +174,15 @@ public class SaxParserImpl implements ContentHandler, IParser {
 
 		if (nodes != null) {
 			OsmPolygon polygon = new OsmPolygon(way.getId(), way.getTag(),
-					nodes);
-			translator.processPolygon(polygon);
+					nodes, nodes.size() < ids.size());
+			translator.processPolyline(polygon);
 		}
 
 	}
 
 	private void checkWaysForUsefullNodes(Way way)
 			throws Osm2xpBusinessException, DataSinkException {
-		if (translator.mustStoreWay(way)) {
+		if (translator.mustProcessWay(way)) {
 			for (Nd nd : way.getNd()) {
 				com.osm2xp.model.osm.Node node = new com.osm2xp.model.osm.Node();
 				node.setId(nd.getRef());

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import com.osm2xp.constants.Osm2xpConstants;
 import com.osm2xp.exceptions.Osm2xpBusinessException;
 import com.osm2xp.model.options.FsxOptions;
 import com.osm2xp.model.options.ObjectFile;
@@ -35,7 +36,8 @@ public class FsxOptionsHelper extends OptionsHelper {
 			} catch (Osm2xpBusinessException e) {
 				Osm2xpLogger.error("Error initializing FSX options helper", e);
 			}
-		} else {
+		} 
+		if (options == null) {
 			options = createNewFsxOptionsBean();
 		}
 	}
@@ -63,7 +65,7 @@ public class FsxOptionsHelper extends OptionsHelper {
 		List<ObjectTagRule> objectsList = new ArrayList<ObjectTagRule>();
 
 		// lighthouses
-		ObjectTagRule objectLighthouse = new ObjectTagRule(new Tag("man_made",
+		ObjectTagRule objectLighthouse = new ObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
 				"lighthouse"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile("{BE7FA036-6133-48CD-B3A3-BDC339E6AB35}"));
@@ -75,7 +77,7 @@ public class FsxOptionsHelper extends OptionsHelper {
 
 		// silos
 		ObjectTagRule objectSilo = new ObjectTagRule(
-				new Tag("man_made", "silo"), new ArrayList<ObjectFile>() {
+				new Tag(Osm2xpConstants.MAN_MADE_TAG, "silo"), new ArrayList<ObjectFile>() {
 					{
 						add(new ObjectFile(
 								"{EF0366E8-AAFE-4DE8-A458-A61A5D7C84BB}"));
@@ -95,7 +97,7 @@ public class FsxOptionsHelper extends OptionsHelper {
 		}, 0, true);
 		// water towers
 		objectsList.add(objectWindTurbine);
-		ObjectTagRule objectWaterTower = new ObjectTagRule(new Tag("man_made",
+		ObjectTagRule objectWaterTower = new ObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
 				"water_tower"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile("{F2EF2CD2-539C-49C3-812D-128167D6EBB0}"));
@@ -104,7 +106,7 @@ public class FsxOptionsHelper extends OptionsHelper {
 		}, 0, true);
 		// cranes
 		objectsList.add(objectWaterTower);
-		ObjectTagRule objectCrane = new ObjectTagRule(new Tag("man_made",
+		ObjectTagRule objectCrane = new ObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
 				"crane"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile("{C545A28E-E2EC-11D2-9C84-00105A0CE62A}"));
@@ -142,7 +144,7 @@ public class FsxOptionsHelper extends OptionsHelper {
 		}, 0, true);
 		objectsList.add(objectPowerPole);
 		// storage tanks
-		ObjectTagRule objectStorageTank = new ObjectTagRule(new Tag("man_made",
+		ObjectTagRule objectStorageTank = new ObjectTagRule(new Tag(Osm2xpConstants.MAN_MADE_TAG,
 				"storage_tank"), new ArrayList<ObjectFile>() {
 			{
 				add(new ObjectFile("{7549DBA5-8710-4C0F-BF62-324244D86C31}"));
